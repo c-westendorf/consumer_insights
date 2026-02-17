@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Bash(kill:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(open:*)",
+      "Bash(ls:*)",
+      "Bash(lsof:*)",
+      "Bash(node -e:*)",
+      "Bash(node --check:*)"
+    ]
+  }
+}

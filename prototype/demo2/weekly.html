@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InsightOS &mdash; Weekly Performance Brief</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="css/demo2.css" />
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+
+<!-- Use page-with-sidebar as the outermost wrapper -->
+<div class="d2-page-with-sidebar">
+
+  <!-- ── Main Content Column ──────────────────────────────────────────── -->
+  <div class="d2-main-content">
+
+    <!-- Header -->
+    <div class="d2-header">
+      <div class="d2-header-left">
+        <h1>InsightOS &mdash; Weekly Performance Brief</h1>
+        <div class="d2-date" id="report-date"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+        <div id="confidence-badge-header"></div>
+        <nav class="d2-nav">
+          <a href="index.html">Home</a>
+          <a href="weekly.html" class="active">Weekly</a>
+          <a href="monthly.html">Monthly</a>
+          <a href="quarterly.html">Quarterly</a>
+          <a href="chat2.html">Chat</a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Section 0: Enterprise Snapshot -->
+    <div id="enterprise-snapshot-container"></div>
+
+    <!-- Signal Strip (always visible) -->
+    <div id="signal-strip-container"></div>
+
+    <!-- 1: Narrative -->
+    <div class="d2-section">
+      <h2><span class="section-num">1</span>What happened this week?</h2>
+      <div id="weekly-bluf"></div>
+      <div id="weekly-narrative"></div>
+    </div>
+
+    <!-- 2: Reconciliation -->
+    <div class="d2-section" id="reconciliation">
+      <h2><span class="section-num">2</span>Business Reconciliation &mdash; What moved?</h2>
+      <p style="font-size:0.85rem;color:#767676;margin-bottom:16px;">
+        Driver-component decomposition &nbsp;&bull;&nbsp; <em>&Delta; Retail Value = &Delta; Active Base + &Delta; Frequency + &Delta; Basket &minus; &Delta; Promo</em>
+      </p>
+      <div id="reconciliation-panel"></div>
+    </div>
+
+    <!-- 3: Market Cell Waterfall -->
+    <div class="d2-section" id="waterfall">
+      <h2><span class="section-num">3</span>Market Cell Waterfall &mdash; Where?</h2>
+      <p style="font-size:0.85rem;color:#767676;margin-bottom:4px;">
+        Click any market cell bar to open its story card &mdash; mix vs. performance split + customer type breakdown.
+      </p>
+      <div id="market-cell-waterfall" class="chart-container tall"></div>
+    </div>
+
+    <!-- 4: Story Card (revealed on cell click) -->
+    <div class="d2-section" id="story-card-section" style="display:none;">
+      <h2><span class="section-num">4</span>Story Card &mdash; <span id="story-card-cell-label">Market Cell</span></h2>
+      <p style="font-size:0.85rem;color:#767676;margin-bottom:12px;">
+        Mix effect = who is shopping here &nbsp;&bull;&nbsp; Performance effect = how they&rsquo;re shopping &nbsp;&bull;&nbsp; Customer type breakdown below the split.
+      </p>
+      <div id="story-card-container"></div>
+    </div>
+
+    <!-- 5: Leading Indicators (auto-shows with story card) -->
+    <div class="d2-section" id="leading-indicators-section" style="display:none;">
+      <h2><span class="section-num">5</span>Leading Indicator Diagnostics</h2>
+      <p style="font-size:0.85rem;color:#767676;margin-bottom:12px;">
+        Behavioral signals that precede trip frequency changes by 1&ndash;2 weeks. Strong signals have &ge;70% historical accuracy.
+      </p>
+      <div id="leading-indicators-panel"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="d2-footer">
+      InsightOS &mdash; Illustrative demo data only &nbsp;&bull;&nbsp;
+      <a href="monthly.html" style="color:#0033A0;">Monthly Brief &rarr;</a>
+      &nbsp;&bull;&nbsp;
+      <a href="chat2.html" style="color:#0033A0;">Conversational view &rarr;</a>
+    </div>
+
+  </div><!-- end d2-main-content -->
+
+  <!-- ── Sidebar Column ────────────────────────────────────────────────── -->
+  <div class="d2-sidebar">
+    <div id="hierarchy-sidebar"></div>
+  </div>
+
+</div><!-- end d2-page-with-sidebar -->
+
+<script src="js/demo2_data.js"></script>
+<script src="js/demo2_narrative.js"></script>
+<script src="js/demo2_charts.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const data = DEMO2_DATA;
+
+  // Header
+  document.getElementById('report-date').textContent = data.reportWeek;
+  document.getElementById('confidence-badge-header').innerHTML = renderConfidenceBadge(data);
+
+  // Section 0: Enterprise Snapshot
+  document.getElementById('enterprise-snapshot-container').innerHTML = renderEnterpriseSnapshot(data);
+
+  // Signal strip
+  document.getElementById('signal-strip-container').innerHTML = renderSignalStrip(data);
+
+  // 1) BLUF + Narrative
+  document.getElementById('weekly-bluf').innerHTML = renderBLUF(data.bluf.weekly);
+  document.getElementById('weekly-narrative').innerHTML = generateWeeklyNarrative(data);
+
+  // 2) Reconciliation
+  document.getElementById('reconciliation-panel').innerHTML = renderReconciliationTable(data);
+
+  // 3) Waterfall — all 4 cells clickable
+  renderMarketCellWaterfall('market-cell-waterfall', data, function onCellClick(cell) {
+    openStoryCard(cell);
+  });
+
+  // 4) Hierarchy Sidebar
+  document.getElementById('hierarchy-sidebar').innerHTML = renderHierarchySidebar(data);
+
+  // Handle hash navigation from chat2.html links
+  const hash = window.location.hash;
+  if (hash === '#story-card-section' || hash === '#story-card') {
+    const neUrban = data.marketCells.find(c => c.id === 'ne_urban');
+    if (neUrban) setTimeout(() => openStoryCard(neUrban), 400);
+  } else if (hash === '#leading-indicators-section' || hash === '#leading-indicators') {
+    const neUrban = data.marketCells.find(c => c.id === 'ne_urban');
+    if (neUrban) setTimeout(() => { openStoryCard(neUrban); }, 400);
+  }
+});
+
+function openStoryCard(cell) {
+  const sec = document.getElementById('story-card-section');
+  document.getElementById('story-card-cell-label').textContent = cell.label;
+  document.getElementById('story-card-container').innerHTML = renderStoryCard(cell);
+  sec.style.display = 'block';
+
+  // Auto-show leading indicators (no extra click needed)
+  const liSec = document.getElementById('leading-indicators-section');
+  document.getElementById('leading-indicators-panel').innerHTML = renderLeadingIndicatorsPanel(DEMO2_DATA);
+  liSec.style.display = 'block';
+
+  // Update hierarchy sidebar
+  updateHierarchySidebar(cell);
+
+  // Scroll to story card
+  sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Allow sidebar cell nodes to call openStoryCard by id
+function openStoryCardById(cellId) {
+  const cell = DEMO2_DATA.marketCells.find(c => c.id === cellId);
+  if (cell) openStoryCard(cell);
+}
+</script>
+</body>
+</html>

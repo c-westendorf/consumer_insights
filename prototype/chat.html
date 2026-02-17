@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversational Insights - CVS Health</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/chat.css">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+    <div class="chat-container">
+        <header class="chat-header">
+            <button class="back-button" onclick="window.location.href='index.html'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Menu
+            </button>
+            <div class="chat-header-content">
+                <div class="logo-placeholder">CVS Health</div>
+                <h1>Consumer Insights - Conversational Interface</h1>
+                <p class="chat-subtitle">Simulated VP conversation demonstrating Phase 1 vision</p>
+            </div>
+        </header>
+
+        <main class="chat-main">
+            <div class="chat-messages" id="chat-messages">
+                <!-- Messages will be added here dynamically -->
+            </div>
+
+            <div class="chat-input-container">
+                <input
+                    type="text"
+                    id="chat-input"
+                    placeholder="Ask a follow-up question..."
+                    disabled
+                />
+                <button id="chat-send-btn" class="chat-send-btn" disabled>
+                    Coming in Phase 1
+                </button>
+            </div>
+        </main>
+
+        <footer class="chat-footer">
+            <p>Phase 0 Demo - Conversational Preview | Simulated conversation auto-plays on page load</p>
+        </footer>
+    </div>
+
+    <!-- Include data and utilities -->
+    <script src="js/data_attention.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/chat_simulator.js"></script>
+</body>
+</html>

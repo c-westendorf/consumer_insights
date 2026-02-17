@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InsightOS &mdash; Monthly Growth Brief</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="css/demo2.css" />
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+<div class="d2-page">
+
+  <!-- Header -->
+  <div class="d2-header">
+    <div class="d2-header-left">
+      <h1>InsightOS &mdash; Monthly Growth Brief</h1>
+      <div class="d2-date">February 2025</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+      <div id="confidence-badge-header"></div>
+      <nav class="d2-nav">
+        <a href="index.html">Home</a>
+        <a href="weekly.html">Weekly</a>
+        <a href="monthly.html" class="active">Monthly</a>
+        <a href="quarterly.html">Quarterly</a>
+        <a href="chat2.html">Chat</a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- 1: Monthly Narrative -->
+  <div class="d2-section">
+    <h2><span class="section-num">1</span>What changed in customer composition this month?</h2>
+    <div id="monthly-bluf"></div>
+    <div id="monthly-narrative"></div>
+  </div>
+
+  <!-- 2: B&O Migration Matrix -->
+  <div class="d2-section" id="bo-migration">
+    <h2><span class="section-num">2</span>B&O Tier Migration Matrix &mdash; Retail-only loyalty</h2>
+    <p style="font-size:0.85rem;color:#767676;margin-bottom:14px;">
+      Every cell is clickable. Color intensity = revenue impact ($mm). Diagonal = retention. Below diagonal = downgrade (red). Above diagonal = upgrade (green).
+      Click any off-diagonal cell to see the 4-week trend + leading signals + decision brief.
+    </p>
+
+    <!-- Enterprise composition strip -->
+    <div id="composition-strip-container"></div>
+
+    <!-- Generational B&O breakdown -->
+    <div id="gen-bo-container"></div>
+
+    <!-- Legend -->
+    <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px;font-size:0.82rem;align-items:center;">
+      <div style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:14px;height:14px;background:rgba(0,51,160,0.65);border-radius:3px;"></span>Retention (diagonal)</div>
+      <div style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:14px;height:14px;background:rgba(204,0,0,0.65);border-radius:3px;"></span>Downgrade (below diagonal)</div>
+      <div style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:14px;height:14px;background:rgba(0,166,80,0.55);border-radius:3px;"></span>Upgrade (above diagonal)</div>
+      <div style="color:#767676;font-style:italic;">Darker = higher $ revenue impact</div>
+    </div>
+
+    <!-- Matrix -->
+    <div id="bo-matrix-container"></div>
+
+    <!-- Risk-ranked summary table -->
+    <div style="margin-top:28px;">
+      <div style="font-size:0.9rem;font-weight:700;color:#0033A0;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #DDE1E7;">
+        Top transitions by revenue impact
+      </div>
+      <div id="risk-rank-container"></div>
+    </div>
+  </div>
+
+  <!-- Transition Diagnostic Modal -->
+  <div class="d2-modal-overlay" id="transition-modal">
+    <div class="d2-modal" style="max-width:640px;">
+      <div class="d2-modal-header">
+        <h3 id="modal-title">Transition Diagnostics</h3>
+        <button class="d2-modal-close" onclick="closeTransitionModal()">&times;</button>
+      </div>
+      <div class="d2-modal-body">
+        <div id="modal-narrative" style="margin-bottom:20px;"></div>
+        <div id="modal-trend-chart" style="min-height:180px;"></div>
+        <div id="modal-signals" style="margin-top:20px;"></div>
+        <div id="modal-decision-brief" style="margin-top:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="d2-footer">
+    InsightOS &mdash; Illustrative demo data only &nbsp;&bull;&nbsp;
+    <a href="quarterly.html" style="color:#0033A0;">Quarterly Brief &rarr;</a>
+  </div>
+
+</div>
+
+<script src="js/demo2_data.js"></script>
+<script src="js/demo2_narrative.js"></script>
+<script src="js/demo2_charts.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const data = DEMO2_DATA;
+
+  document.getElementById('confidence-badge-header').innerHTML = renderConfidenceBadge(data);
+  document.getElementById('monthly-bluf').innerHTML = renderBLUF(data.bluf.monthly);
+  document.getElementById('monthly-narrative').innerHTML = generateMonthlyNarrative(data);
+  document.getElementById('composition-strip-container').innerHTML = renderCompositionStrip(data);
+  document.getElementById('gen-bo-container').innerHTML = renderGenerationalBOBreakdown(data);
+
+  buildBOMigrationMatrix(data);
+  buildRiskRankTable(data);
+});
+
+// ── Build the full B&O matrix with revenue-weighted color ─────────────────
+function buildBOMigrationMatrix(data) {
+  const bom = data.boMigration;
+  const labels = bom.labels;
+  const maxImpact = Math.max(...bom.revenueImpactMM.flat().map(v => v === null ? 0 : Math.abs(v)));
+
+  function cellColor(fromIdx, toIdx, rate, dollarImpact) {
+    const intensity = dollarImpact === null ? 0 : Math.min(Math.abs(dollarImpact) / maxImpact, 1);
+    if (fromIdx === toIdx) {
+      return `rgba(0,51,160,${(0.25 + intensity * 0.55).toFixed(2)})`;
+    }
+    if (toIdx > fromIdx) {  // downgrade
+      return `rgba(204,0,0,${(0.18 + intensity * 0.70).toFixed(2)})`;
+    }
+    return `rgba(0,166,80,${(0.18 + intensity * 0.60).toFixed(2)})`;  // upgrade
+  }
+
+  function textColor(intensity) { return intensity > 0.45 ? 'white' : '#1A1A2E'; }
+
+  // Build column totals row for customer counts
+  let html = `<div class="bo-matrix-wrap"><table class="bo-matrix">`;
+
+  // Header: "From \ To" + column labels + customer count (from-tier)
+  html += `<thead><tr>
+    <th class="row-header" rowspan="2">From \\ To</th>
+    ${labels.map(l => `<th>${l}</th>`).join('')}
+    <th style="background:#F5F7FA;color:#767676;font-size:0.72rem;">Customers (K)</th>
+  </tr></thead><tbody>`;
+
+  bom.matrix.forEach((row, fromIdx) => {
+    if (fromIdx >= labels.length) return;
+    const custK = bom.customerCountK[fromIdx];
+    html += `<tr><td class="row-label">${labels[fromIdx]}<br><span style="font-size:0.72rem;color:#767676;">${custK}K customers</span></td>`;
+
+    row.forEach((rate, toIdx) => {
+      const dollarImpact = bom.revenueImpactMM[fromIdx][toIdx];
+      const intensity = dollarImpact === null ? 0 : Math.min(Math.abs(dollarImpact) / maxImpact, 1);
+      const bg    = cellColor(fromIdx, toIdx, rate, dollarImpact);
+      const color = textColor(intensity);
+      const pct   = Math.round(rate * 100);
+      const isDiag = fromIdx === toIdx;
+      const key   = `${labels[fromIdx]}_${labels[toIdx]}`;
+      const hasDiag = data.boMigration.transitionDiagnostics[key];
+
+      let cellContent = `${pct}%`;
+      if (!isDiag && dollarImpact !== null) {
+        const sign = dollarImpact > 0 ? '+' : '';
+        cellContent += `<br><span style="font-size:0.7rem;opacity:0.9;">${sign}$${Math.abs(dollarImpact).toFixed(1)}mm</span>`;
+      }
+
+      const clickable = !isDiag || true; // diagonal also clickable
+      html += `<td>
+        <div class="bo-cell${isDiag ? ' diagonal' : ''}"
+             style="background:${bg};color:${color};flex-direction:column;height:56px;font-size:0.84rem;line-height:1.2;"
+             onclick="openTransitionModal('${key}')"
+             title="${labels[fromIdx]} \u2192 ${labels[toIdx]}: ${pct}%${dollarImpact !== null ? ` ($${Math.abs(dollarImpact).toFixed(1)}mm)` : ''}">
+          ${cellContent}
+        </div>
+      </td>`;
+    });
+
+    // Row: customer count
+    html += `<td style="text-align:center;font-weight:700;color:#0033A0;vertical-align:middle;font-size:0.88rem;">${custK}K</td>`;
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  document.getElementById('bo-matrix-container').innerHTML = html;
+}
+
+// ── Risk-ranked summary table ────────────────────────────────────────────
+function buildRiskRankTable(data) {
+  const bom  = data.boMigration;
+  const diag = bom.transitionDiagnostics;
+  const labels = bom.labels;
+
+  // Collect all off-diagonal with dollar impact
+  const transitions = [];
+  bom.revenueImpactMM.forEach((row, fromIdx) => {
+    row.forEach((impact, toIdx) => {
+      if (impact === null || fromIdx >= labels.length || toIdx >= labels.length) return;
+      const key = `${labels[fromIdx]}_${labels[toIdx]}`;
+      const d = diag[key];
+      if (d) transitions.push({ key, label: d.label, impact, signal: d.decisionBrief?.signal || 'Monitor' });
+    });
+  });
+
+  // Sort by absolute impact descending; take top 5
+  transitions.sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact));
+  const top = transitions.slice(0, 5);
+
+  const rows = top.map((t, i) => {
+    const sign   = t.impact > 0 ? '+' : '';
+    const dolStr = `${sign}$${Math.abs(t.impact).toFixed(1)}mm`;
+    const cls    = t.impact > 0 ? 'positive' : 'negative';
+    const sigCls = t.signal.toLowerCase();
+    return `
+      <tr>
+        <td><span class="rank-num">${i+1}</span></td>
+        <td>${t.label}</td>
+        <td class="${cls}" style="font-weight:700;text-align:right;">${dolStr}</td>
+        <td><span class="db-signal ${sigCls}" style="font-size:0.72rem;">${t.signal}</span></td>
+        <td><a class="risk-link" onclick="openTransitionModal('${t.key}')">View diagnostics &rarr;</a></td>
+      </tr>`;
+  }).join('');
+
+  document.getElementById('risk-rank-container').innerHTML = `
+    <table class="risk-rank-table">
+      <thead><tr><th>#</th><th>Transition</th><th style="text-align:right;">$ Impact</th><th>Signal</th><th></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ── Transition modal ──────────────────────────────────────────────────────
+function openTransitionModal(key) {
+  const diag = DEMO2_DATA.boMigration.transitionDiagnostics[key];
+  if (!diag) return;
+
+  document.getElementById('modal-title').textContent = diag.label + ' — Diagnostics';
+
+  // Narrative
+  document.getElementById('modal-narrative').innerHTML = `
+    <p style="font-size:0.9rem;line-height:1.6;">${diag.narrative}</p>`;
+
+  // Signals strip
+  const sigHtml = diag.signals.length
+    ? diag.signals.map(s => `
+      <span style="padding:5px 12px;border-radius:16px;background:#FFEBEE;color:#B71C1C;font-size:0.82rem;font-weight:700;display:inline-block;margin:3px;">
+        ${s.signal} ${s.dir === 'down' ? '&darr;' : '&uarr;'} (${s.strength})
+      </span>`).join('')
+    : '<span style="color:#767676;font-size:0.84rem;font-style:italic;">No leading signals flagged for this transition.</span>';
+  document.getElementById('modal-signals').innerHTML = `<div style="margin-bottom:12px;">${sigHtml}</div>`;
+
+  // Trend chart
+  document.getElementById('modal-trend-chart').innerHTML = '';
+  renderDecayTrendChart('modal-trend-chart', diag);
+
+  // Decision Brief
+  if (diag.decisionBrief) {
+    const db = diag.decisionBrief;
+    const sigCls = (db.signal || 'monitor').toLowerCase();
+    document.getElementById('modal-decision-brief').innerHTML = `
+      <div class="decision-brief">
+        <div class="db-header expandable-toggle" onclick="toggleDB(this)">
+          <span class="db-signal ${sigCls}">${db.signal}</span>
+          <span class="db-title">Decision Brief &mdash; <strong>${db.stakes}</strong></span>
+          <span class="toggle-arrow" style="margin-left:auto;">&#9660;</span>
+        </div>
+        <div class="db-body expandable-body">
+          <div class="db-grid">
+            <div class="db-row"><span class="db-label">Recommended</span><span>${db.recommended}</span></div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  document.getElementById('transition-modal').classList.add('open');
+}
+
+function closeTransitionModal() {
+  document.getElementById('transition-modal').classList.remove('open');
+}
+
+document.getElementById('transition-modal').addEventListener('click', function (e) {
+  if (e.target === this) closeTransitionModal();
+});
+</script>
+</body>
+</html>
