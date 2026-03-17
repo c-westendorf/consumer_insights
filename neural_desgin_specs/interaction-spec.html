@@ -1,0 +1,2017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insight Product — Interaction Spec & Product Definition</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f2ed;
+    --cream: #ede9e1;
+    --rule: #d4cfc5;
+    --accent: #c84b2f;
+    --accent-soft: #f0e0db;
+    --teal: #1a5c5a;
+    --teal-soft: #d4e8e7;
+    --gold: #b8860b;
+    --gold-soft: #f5edd0;
+    --sage: #5b8a6e;
+    --sage-soft: #deeee6;
+    --ink-mid: #4a4640;
+    --ink-light: #8a8480;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    min-height: 100vh;
+    background: var(--ink);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 72px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 50%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 12px,
+      rgba(245,242,237,0.02) 12px,
+      rgba(245,242,237,0.02) 13px
+    );
+  }
+
+  .cover::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--gold) 50%, var(--teal) 100%);
+  }
+
+  .cover-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #4a4640;
+  }
+
+  .cover-body {
+    max-width: 740px;
+  }
+
+  .cover-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #4a4640;
+    margin-bottom: 24px;
+  }
+
+  .cover-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1.05;
+    color: var(--paper);
+    margin-bottom: 8px;
+  }
+
+  .cover-title em {
+    font-style: italic;
+    color: #c8b99a;
+  }
+
+  .cover-subtitle {
+    font-size: 16px;
+    color: #6a6560;
+    margin-top: 24px;
+    line-height: 1.75;
+    max-width: 560px;
+    font-weight: 300;
+  }
+
+  .cover-meta {
+    display: flex;
+    gap: 48px;
+    border-top: 1px solid #1f1e1b;
+    padding-top: 28px;
+  }
+
+  .cover-meta-item .label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #4a4640;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .cover-meta-item .value {
+    font-size: 13px;
+    color: #9a9590;
+  }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--cream);
+    padding: 64px 80px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .toc-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 32px;
+  }
+
+  .toc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+
+  .toc-item {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 12px 16px;
+    background: white;
+    border: 1px solid var(--rule);
+  }
+
+  .toc-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-light);
+    flex-shrink: 0;
+  }
+
+  .toc-title {
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .toc-desc {
+    font-size: 11px;
+    color: var(--ink-light);
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  /* ── PAGE SECTIONS ── */
+  .page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 72px 80px;
+  }
+
+  .page-divider {
+    height: 1px;
+    background: var(--rule);
+    margin: 0;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+
+  .section-intro {
+    font-size: 15px;
+    color: var(--ink-mid);
+    line-height: 1.8;
+    max-width: 680px;
+    margin-bottom: 48px;
+  }
+
+  /* ── MANIFESTO ── */
+  .manifesto {
+    background: var(--ink);
+    padding: 72px 80px;
+  }
+
+  .manifesto-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #4a4640;
+    margin-bottom: 40px;
+  }
+
+  .manifesto-body {
+    max-width: 780px;
+  }
+
+  .manifesto-graf {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    line-height: 1.65;
+    color: var(--paper);
+    margin-bottom: 32px;
+    font-weight: 400;
+  }
+
+  .manifesto-graf em {
+    font-style: italic;
+    color: #c8b99a;
+  }
+
+  .manifesto-graf strong {
+    font-weight: 600;
+    color: white;
+  }
+
+  .manifesto-rule {
+    width: 48px;
+    height: 2px;
+    background: var(--accent);
+    margin: 48px 0;
+  }
+
+  .manifesto-close {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: #4a4640;
+    letter-spacing: 0.08em;
+    line-height: 1.8;
+    max-width: 640px;
+  }
+
+  /* ── IS / IS NOT ── */
+  .isnot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 48px;
+  }
+
+  .isnot-header {
+    padding: 16px 28px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .isnot-header.is { background: var(--ink); color: var(--paper); }
+  .isnot-header.isnot { background: var(--cream); color: var(--ink-mid); border-left: 1px solid var(--rule); }
+
+  .isnot-row {
+    display: contents;
+  }
+
+  .isnot-cell {
+    padding: 20px 28px;
+    border-top: 1px solid var(--rule);
+    font-size: 13px;
+    line-height: 1.65;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .isnot-cell.is-cell {
+    background: white;
+  }
+
+  .isnot-cell.isnot-cell-col {
+    background: var(--paper);
+    border-left: 1px solid var(--rule);
+    color: var(--ink-mid);
+  }
+
+  .isnot-cell .cell-title {
+    font-weight: 500;
+    color: var(--ink);
+    font-size: 14px;
+  }
+
+  .isnot-cell.isnot-cell-col .cell-title {
+    color: var(--ink-mid);
+    text-decoration: line-through;
+    text-decoration-color: var(--rule);
+  }
+
+  .isnot-cell .cell-why {
+    font-size: 12px;
+    color: var(--ink-light);
+    line-height: 1.6;
+  }
+
+  /* ── RESPONSE ANATOMY ── */
+  .anatomy-row {
+    display: grid;
+    grid-template-columns: 200px 1fr 1fr;
+    gap: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .anatomy-row:first-child {
+    border-top: 1px solid var(--rule);
+  }
+
+  .anatomy-layer {
+    padding: 24px 20px;
+    border-right: 1px solid var(--rule);
+    background: var(--cream);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .anatomy-layer-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+  }
+
+  .anatomy-layer-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .anatomy-layer-sub {
+    font-size: 11px;
+    color: var(--ink-light);
+    line-height: 1.5;
+  }
+
+  .anatomy-content {
+    padding: 24px 20px;
+    border-right: 1px solid var(--rule);
+    background: white;
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.7;
+  }
+
+  .anatomy-condition {
+    padding: 24px 20px;
+    background: white;
+    font-size: 12px;
+    color: var(--ink-light);
+    line-height: 1.65;
+  }
+
+  .anatomy-condition .condition-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    margin-bottom: 8px;
+  }
+
+  .tag-always { background: var(--teal-soft); color: var(--teal); }
+  .tag-conditional { background: var(--gold-soft); color: var(--gold); }
+  .tag-never { background: var(--accent-soft); color: var(--accent); }
+
+  /* ── ENTRY MODES ── */
+  .entry-mode {
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .entry-mode-header {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .entry-mode-id {
+    padding: 20px 24px;
+    border-right: 1px solid var(--rule);
+    background: var(--cream);
+  }
+
+  .entry-mode-id .mode-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 6px;
+  }
+
+  .entry-mode-id .mode-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .entry-mode-signal {
+    padding: 20px 24px;
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.65;
+    display: flex;
+    align-items: center;
+  }
+
+  .entry-mode-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+  }
+
+  .entry-mode-cell {
+    padding: 20px 24px;
+    border-right: 1px solid var(--rule);
+    font-size: 12px;
+    color: var(--ink-mid);
+    line-height: 1.65;
+  }
+
+  .entry-mode-cell:last-child { border-right: none; }
+
+  .entry-mode-cell .cell-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 8px;
+  }
+
+  /* ── DECISION DEPTH ── */
+  .depth-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 48px;
+    font-size: 13px;
+  }
+
+  .depth-table th {
+    text-align: left;
+    padding: 12px 16px;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-weight: 400;
+    border-right: 1px solid #2a2926;
+  }
+
+  .depth-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--rule);
+    border-right: 1px solid var(--rule);
+    vertical-align: top;
+    line-height: 1.65;
+    background: white;
+  }
+
+  .depth-table td:first-child {
+    background: var(--cream);
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .depth-table td .check { color: var(--sage); font-size: 12px; }
+  .depth-table td .dim { color: var(--ink-light); font-size: 12px; font-style: italic; }
+  .depth-table td .note { font-size: 11px; color: var(--ink-light); margin-top: 4px; }
+
+  /* ── NAVIGATION MODEL ── */
+  .nav-anatomy {
+    background: var(--ink);
+    padding: 48px;
+    border-radius: 2px;
+    margin-bottom: 32px;
+  }
+
+  .nav-anatomy-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #4a4640;
+    margin-bottom: 28px;
+  }
+
+  .nav-anatomy-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .nav-anatomy-block {
+    padding: 24px;
+    background: rgba(245,242,237,0.04);
+    border-radius: 2px;
+  }
+
+  .nav-anatomy-block.rec { border-left: 3px solid var(--teal); }
+  .nav-anatomy-block.alt { border-left: 3px solid var(--gold); }
+
+  .nav-block-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6a6560;
+    margin-bottom: 10px;
+  }
+
+  .nav-block-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    color: var(--paper);
+    margin-bottom: 12px;
+  }
+
+  .nav-block-desc {
+    font-size: 13px;
+    color: #9a9590;
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+
+  .nav-block-sources {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .nav-source {
+    font-size: 11px;
+    color: #c8b99a;
+    padding: 6px 10px;
+    background: rgba(245,242,237,0.04);
+    border-radius: 2px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .nav-source::before {
+    content: '→';
+    flex-shrink: 0;
+    color: #4a4640;
+  }
+
+  /* ── QUALITY EVALUATION ── */
+  .eval-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .eval-card {
+    background: white;
+    border: 1px solid var(--rule);
+    padding: 28px;
+    border-radius: 2px;
+  }
+
+  .eval-card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .eval-criterion {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--cream);
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.55;
+    align-items: flex-start;
+  }
+
+  .eval-criterion:last-child { border-bottom: none; }
+
+  .eval-criterion .crit-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-light);
+    flex-shrink: 0;
+    margin-top: 2px;
+    width: 20px;
+  }
+
+  /* ── DECISION TIERS ── */
+  .tier-row {
+    display: grid;
+    grid-template-columns: 180px 1fr 1fr 1fr;
+    gap: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .tier-row.header .tier-cell {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .tier-cell {
+    padding: 18px 20px;
+    border-right: 1px solid var(--rule);
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.6;
+  }
+
+  .tier-cell:last-child { border-right: none; }
+
+  .tier-cell.tier-label {
+    background: var(--cream);
+    font-weight: 500;
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .tier-badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 2px;
+    width: fit-content;
+  }
+
+  .tier-badge.tactical { background: var(--accent-soft); color: var(--accent); }
+  .tier-badge.strategic { background: var(--gold-soft); color: var(--gold); }
+  .tier-badge.capital { background: var(--teal-soft); color: var(--teal); }
+
+  /* ── EXAMPLE RESPONSE ── */
+  .example-response {
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 48px;
+  }
+
+  .response-header {
+    background: var(--cream);
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .response-header-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+  }
+
+  .response-mode-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  .response-body {
+    padding: 32px 28px;
+  }
+
+  .response-query {
+    font-size: 14px;
+    color: var(--ink-mid);
+    font-style: italic;
+    padding: 14px 18px;
+    background: var(--cream);
+    border-radius: 2px;
+    margin-bottom: 24px;
+    border-left: 3px solid var(--rule);
+  }
+
+  .response-text {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.85;
+    margin-bottom: 28px;
+  }
+
+  .response-text .finding {
+    font-weight: 500;
+  }
+
+  .response-text .pillar {
+    display: inline;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 2px;
+    background: var(--teal-soft);
+    color: var(--teal);
+    margin: 0 2px;
+  }
+
+  .response-text .signal {
+    display: inline;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    background: var(--gold-soft);
+    color: var(--gold);
+    margin: 0 2px;
+  }
+
+  .response-nav {
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .response-nav-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 4px;
+  }
+
+  .nav-prose {
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.65;
+    padding: 12px 16px;
+    border-radius: 2px;
+    font-style: italic;
+  }
+
+  .nav-prose.primary { background: var(--teal-soft); border-left: 2px solid var(--teal); color: var(--teal); }
+  .nav-prose.secondary { background: var(--gold-soft); border-left: 2px solid var(--gold); color: #7a5c00; }
+
+  .layer-annotation {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 12px 0 20px;
+  }
+
+  .layer-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    border: 1px solid var(--rule);
+    color: var(--ink-light);
+    background: var(--cream);
+  }
+
+  .layer-tag.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    border-top: 1px solid var(--rule);
+    padding: 28px 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--cream);
+  }
+
+  .doc-footer-left {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-light);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .doc-footer-right {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-light);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .prose { font-size: 14px; color: var(--ink-mid); line-height: 1.8; max-width: 700px; margin-bottom: 24px; }
+  .mt-8 { margin-top: 8px; }
+  .mb-16 { margin-bottom: 16px; }
+  .mb-32 { margin-bottom: 32px; }
+  .mb-48 { margin-bottom: 48px; }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-eyebrow">Companion Document · Insight Product</div>
+  <div class="cover-body">
+    <div class="cover-label">Interaction Specification & Product Definition</div>
+    <h1 class="cover-title">What This Product<br><em>Is</em> and Is Not</h1>
+    <p class="cover-subtitle">A design logic document for the team building the insight product. Covers response generation rules, entry modes, decision depth calibration, navigation model, and evaluation criteria. Companion to the VP User Persona document.</p>
+  </div>
+  <div class="cover-meta">
+    <div class="cover-meta-item"><span class="label">Document type</span><span class="value">Interaction Spec + Product Definition</span></div>
+    <div class="cover-meta-item"><span class="label">Audience</span><span class="value">Product, Design, Engineering</span></div>
+    <div class="cover-meta-item"><span class="label">Phase</span><span class="value">Proof of Concept</span></div>
+    <div class="cover-meta-item"><span class="label">Version</span><span class="value">1.0</span></div>
+  </div>
+</div>
+
+<!-- MANIFESTO -->
+<div class="manifesto">
+  <div class="manifesto-label">Part I · Product Definition — What This Is</div>
+  <div class="manifesto-body">
+    <p class="manifesto-graf">Today, answering the question <em>"what happened last week?"</em> costs three to five analyst days and produces a one-time deliverable. The same question asked next week costs the same. <strong>Nothing compounds.</strong></p>
+
+    <p class="manifesto-graf">This product changes that structural equation. It is a <strong>governed insight product</strong> — a conversational system that delivers reusable, attributed answers to a defined class of enterprise questions. Every governed answer makes the next one cheaper to produce. Every question-answer pair improves the mapping from question to data. Every reconciliation resolved makes the next one faster.</p>
+
+    <p class="manifesto-graf">The output is not a report. It is not a dashboard. It is <em>a governed, reusable answer</em> — one that permanently removes a class of recurring questions from the analyst queue and improves every cycle it runs.</p>
+
+    <div class="manifesto-rule"></div>
+
+    <p class="manifesto-graf">The user experience is a <strong>blank canvas that becomes a conversation</strong>. The executive arrives, asks a question or states a hypothesis, and the product responds — in plain prose, with a point of view, with a generated recommendation for where to go next. The experience feels like talking to a brilliant analyst who has already done the work. Because it has.</p>
+
+    <p class="manifesto-graf">The marginal cost of insight <em>approaches zero</em>. That is the structural shift. That is what this product is.</p>
+
+    <div class="manifesto-close">
+      This document defines the interaction logic that makes that experience possible — and the boundaries that protect it from becoming something else.
+    </div>
+  </div>
+</div>
+
+<!-- IS / IS NOT -->
+<div class="page">
+  <div class="section-label">Part I Continued · Product Boundaries</div>
+  <h2 class="section-title">The IS / IS NOT Reference Grid</h2>
+  <p class="prose">These distinctions are not aesthetic preferences. Each "is not" represents a scope drift risk that would compromise the compounding value model at the core of this product. When a stakeholder requests a feature that pulls toward one of these shapes, this grid is the answer.</p>
+
+  <div class="isnot-grid">
+    <div class="isnot-header is">This product IS</div>
+    <div class="isnot-header isnot">This product IS NOT</div>
+
+    <div class="isnot-cell is-cell">
+      <span class="cell-title">A governed insight product</span>
+      <span class="cell-why">Reusable, attributed answers to a defined class of enterprise questions. Every answer improves the next one. The system compounds.</span>
+    </div>
+    <div class="isnot-cell isnot-cell-col">
+      <span class="cell-title">A dashboard</span>
+      <span class="cell-why">Dashboards display data. This product delivers governed conclusions. The VP should never have to interpret a visualization — they should receive an interpretation.</span>
+    </div>
+
+    <div class="isnot-cell is-cell">
+      <span class="cell-title">A conversational interface with a point of view</span>
+      <span class="cell-why">The product speaks. It leads with findings, not options. It recommends next moves. It has already done the analytical thinking before the executive reads the response.</span>
+    </div>
+    <div class="isnot-cell isnot-cell-col">
+      <span class="cell-title">A reporting layer</span>
+      <span class="cell-why">Reporting surfaces data. This product surfaces implications. The distinction is the "so what" — a reporting layer leaves that to the reader. This product owns it.</span>
+    </div>
+
+    <div class="isnot-cell is-cell">
+      <span class="cell-title">A decision support instrument</span>
+      <span class="cell-why">Every response is calibrated to the executive's decision mode and classified by decision tier — in-week tactical, quarterly strategic, or multi-year capital.</span>
+    </div>
+    <div class="isnot-cell isnot-cell-col">
+      <span class="cell-title">A query tool</span>
+      <span class="cell-why">Query tools answer the question asked. This product answers the question asked and surfaces the next relevant question. The executive never has to know what to ask next.</span>
+    </div>
+
+    <div class="isnot-cell is-cell">
+      <span class="cell-title">A trust transfer mechanism</span>
+      <span class="cell-why">The product earns the executive's trust by being consistently right about what matters, transparent about confidence, and accurate about decision tier classification. Trust is the product.</span>
+    </div>
+    <div class="isnot-cell isnot-cell-col">
+      <span class="cell-title">An analyst replacement</span>
+      <span class="cell-why">Analysts do open-ended causal reasoning. This product reports directional statistics with signal strength. It removes recurring structured questions from the analyst queue — not the analyst.</span>
+    </div>
+
+    <div class="isnot-cell is-cell">
+      <span class="cell-title">A compounding system</span>
+      <span class="cell-why">Every governed metric makes the next metric cheaper. Every reconciliation resolved makes the next faster. Every workflow captured makes the next automatable. The value grows with use.</span>
+    </div>
+    <div class="isnot-cell isnot-cell-col">
+      <span class="cell-title">A 2-year platform build</span>
+      <span class="cell-why">The POC delivers a working governed insight product for a defined question class. Scope is bounded. The compounding architecture scales from a working foundation, not a theoretical one.</span>
+    </div>
+  </div>
+</div>
+
+<div class="page-divider"></div>
+
+<!-- RESPONSE ANATOMY -->
+<div class="page">
+  <div class="section-label">Part II · Interaction Specification — Response Generation</div>
+  <h2 class="section-title">Response Anatomy</h2>
+  <p class="prose">Every response is governed by a five-layer template grounded in a customer growth framework. The template is a <strong>generation constraint, not a display format</strong>. The product knows how to reason across all five layers. What appears in any given response is determined by entry mode and decision depth — not by the template itself. Layers appear only when they are doing work.</p>
+
+  <div style="border:1px solid var(--rule);border-radius:2px;overflow:hidden;margin-bottom:16px;">
+    <div style="display:grid;grid-template-columns:200px 1fr 1fr;background:var(--ink);">
+      <div style="padding:12px 20px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--paper);border-right:1px solid #2a2926;">Layer</div>
+      <div style="padding:12px 20px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--paper);border-right:1px solid #2a2926;">What it contains</div>
+      <div style="padding:12px 20px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--paper);">When it appears</div>
+    </div>
+
+    <div class="anatomy-row">
+      <div class="anatomy-layer">
+        <div class="anatomy-layer-num">Layer 1</div>
+        <div class="anatomy-layer-name">Frame</div>
+        <div class="anatomy-layer-sub">Customer segment, value measurement, state</div>
+      </div>
+      <div class="anatomy-content">Who, what, where. The governed scope of this response. Which customer population, which value measurement, what time window. Establishes the subject before any claim is made. Makes the answer repeatable and trustworthy.</div>
+      <div class="anatomy-condition">
+        <span class="condition-tag tag-always">Always</span>
+        <div>Every response begins with a governed frame. Without it, the answer cannot be attributed, forwarded, or trusted. Even a brief hypothesis validation response names its scope.</div>
+      </div>
+    </div>
+
+    <div class="anatomy-row">
+      <div class="anatomy-layer">
+        <div class="anatomy-layer-num">Layer 2</div>
+        <div class="anatomy-layer-name">Observable Outcomes</div>
+        <div class="anatomy-layer-sub">Lagging behaviors, baseline, persistence</div>
+      </div>
+      <div class="anatomy-content">What was observed. Performance signal against comparative periods (WoW, MoM, YoY). Stickiness of the behavior — is this a one-week blip or a structural shift persisting across periods? Stickiness is the key distinction.</div>
+      <div class="anatomy-condition">
+        <span class="condition-tag tag-always">Always in open exploration</span>
+        <div>Present in directed and hypothesis modes when the question is about what happened. May be abbreviated when the executive's question focuses on drivers rather than outcomes.</div>
+      </div>
+    </div>
+
+    <div class="anatomy-row">
+      <div class="anatomy-layer">
+        <div class="anatomy-layer-num">Layer 3</div>
+        <div class="anatomy-layer-name">Drivers</div>
+        <div class="anatomy-layer-sub">Directional statistics, signal strength, early warning</div>
+      </div>
+      <div class="anatomy-content">Attribution explanations for observed outcomes. Directional statistics only — no causal claims. The 11 attribution dimensions are checked internally. Only the dimensions with sufficient signal strength surface here. "Associated with" not "caused by."</div>
+      <div class="anatomy-condition">
+        <span class="condition-tag tag-conditional">Conditional</span>
+        <div>Appears when attribution has been resolved to a meaningful level of signal. Omitted when the data is directionally clear at the outcome level and attribution adds no decision value.</div>
+      </div>
+    </div>
+
+    <div class="anatomy-row">
+      <div class="anatomy-layer">
+        <div class="anatomy-layer-num">Layer 4</div>
+        <div class="anatomy-layer-name">Business Value</div>
+        <div class="anatomy-layer-sub">Enterprise outcomes quantified</div>
+      </div>
+      <div class="anatomy-content">What layers 2 and 3 mean in value terms. Converts behavioral observation into financial or strategic stake. Answers "how much does this matter" before the executive has to ask. Anchors the finding to the four strategic pillars.</div>
+      <div class="anatomy-condition">
+        <span class="condition-tag tag-conditional">Conditional</span>
+        <div>Appears when the value quantification is available and material. In POC phase, appears when the data supports it. Never fabricated or estimated without explicit confidence labeling.</div>
+      </div>
+    </div>
+
+    <div class="anatomy-row" style="border-bottom:none;">
+      <div class="anatomy-layer">
+        <div class="anatomy-layer-num">Layer 5</div>
+        <div class="anatomy-layer-name">Implication</div>
+        <div class="anatomy-layer-sub">Current state, opportunity, early warnings, intervention, decision tier</div>
+      </div>
+      <div class="anatomy-content">The "so what." Five components: what we observe now, what we can do, what leading indicators to watch, what proactive actions are available with expected directional impact, and which decision tier(s) this finding belongs to. A finding can span tiers — with distinct actions at each level.</div>
+      <div class="anatomy-condition">
+        <span class="condition-tag tag-conditional">Conditional on decision mode</span>
+        <div>Full implication layer appears in outcome-focused mode. Abbreviated in directional mode. In hypothesis validation mode, limited to the components that bear on the hypothesis being tested.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--cream);border:1px solid var(--rule);padding:16px 20px;border-radius:2px;margin-bottom:48px;font-size:12px;color:var(--ink-mid);line-height:1.7;">
+    <strong style="font-weight:500;">The 11 attribution dimensions</strong> — trip type (front store vs Rx vs PCW), channel (in-store vs digital), channel mix (ecom / BOPIS / drive-through), basket type (full price vs discounted), shopper type (front store, Rx, PCW, non-loyalty), trip deciles, behavior/outcome segments, lifecycle stage (new, active, lapsing, churned), region, urban density, trip mission — are internal grading criteria. They are a completeness check, not a navigation system. The product grades itself against all 11 before committing to a finding. Only load-bearing dimensions appear in the response.
+  </div>
+
+  <!-- RESPONSE TITLE -->
+  <div class="section-label">Response Title</div>
+  <p class="prose">Every response begins with a title that is an <strong>actionable finding or a named tension</strong>. It is never a description of what the response covers. The title is the product's point of view, stated before any supporting evidence.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:48px;">
+    <div style="background:white;border:1px solid var(--rule);padding:24px;border-radius:2px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--sage);margin-bottom:12px;">✓ Actionable finding title</div>
+      <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--ink);margin-bottom:8px;">"Lapsing loyalty members in urban stores are driving the front store trip decline"</div>
+      <div style="font-size:12px;color:var(--ink-light);">States the finding, identifies the population, names the location. Implies an action without prescribing it.</div>
+    </div>
+    <div style="background:white;border:1px solid var(--rule);padding:24px;border-radius:2px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;">~ Named tension title</div>
+      <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--ink);margin-bottom:8px;">"Front store trips stable — but Rx attach is masking a loyalty erosion signal"</div>
+      <div style="font-size:12px;color:var(--ink-light);">Two metrics diverging. One holding the other afloat. The tension is the finding. The law of large numbers makes this expected in enterprise retail.</div>
+    </div>
+  </div>
+
+  <!-- MODE SHIFT ACKNOWLEDGMENT (v1.1) -->
+  <div class="section-label">Mode Shift Acknowledgment</div>
+  <p class="prose">When the product detects a mode shift between responses — a change in the decision depth Alex is seeking — it opens the next response with a single sentence acknowledging the shift. This is not narration; it is alignment signaling. The VP knows the product understood their intent shift without requiring them to state it explicitly.</p>
+
+  <div style="background:var(--cream);border:1px solid var(--rule);border-radius:2px;overflow:hidden;margin-bottom:32px;">
+    <div style="background:var(--ink);padding:12px 20px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#6a6560;">Mode shift acknowledgment patterns</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;">
+      <div style="padding:20px;border-right:1px solid var(--rule);">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;">Directional → Analytical</div>
+        <div style="font-size:12px;color:var(--ink-mid);line-height:1.65;margin-bottom:12px;">Triggered by: surprise language, attribution question, "why" framing after a directional response.</div>
+        <div style="font-size:13px;font-style:italic;color:var(--ink);padding:10px 12px;background:white;border-left:2px solid var(--teal);border-radius:0 2px 2px 0;line-height:1.6;">"Let me go deeper on this — something in that number is worth interrogating."</div>
+      </div>
+      <div style="padding:20px;border-right:1px solid var(--rule);">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;">Analytical → Directional</div>
+        <div style="font-size:12px;color:var(--ink-mid);line-height:1.65;margin-bottom:12px;">Triggered by: acceptance language, short follow-on after deep attribution, delegation framing without time pressure.</div>
+        <div style="font-size:13px;font-style:italic;color:var(--ink);padding:10px 12px;background:white;border-left:2px solid var(--sage);border-radius:0 2px 2px 0;line-height:1.6;">"Pulling back to the story level — here's what this means for the week."</div>
+      </div>
+      <div style="padding:20px;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;">Any mode → Outcome-Focused</div>
+        <div style="font-size:12px;color:var(--ink-mid);line-height:1.65;margin-bottom:12px;">Triggered by: time pressure language, framing requests, planning references. Highest priority — override immediately.</div>
+        <div style="font-size:13px;font-style:italic;color:var(--ink);padding:10px 12px;background:white;border-left:2px solid var(--gold);border-radius:0 2px 2px 0;line-height:1.6;">"Given you're heading into planning — let me frame this for the room."</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--cream);border:1px solid var(--rule);padding:14px 20px;border-radius:2px;font-size:12px;color:var(--ink-mid);line-height:1.7;margin-bottom:48px;">
+    <strong style="font-weight:500;">Placement rule:</strong> Mode shift acknowledgment appears as the first sentence of the response body — before the title, after the header. It is visually lighter than the title (no Playfair serif, no weight). It reads as a transition beat, not a heading. It is never more than one sentence. It disappears entirely when no mode shift is detected.
+  </div>
+
+</div>
+
+<div class="page-divider"></div>
+
+<!-- ENTRY MODES -->
+<div class="page">
+  <div class="section-label">Part II Continued · Entry Modes & Decision Depth</div>
+  <h2 class="section-title">Three Entry Modes</h2>
+  <p class="prose">The product opens to a blank canvas. It may surface suggested starting questions as orientation — but the executive can bypass these entirely. Entry mode is inferred from how the first message is framed. It shapes the structure of the response. Decision mode shapes its depth. Both can shift within the same session.</p>
+
+  <div class="entry-mode mb-16">
+    <div class="entry-mode-header">
+      <div class="entry-mode-id" style="border-left:4px solid var(--teal);">
+        <div class="mode-num">Entry Mode 01</div>
+        <div class="mode-name">Open Exploration</div>
+      </div>
+      <div class="entry-mode-signal">Alex hasn't framed a question. May have opened the product with no input, or with a broad prompt like "show me last week." The product leads.</div>
+    </div>
+    <div class="entry-mode-body">
+      <div class="entry-mode-cell">
+        <div class="cell-label">Response structure</div>
+        Story-led. The product surfaces the most signal-bearing finding of the week first, framed with prior week context. Continuity before novelty. The product is saying: here's what I would lead with if I were briefing you — and here's how it connects to what we saw last week.
+      </div>
+      <div class="entry-mode-cell">
+        <div class="cell-label">Layers typically active</div>
+        Layer 1 always. Layer 2 for the lead finding. Layer 5 at the decision tier level — enough to tell Alex which tier the week's primary signal belongs to. Layers 3 and 4 available through navigation.
+      </div>
+      <div class="entry-mode-cell">
+        <div class="cell-label">Navigation behavior</div>
+        Strong recommendation: the most explanatory next question given the lead finding. Alternative: a different finding that may be relevant to a different pillar or decision tier. Both are offered as invitations, not prompts.
+      </div>
+      <div class="entry-mode-cell" style="background:var(--gold-soft);border-left:2px solid var(--gold);">
+        <div class="cell-label">Prior week context (v1.1)</div>
+        Suggested starting questions in the cold open carry prior week context. "What happened to front store trips last week — and where did we grow or shrink?" references the continuity of the week-to-week story. First response opens with a single sentence of prior week context before the title — visually lighter, integrated in body flow.
+      </div>
+    </div>
+  </div>
+
+  <div class="entry-mode mb-16">
+    <div class="entry-mode-header">
+      <div class="entry-mode-id" style="border-left:4px solid var(--gold);">
+        <div class="mode-num">Entry Mode 02</div>
+        <div class="mode-name">Directed Question</div>
+      </div>
+      <div class="entry-mode-signal">Alex asks a specific question. "What happened to front store trips in urban markets last week?" The product answers that question and nothing more unless navigation pulls it further.</div>
+    </div>
+    <div class="entry-mode-body">
+      <div class="entry-mode-cell">
+        <div class="cell-label">Response structure</div>
+        Question-scoped. The product answers the question completely at the depth implied by the decision mode in the question. Does not volunteer adjacent findings. Depth before breadth. Precision is the value.
+      </div>
+      <div class="entry-mode-cell">
+        <div class="cell-label">Layers typically active</div>
+        Layer 1 scoped to the question. Layers 2 and 3 as needed to fully answer. Layer 4 if value quantification is available and relevant. Layer 5 abbreviated to the decision tier the question implies.
+      </div>
+      <div class="entry-mode-cell">
+        <div class="cell-label">Navigation behavior</div>
+        Strong recommendation: the next logical question in the attribution chain given what was just answered. Alternative: a cross-tier implication if the finding has strategic or capital relevance beyond the tactical question asked.
+      </div>
+    </div>
+  </div>
+
+  <div class="entry-mode mb-48">
+    <div class="entry-mode-header">
+      <div class="entry-mode-id" style="border-left:4px solid var(--accent);">
+        <div class="mode-num">Entry Mode 03</div>
+        <div class="mode-name">Hypothesis Validation</div>
+      </div>
+      <div class="entry-mode-signal">Alex arrives with a point of view forming. "I think the trip decline is being masked by Rx attach holding steady — is there data supporting that?" The product stress-tests the hypothesis.</div>
+    </div>
+    <div class="entry-mode-body">
+      <div class="entry-mode-cell">
+        <div class="cell-label">Response structure</div>
+        Hypothesis-anchored. The product confirms, complicates, or refutes using directional evidence. The response is structured around the hypothesis — not the five-layer template. Evidence-led.
+      </div>
+      <div class="entry-mode-cell">
+        <div class="cell-label">Layers typically active</div>
+        Layer 1 scoped to the hypothesis population. Layer 3 is the primary layer — the directional signals that bear on the hypothesis. Layer 2 as supporting evidence. Layers 4 and 5 only if the hypothesis has a material value or decision implication.
+      </div>
+      <div class="entry-mode-cell">
+        <div class="cell-label">Navigation behavior</div>
+        Strong recommendation: if the hypothesis is confirmed, the next question that advances the decision. If refuted, what the data actually shows instead. Alternative: an adjacent hypothesis the data does support, if one exists.
+      </div>
+    </div>
+  </div>
+
+  <!-- DECISION DEPTH TABLE -->
+  <div class="section-label">Decision Mode × Response Depth</div>
+  <p class="prose mb-16">Decision mode is inferred from the exchange — not from a setting Alex configures. The same question asked with different framing implies different depth. The product reads the mode and calibrates accordingly.</p>
+
+  <table class="depth-table mb-48">
+    <thead>
+      <tr>
+        <th>Decision Mode</th>
+        <th>Layer depth</th>
+        <th>Navigation direction</th>
+        <th>Output expectation</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Directional<br><span style="font-size:11px;font-weight:400;color:var(--ink-light);">Signal confirmed, delegate</span></td>
+        <td>Layers 1–2 + abbreviated L5 (decision tier only). Named tension title if divergence detected. <span class="note">Layers 3–4 available through navigation.</span></td>
+        <td>Points toward delegation framing. "Here's how I'd brief your team on this." Or upward: "This has a quarterly implication worth noting."</td>
+        <td>A governed summary Alex can forward without re-narrating. Carries its own authority.</td>
+      </tr>
+      <tr>
+        <td>Analytical<br><span style="font-size:11px;font-weight:400;color:var(--ink-light);">Something surprised, interrogate</span></td>
+        <td>Layers 1–3 fully. Layer 4 if value quantification available. L5 limited to current state and opportunity. <span class="note">WoW / MoM / YoY toggles implied in navigation.</span></td>
+        <td>Points deeper into attribution. Waterfall view of trip change drivers. Or across: "The regional concentration behind this is worth seeing."</td>
+        <td>A verified or revised view. Alex forms their own read and then decides whether to act or investigate further.</td>
+      </tr>
+      <tr>
+        <td>Outcome-Focused<br><span style="font-size:11px;font-weight:400;color:var(--ink-light);">Decision or comms imminent</span></td>
+        <td>Layers 1, 4, and 5 fully. Layer 2 abbreviated. Layer 3 at signal level only — no attribution detail unless it changes the implication. <span class="note">Narrative-ready framing prioritized.</span></td>
+        <td>Points across tiers. "This also has a quarterly implication relevant to your retention strategy review." Or toward shareable format.</td>
+        <td>An implication statement Alex can speak to without re-reading. Strategic pillar anchored. Forwardable upward or laterally.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="page-divider"></div>
+
+<!-- NAVIGATION MODEL -->
+<div class="page">
+  <div class="section-label">Part II Continued · Navigation Model</div>
+  <h2 class="section-title">Generated Navigation</h2>
+  <p class="prose">Navigation is the product's voice between responses. It is the mechanism by which the product demonstrates it has already thought ahead. Every correct navigation recommendation earns a unit of trust. Over time, the navigation builds the executive's confidence that the product understands the business — not just the data.</p>
+
+  <div class="nav-anatomy mb-32">
+    <div class="nav-anatomy-label">Navigation Anatomy — Two Moves Per Response</div>
+    <div class="nav-anatomy-grid">
+      <div class="nav-anatomy-block rec">
+        <div class="nav-block-label">Strong Recommendation</div>
+        <div class="nav-block-title">The most consequential next move</div>
+        <div class="nav-block-desc">The product's read on what would most advance Alex's decision mode. Drawn from what is most open or most load-bearing in the current response. Always offered as an invitation — never as a redirect.</div>
+        <div class="nav-block-sources">
+          <div class="nav-source">Deeper into attribution — an unresolved dimension with likely signal</div>
+          <div class="nav-source">Across to an adjacent finding that complicates or extends this one</div>
+          <div class="nav-source">Upward to a higher decision tier if the finding spans tiers</div>
+          <div class="nav-source">Toward delegation framing if mode is directional</div>
+        </div>
+      </div>
+      <div class="nav-anatomy-block alt">
+        <div class="nav-block-label">Alternative</div>
+        <div class="nav-block-title">A different useful direction</div>
+        <div class="nav-block-desc">A genuinely different path — not a lesser version of the recommendation. Often points to a different pillar, a different decision tier, or a different entry mode. Gives Alex agency without overwhelming.</div>
+        <div class="nav-block-sources">
+          <div class="nav-source">A different strategic pillar the same data speaks to</div>
+          <div class="nav-source">A longer-horizon implication if the week has a multi-tier signal</div>
+          <div class="nav-source">A hypothesis the data supports that Alex hasn't named yet</div>
+          <div class="nav-source">A shareable format or delegation frame if comms is imminent</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Navigation Prose Standards</div>
+  <p class="prose">Navigation is always written in plain prose. It sounds like a person, not a UI. The standard is: would a brilliant analyst sitting across the table say this? If it sounds like a button label or a menu item, rewrite it.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:48px;">
+    <div style="background:white;border:1px solid var(--rule);padding:24px;border-radius:2px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--sage);margin-bottom:16px;">✓ Good navigation prose</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="font-size:13px;color:var(--ink);font-style:italic;padding:10px 14px;background:var(--cream);border-radius:2px;line-height:1.65;">"The regional concentration behind this is worth seeing — urban stores are carrying a disproportionate share of the decline. Want me to break that down?"</div>
+        <div style="font-size:13px;color:var(--ink);font-style:italic;padding:10px 14px;background:var(--cream);border-radius:2px;line-height:1.65;">"There's a quarterly signal here that may be relevant to your retention strategy review — I can frame that if it would be useful before your next planning cycle."</div>
+        <div style="font-size:13px;color:var(--ink);font-style:italic;padding:10px 14px;background:var(--cream);border-radius:2px;line-height:1.65;">"If you're heading into a leadership conversation, I can give you a version of this that leads with the pillar implication rather than the metric."</div>
+      </div>
+    </div>
+    <div style="background:white;border:1px solid var(--rule);padding:24px;border-radius:2px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;">✗ Navigation prose to avoid</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="font-size:13px;color:var(--ink-mid);font-style:italic;padding:10px 14px;background:var(--accent-soft);border-radius:2px;line-height:1.65;text-decoration:line-through;text-decoration-color:#c84b2f;">"Click here to view regional breakdown"</div>
+        <div style="font-size:13px;color:var(--ink-mid);font-style:italic;padding:10px 14px;background:var(--accent-soft);border-radius:2px;line-height:1.65;text-decoration:line-through;text-decoration-color:#c84b2f;">"Would you like to: (a) See drivers, (b) View by region, (c) View by segment?"</div>
+        <div style="font-size:13px;color:var(--ink-mid);font-style:italic;padding:10px 14px;background:var(--accent-soft);border-radius:2px;line-height:1.65;text-decoration:line-through;text-decoration-color:#c84b2f;">"I can provide additional analysis if needed."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVIGATION MOOD VARIANTS (v1.1) -->
+  <div class="section-label">Navigation Mood Variants</div>
+  <p class="prose">Navigation prose adapts to the confidence state of the underlying data. Three moods are defined. The default is confident — when attribution is clean and signal is strong. Uncertain and incomplete moods surface when the data has qualification that the VP should understand before following a thread.</p>
+
+  <div style="margin-bottom:48px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+      <div style="background:white;border:1px solid var(--rule);border-radius:2px;overflow:hidden;">
+        <div style="background:var(--teal-soft);padding:14px 18px;border-bottom:1px solid var(--rule);">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal);margin-bottom:6px;">Confident Mood (default)</div>
+          <div style="font-size:11px;color:var(--ink-mid);line-height:1.6;">variance_state = "outside" · 6+ attribution dimensions resolved · 2+ weeks persistence</div>
+        </div>
+        <div style="padding:18px;">
+          <div style="font-size:13px;font-style:italic;color:var(--ink);padding:10px 12px;background:var(--cream);border-left:2px solid var(--teal);border-radius:0 2px 2px 0;line-height:1.6;margin-bottom:10px;">"The regional concentration is worth seeing — urban stores are carrying 68% of the decline."</div>
+          <div style="font-size:11px;color:var(--ink-light);">Assertive, clear, no hedging. The data supports the direction.</div>
+        </div>
+      </div>
+
+      <div style="background:white;border:1px solid var(--rule);border-radius:2px;overflow:hidden;">
+        <div style="background:var(--gold-soft);padding:14px 18px;border-bottom:1px solid var(--rule);">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;">Uncertain Mood</div>
+          <div style="font-size:11px;color:var(--ink-mid);line-height:1.6;">variance_state = "boundary" · fewer than 6 attribution dimensions resolved · single-week signal</div>
+        </div>
+        <div style="padding:18px;">
+          <div style="font-size:13px;font-style:italic;color:var(--ink);padding:10px 12px;background:var(--gold-soft);border-left:3px dashed var(--gold);border-radius:0 2px 2px 0;line-height:1.6;margin-bottom:10px;">"The regional pattern is suggestive but the signal isn't clean yet — I'd want to see one more week before reading this as structural."</div>
+          <div style="font-size:11px;color:var(--ink-light);">Hedged, honest, invites patience. Primary item gets dashed border.</div>
+        </div>
+      </div>
+
+      <div style="background:white;border:1px solid var(--rule);border-radius:2px;overflow:hidden;">
+        <div style="background:var(--cream);padding:14px 18px;border-bottom:1px solid var(--rule);">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:6px;">Incomplete Mood</div>
+          <div style="font-size:11px;color:var(--ink-mid);line-height:1.6;">confidence = "estimated" or "flagged" on primary metric · pending reconciliation flag</div>
+        </div>
+        <div style="padding:18px;">
+          <div style="font-size:13px;font-style:italic;color:var(--ink-mid);padding:10px 12px;background:var(--cream);border-left:3px solid var(--ink-light);border-radius:0 2px 2px 0;line-height:1.6;margin-bottom:10px;">"The decile breakdown isn't fully reconciled this week — I can show you what's available, but I'd treat it as directional."</div>
+          <div style="font-size:11px;color:var(--ink-light);">Muted, not alarming. Secondary often redirects to cleaner data path.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYSIS VIEW RETURN FLOW (v1.1) -->
+  <div class="section-label">Analysis View Return Flow</div>
+  <p class="prose">When Alex returns from an Analysis View to the thread, the transition must feel like a conversation resuming — not like a modal closing. The return flow is a four-beat ceremony that composes the finding into the thread visually before the agent responds.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px;">
+    <div style="padding:16px;background:var(--cream);border:1px solid var(--rule);border-radius:2px;text-align:center;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);margin-bottom:8px;">Beat 1 · Tap (0ms)</div>
+      <div style="font-size:12px;color:var(--ink-mid);line-height:1.6;">VP taps "Bring this into the conversation." Overlay slide-out begins.</div>
+    </div>
+    <div style="padding:16px;background:var(--cream);border:1px solid var(--rule);border-radius:2px;text-align:center;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);margin-bottom:8px;">Beat 2 · Compose (200ms)</div>
+      <div style="font-size:12px;color:var(--ink-mid);line-height:1.6;">User bubble types into thread at ~40ms/char. Feels like dictation appearing.</div>
+    </div>
+    <div style="padding:16px;background:var(--cream);border:1px solid var(--rule);border-radius:2px;text-align:center;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);margin-bottom:8px;">Beat 3 · Think (600ms)</div>
+      <div style="font-size:12px;color:var(--ink-mid);line-height:1.6;">Thread full width. Bubble complete. Typing indicator visible.</div>
+    </div>
+    <div style="padding:16px;background:var(--cream);border:1px solid var(--rule);border-radius:2px;text-align:center;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);margin-bottom:8px;">Beat 4 · Respond</div>
+      <div style="font-size:12px;color:var(--ink-mid);line-height:1.6;">Reintegration response appears. Opens with modal offer.</div>
+    </div>
+  </div>
+
+  <div style="background:var(--cream);border:1px solid var(--rule);padding:14px 20px;border-radius:2px;font-size:12px;color:var(--ink-mid);line-height:1.7;margin-bottom:48px;">
+    <strong style="font-weight:500;">Reintegration modal offer:</strong> "You spent [N minutes] in the [view name] — want me to bring what you found into the conversation?" This is a consent moment — the VP confirms that the analysis view exploration should become conversational context.
+  </div>
+
+  <!-- DELEGATION WORKFLOW (v1.1) -->
+  <div class="section-label">Delegation Workflow</div>
+  <p class="prose">After establishing a finding, Alex may delegate it to an analyst for deeper investigation. The delegation creates a governed brief that travels downstream — not a chat forward, but a structured package with definitions, methodology, and scope of work. The analyst brief is an export format, not a thread continuation.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px;">
+    <div style="background:white;border:1px solid var(--rule);padding:20px;border-radius:2px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal);margin-bottom:12px;">Delegation trigger</div>
+      <div style="font-size:13px;color:var(--ink-mid);line-height:1.7;margin-bottom:16px;">Third navigation element: "Delegate this finding →" — appears after primary and secondary nav when the finding is actionable and the context is complete enough to hand off.</div>
+      <div style="font-size:12px;color:var(--ink-light);font-style:italic;">Not a prompt to generate more chat. A structured export with governed definitions attached.</div>
+    </div>
+    <div style="background:white;border:1px solid var(--rule);padding:20px;border-radius:2px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal);margin-bottom:12px;">Brief composition</div>
+      <div style="font-size:13px;color:var(--ink-mid);line-height:1.7;">
+        <ul style="margin:0;padding-left:18px;">
+          <li>Finding title and pillar attribution</li>
+          <li>Scope of work — what Alex is asking the analyst to do</li>
+          <li>Governed definitions for all mentioned segments/metrics</li>
+          <li>Key metrics with confidence levels</li>
+          <li>Open hypothesis (if any) with "not causally established" label</li>
+          <li>What Alex investigated before delegating</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- FISCAL WEEK SESSION MODEL (v1.1) -->
+  <div class="section-label">Fiscal Week Session Model</div>
+  <p class="prose">The product's memory is organized by fiscal week. A session spans the FW — not the calendar day. Mid-week returns resume the session where it was left. Past fiscal weeks become read-only archives accessible from a slide-in panel.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:32px;">
+    <div style="background:white;border:1px solid var(--rule);padding:18px;border-radius:2px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal);margin-bottom:10px;">Current FW session</div>
+      <div style="font-size:12px;color:var(--ink-mid);line-height:1.7;">Active, editable, responsive. The product has full context from all prior turns this week. Reply bar is visible. Thread is live.</div>
+    </div>
+    <div style="background:white;border:1px solid var(--rule);padding:18px;border-radius:2px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;">Past FW archive</div>
+      <div style="font-size:12px;color:var(--ink-mid);line-height:1.7;">Read-only. The thread is viewable but not continuable. Signal elements tappable for reference — no breadcrumb events generated. "Read Only" badge visible.</div>
+    </div>
+    <div style="background:white;border:1px solid var(--rule);padding:18px;border-radius:2px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;">Mid-week return</div>
+      <div style="font-size:12px;color:var(--ink-mid);line-height:1.7;">Session restore atom appears above thread: "You're back in FW10 — you left off looking at [context]." Auto-dismisses after 4 seconds.</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-divider"></div>
+
+<!-- DECISION TIERS -->
+<div class="page">
+  <div class="section-label">Part II Continued · Decision Tier Classification</div>
+  <h2 class="section-title">Decision Tier Framework</h2>
+  <p class="prose">Every Layer 5 implication is classified by decision tier. A finding can span tiers — with distinct recommended actions at each level. The tier classification is the opportunity cost signal in the POC: it tells Alex not what is being sacrificed, but which decision window this finding belongs to and how urgent the action is.</p>
+
+  <div style="border:1px solid var(--rule);border-radius:2px;overflow:hidden;margin-bottom:48px;">
+    <div class="tier-row header">
+      <div class="tier-cell" style="background:var(--ink);color:var(--paper);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;">Tier</div>
+      <div class="tier-cell" style="background:var(--ink);color:var(--paper);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;">Horizon & cadence</div>
+      <div class="tier-cell" style="background:var(--ink);color:var(--paper);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;">Decision type</div>
+      <div class="tier-cell" style="background:var(--ink);color:var(--paper);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;border-right:none;">Action shape</div>
+    </div>
+    <div class="tier-row">
+      <div class="tier-cell tier-label"><span class="tier-badge tactical">Tactical</span>In-week</div>
+      <div class="tier-cell">WoW and MoM. The decision window is this week or next. Findings that require immediate operational response — promotional adjustment, inventory signal, regional intervention.</div>
+      <div class="tier-cell">Act now or lose the window. These are decisions an operator makes, or delegates immediately to a director with a defined action.</div>
+      <div class="tier-cell">Specific, bounded, time-sensitive. "Address lapsing urban loyalty members before end of week." Delegatable in a single instruction.</div>
+    </div>
+    <div class="tier-row">
+      <div class="tier-cell tier-label"><span class="tier-badge strategic">Strategic</span>Quarterly / biannual</div>
+      <div class="tier-cell">Multi-month programs already in motion. The finding is an input to a review or adjustment cycle — not a trigger for immediate action, but material enough to affect the next strategic decision point.</div>
+      <div class="tier-cell">Adjust or reaffirm a multi-month strategy. Reallocate resources between pillars. Flag an emerging pattern for the next QBR or planning session.</div>
+      <div class="tier-cell">Framing-oriented. "This finding suggests Pillar 2 retention strategy may need adjustment at next quarterly review." Requires synthesis, not immediate action.</div>
+    </div>
+    <div class="tier-row" style="border-bottom:none;">
+      <div class="tier-cell tier-label"><span class="tier-badge capital">Capital</span>Multi-year</div>
+      <div class="tier-cell">5-year capital expenditure and structural business decisions. The finding is an early signal — not actionable this week — but relevant to ensuring a sustainable and growing business over a longer horizon.</div>
+      <div class="tier-cell">Infrastructure investment, channel architecture, long-range customer portfolio strategy. These are decisions that compound over years, not weeks.</div>
+      <div class="tier-cell">Signal-logging oriented. "This pattern, if persistent, has implications for the digital channel investment thesis in the 5-year plan." Log, monitor, revisit.</div>
+    </div>
+  </div>
+
+  <!-- EXAMPLE RESPONSE -->
+  <div class="section-label">Annotated Example Response</div>
+  <p class="prose">A full example response demonstrating template layers, decision depth calibration, and navigation generation. Entry mode: directed question. Decision mode: analytical.</p>
+
+  <div class="example-response">
+    <div class="response-header">
+      <span class="response-header-label">Example Response</span>
+      <span class="response-mode-tag tag-gold" style="background:var(--gold-soft);color:var(--gold);">Entry: Directed Question</span>
+      <span class="response-mode-tag" style="background:var(--teal-soft);color:var(--teal);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;border-radius:2px;">Mode: Analytical</span>
+    </div>
+    <div class="response-body">
+      <div class="response-query">"What's driving the front store trip decline this week — is it a loyalty issue or a channel issue?"</div>
+
+      <!-- LAYER ANNOTATION -->
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:6px;">Layers active in this response</div>
+      <div class="layer-annotation">
+        <span class="layer-tag active">L1 Frame</span>
+        <span class="layer-tag active">L2 Outcomes</span>
+        <span class="layer-tag active">L3 Drivers</span>
+        <span class="layer-tag">L4 Value</span>
+        <span class="layer-tag active">L5 Tier</span>
+      </div>
+
+      <!-- SIGNAL LEGEND -->
+      <div style="display:flex;gap:20px;margin-bottom:18px;padding:10px 14px;background:var(--cream);border-radius:2px;flex-wrap:wrap;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);align-self:center;">Signal key →</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-mid);">
+          <span style="font-weight:500;color:var(--ink);border-bottom:none;background:rgba(200,75,47,0.08);padding:1px 4px;border-radius:2px;">−2.8%<span style="display:inline-flex;align-items:center;gap:1px;vertical-align:middle;margin-left:2px;"><span style="display:inline-block;width:3px;height:8px;border-radius:1px;background:var(--rule);"></span><span style="display:inline-block;width:3px;height:8px;border-radius:1px;background:var(--rule);"></span><span style="display:inline-block;width:3px;height:8px;border-radius:1px;background:var(--accent);"></span><span style="display:inline-block;width:3px;height:8px;border-radius:1px;background:var(--accent);"></span><span style="display:inline-block;width:3px;height:8px;border-radius:1px;background:var(--rule);"></span></span></span>
+          Metric signal — inline bar shows variance position · tap for governed context
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-mid);">
+          <span style="color:var(--teal);font-weight:500;border-bottom:1.5px solid var(--teal);padding-bottom:1px;">lapsing loyalty members</span>
+          Entity signal — tap for segment profile + governed definition
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-mid);">
+          <span style="background:var(--gold-soft);border-bottom:2px solid var(--gold);padding:0 4px;border-radius:2px 2px 0 0;font-weight:500;">metric A ↔ metric B</span>
+          Tension signal — marks a diverging relationship · tap for divergence view
+        </div>
+      </div>
+
+      <!-- LIVE RESPONSE TEXT WITH REAL SIGNALS -->
+      <div style="font-size:14px;color:var(--ink-mid);line-height:1.85;margin-bottom:20px;">
+
+        <p style="margin-bottom:14px;font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--ink);line-height:1.25;">Front store trips declined — this is a loyalty issue, not a channel issue, and it is showing persistence across three consecutive weeks.</p>
+
+        <p style="margin-bottom:14px;">Front store trips declined
+          <span style="cursor:default;font-weight:500;color:var(--ink);background:rgba(200,75,47,0.06);padding:0 2px;border-radius:2px;">−2.8% WoW<span style="display:inline-flex;align-items:center;gap:1.5px;vertical-align:middle;margin-left:3px;position:relative;top:-1px;"><span style="display:inline-block;width:3px;height:9px;border-radius:1px;background:var(--rule);"></span><span style="display:inline-block;width:3px;height:9px;border-radius:1px;background:var(--rule);"></span><span style="display:inline-block;width:3px;height:9px;border-radius:1px;background:var(--accent);"></span><span style="display:inline-block;width:3px;height:9px;border-radius:1px;background:var(--accent);"></span><span style="display:inline-block;width:3px;height:9px;border-radius:1px;background:var(--rule);"></span></span></span>
+          against a typical weekly variance of ±0.4% — 7× outside normal range for the third consecutive week. The decline is concentrated in
+          <span style="color:var(--teal);font-weight:500;border-bottom:1.5px solid var(--teal);padding-bottom:1px;cursor:default;border-radius:2px 2px 0 0;">lapsing loyalty members</span>
+          — customers in the late-active lifecycle stage who have reduced trip frequency over the past 30 days. Approximately 2.1M customers, representing 14.2% of the active loyalty base.</p>
+
+        <p style="margin-bottom:14px;">In-store and digital channels declined at comparable rates — ruling out a channel-specific disruption.
+          <span style="color:var(--teal);font-weight:500;border-bottom:1.5px solid var(--teal);padding-bottom:1px;cursor:default;border-radius:2px 2px 0 0;">Urban stores</span>
+          account for a disproportionate share of volume impact (68% of decline from 38% of footprint) — equivalent to approximately −$2.1M of the total −$3.1M weekly revenue impact. <span style="display:inline-block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border-radius:2px;background:var(--teal-soft);color:var(--teal);margin:0 2px;vertical-align:middle;">Pillar 2 · Retention</span> is the strategic lever implicated here.</p>
+
+        <p style="margin-bottom:14px;">The more important signal is a structural tension:
+          <span style="background:var(--gold-soft);border-bottom:2px solid var(--gold);padding:1px 5px;border-radius:3px 3px 0 0;font-weight:500;cursor:default;">Rx-attached trips +0.3% WoW ↔ front-store-only trips −4.1% WoW</span>.
+          The Rx channel is holding the aggregate metric flat while front-store-only engagement erodes. The aggregate −2.8% understates the true severity of the front-store-only decline. Net revenue impact this week: approximately −$1.81M after Rx-attached offset.</p>
+
+        <p>This finding carries a
+          <span style="display:inline-block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border-radius:2px;background:var(--accent-soft);color:var(--accent);margin:0 2px;vertical-align:middle;">tactical</span>
+          implication — the lapsing segment is in a recoverable window (~3 weeks before churn classification) — and a
+          <span style="display:inline-block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border-radius:2px;background:var(--gold-soft);color:var(--gold);margin:0 2px;vertical-align:middle;">strategic</span>
+          signal for the Q2 retention review given three-week persistence.</p>
+      </div>
+
+      <!-- ANNOTATION CALLOUTS -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px;">
+        <div style="padding:11px 13px;background:rgba(200,75,47,0.04);border:1px solid var(--accent-soft);border-radius:2px;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:5px;">Metric signal annotated</div>
+          <div style="font-size:11px;color:var(--ink-mid);line-height:1.55;">Range bar encodes: 2 of 5 segments active = well outside variance. Red = adverse direction. Reader triages before tapping. Sidecar opens with governed definition, absolute volume, WoW/MoM/YoY, variance band, and sparkline.</div>
+        </div>
+        <div style="padding:11px 13px;background:rgba(26,92,90,0.04);border:1px solid var(--teal-soft);border-radius:2px;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal);margin-bottom:5px;">Entity signal annotated</div>
+          <div style="font-size:11px;color:var(--ink-mid);line-height:1.55;">Teal underline signals: this term has a governed definition and current state. Sidecar opens with population statement, segment size in absolute customers, lifecycle position in MECE context, and WoW performance.</div>
+        </div>
+        <div style="padding:11px 13px;background:rgba(184,134,11,0.04);border:1px solid var(--gold-soft);border-radius:2px;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:5px;">Tension signal annotated</div>
+          <div style="font-size:11px;color:var(--ink-mid);line-height:1.55;">Gold highlight + bracket marks a relationship, not a single value. Two mutually exclusive segments diverging. Sidecar opens with side-by-side metrics, net revenue impact, full MECE shopper decomposition, and 12-week divergence chart.</div>
+        </div>
+      </div>
+
+      <div class="response-nav">
+        <div class="response-nav-label">Generated Navigation</div>
+        <div class="nav-prose primary">"The regional concentration is worth a closer look — urban stores are carrying 68% of the lapsing volume from 38% of the footprint, and the store-level distribution has a top-40 tail that's specific enough to delegate. Want me to show you the waterfall?"</div>
+        <div class="nav-prose secondary">"There's also a quarterly framing here — three consecutive weeks of lapsing loyalty decline with a front-store-only structural signal is a Pillar 2 retention strategy input. If you're heading into a planning conversation, I can give you that version."</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-divider"></div>
+
+<!-- EVALUATION CRITERIA -->
+<div class="page">
+  <div class="section-label">Part III · Quality Evaluation</div>
+  <h2 class="section-title">How to Evaluate Response Completeness</h2>
+  <p class="prose">A response is complete when Alex can act on it, delegate it, or decide to go deeper — without needing to reframe or translate it first. These criteria are the evaluation standard for every response the product generates.</p>
+
+  <div class="eval-grid">
+    <div class="eval-card">
+      <div class="eval-card-label">Response Quality Criteria</div>
+      <div class="eval-criterion"><span class="crit-num">01</span>The title states a finding or tension, not a topic. "Front store trips" is a topic. "Lapsing loyalty members are driving the front store trip decline" is a finding.</div>
+      <div class="eval-criterion"><span class="crit-num">02</span>The frame is explicit — the population, metric, and time window are named before any claim is made. The response can be trusted and forwarded without the reader needing to ask "which customers?" or "what time period?"</div>
+      <div class="eval-criterion"><span class="crit-num">03</span>No causal claims. "Associated with" not "caused by." Directional statistics only. The product reports what the data shows — it does not construct an explanatory narrative beyond the signal.</div>
+      <div class="eval-criterion"><span class="crit-num">04</span>At least one strategic pillar is named and relevant to the finding. The pillar attribution is not forced — if the finding genuinely speaks to a pillar, it is named. If it doesn't, it is not.</div>
+      <div class="eval-criterion"><span class="crit-num">05</span>The decision tier is classified. Alex knows whether this is an in-week action, a quarterly signal, or a multi-year consideration — or spans tiers, with distinct actions named at each level.</div>
+    </div>
+    <div class="eval-card">
+      <div class="eval-card-label">Navigation Quality Criteria</div>
+      <div class="eval-criterion"><span class="crit-num">01</span>The strong recommendation is genuinely the most consequential next move — not the most obvious one. It demonstrates that the product has already considered what comes next and chosen the most useful direction.</div>
+      <div class="eval-criterion"><span class="crit-num">02</span>The alternative is a genuinely different direction — a different pillar, a different tier, a different entry mode. Not a lesser version of the recommendation.</div>
+      <div class="eval-criterion"><span class="crit-num">03</span>Both are written in plain prose that sounds like a person. Neither sounds like a button label, a menu item, or a tooltip. The test: would a brilliant analyst say this in a meeting room?</div>
+      <div class="eval-criterion"><span class="crit-num">04</span>The navigation is drawn from the response — it follows logically from what was just said. It does not introduce topics not grounded in the current response.</div>
+      <div class="eval-criterion"><span class="crit-num">05</span>Alex can follow or ignore the navigation without losing context. The thread remains intact. The next response will reference what was already established, regardless of which path Alex takes.</div>
+    </div>
+  </div>
+
+  <div style="background:var(--ink);color:var(--paper);padding:40px 48px;border-radius:2px;">
+    <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:#4a4640;margin-bottom:20px;">The Trust Test</div>
+    <div style="font-family:'Playfair Display',serif;font-size:20px;line-height:1.65;color:var(--paper);max-width:720px;">A response passes the trust test when Alex reads it and thinks: <em style="color:#c8b99a;">"I could forward this as-is."</em> Not "I could use this as a starting point." Not "I could brief my team on this if I added some context." Forward it. As written. Without a cover note.</div>
+    <div style="margin-top:20px;font-size:13px;color:#6a6560;line-height:1.7;max-width:640px;">That is the standard. Everything in this specification — the template, the entry modes, the depth calibration, the navigation model — exists in service of that single outcome. When the product earns that trust consistently, it earns the right to be the source of record.</div>
+  </div>
+</div>
+
+<div class="page-divider"></div>
+
+<!-- PART IV: UI SYSTEM -->
+<div class="page">
+  <div class="section-label">Part IV · UI System & Signal Design</div>
+  <h2 class="section-title">The Three-Space Layout</h2>
+  <p class="prose">The UI is not a single surface. It is three distinct spaces with defined roles, each occupying the screen in proportion to what Alex is doing at any moment. The thread is always present. The sidecar and analysis view are entered and exited deliberately.</p>
+
+  <!-- SPATIAL DIAGRAM -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;margin-bottom:16px;border:1px solid var(--rule);border-radius:2px;overflow:hidden;">
+    <div style="background:var(--ink);padding:32px 28px;position:relative;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:#4a4640;margin-bottom:12px;">Space 01</div>
+      <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--paper);margin-bottom:16px;">The Thread</div>
+      <div style="font-size:12px;color:#9a9590;line-height:1.7;margin-bottom:20px;">Primary conversational space. Always visible. Narrative responses accumulate downward. Between each product response and Alex's reply space sits the breadcrumb drawer — collapsed, anchored, expandable.</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="font-size:11px;color:#c8b99a;padding:6px 10px;background:rgba(245,242,237,0.04);border-radius:2px;font-family:'DM Mono',monospace;letter-spacing:0.04em;">Default: full width</div>
+        <div style="font-size:11px;color:#c8b99a;padding:6px 10px;background:rgba(245,242,237,0.04);border-radius:2px;font-family:'DM Mono',monospace;letter-spacing:0.04em;">With sidecar: ~60% width</div>
+        <div style="font-size:11px;color:#c8b99a;padding:6px 10px;background:rgba(245,242,237,0.04);border-radius:2px;font-family:'DM Mono',monospace;letter-spacing:0.04em;">Analysis mode: collapses to narrow rail</div>
+      </div>
+    </div>
+    <div style="background:white;border-left:1px solid var(--rule);border-right:1px solid var(--rule);padding:32px 28px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-light);margin-bottom:12px;">Space 02</div>
+      <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--ink);margin-bottom:16px;">The Sidecar</div>
+      <div style="font-size:12px;color:var(--ink-mid);line-height:1.7;margin-bottom:20px;">Context and calibration layer. Opens on tap of a signaled element. Persists until dismissed. Updates on every tap — always showing the most recently activated element. The thread is the memory, not the sidecar.</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="font-size:11px;color:var(--teal);padding:6px 10px;background:var(--teal-soft);border-radius:2px;font-family:'DM Mono',monospace;letter-spacing:0.04em;">Opens: slide-in from right</div>
+        <div style="font-size:11px;color:var(--teal);padding:6px 10px;background:var(--teal-soft);border-radius:2px;font-family:'DM Mono',monospace;letter-spacing:0.04em;">Updates: on tap, no history</div>
+        <div style="font-size:11px;color:var(--teal);padding:6px 10px;background:var(--teal-soft);border-radius:2px;font-family:'DM Mono',monospace;letter-spacing:0.04em;">Dismisses: explicit close or session end</div>
+      </div>
+    </div>
+    <div style="background:var(--cream);padding:32px 28px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-light);margin-bottom:12px;">Space 03</div>
+      <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--ink);margin-bottom:16px;">Analysis View</div>
+      <div style="font-size:12px;color:var(--ink-mid);line-height:1.7;margin-bottom:20px;">Deliberately entered mode for structured data exploration. Not a drift — an explicit door. The thread collapses to a narrow visible rail on the left. Analysis expands right. Exit returns thread to full width.</div>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="font-size:11px;color:var(--gold);padding:6px 10px;background:var(--gold-soft);border-radius:2px;font-family:'DM Mono',monospace;letter-spacing:0.04em;">Entered: via nav prose or sidecar control</div>
+        <div style="font-size:11px;color:var(--gold);padding:6px 10px;background:var(--gold-soft);border-radius:2px;font-family:'DM Mono',monospace;letter-spacing:0.04em;">Thread: collapses to narrow rail, left</div>
+        <div style="font-size:11px;color:var(--gold);padding:6px 10px;background:var(--gold-soft);border-radius:2px;font-family:'DM Mono',monospace;letter-spacing:0.04em;">Exit: thread expands, agent updated</div>
+      </div>
+    </div>
+  </div>
+  <div style="background:var(--cream);border:1px solid var(--rule);padding:14px 20px;border-radius:2px;font-size:12px;color:var(--ink-mid);line-height:1.7;margin-bottom:48px;">
+    <strong style="font-weight:500;">The boundary rule:</strong> The sidecar handles context and calibration — what a metric means, where it sits relative to baseline, how a segment is currently performing. Analysis view handles structured exploration — waterfall views, decile distributions, cohort comparisons. The sidecar never becomes a dashboard. If content warrants deeper exploration, the sidecar offers the door to analysis view explicitly. Alex walks through it deliberately.
+  </div>
+
+  <!-- SIGNAL TAXONOMY -->
+  <div class="section-label">Pre-Attentive Signal Taxonomy</div>
+  <p class="prose">The narrative stays clean. Certain elements inside it carry visual affordances that signal — before any tap — that there is something here to see. There are three signal types. Each has a distinct visual treatment. Together they form a visual grammar Alex learns once and reads automatically.</p>
+
+  <div style="border:1px solid var(--rule);border-radius:2px;overflow:hidden;margin-bottom:16px;">
+    <div style="display:grid;grid-template-columns:160px 1fr 1fr 1fr;background:var(--ink);">
+      <div style="padding:12px 20px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--paper);border-right:1px solid #2a2926;">Signal Type</div>
+      <div style="padding:12px 20px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--paper);border-right:1px solid #2a2926;">What it marks</div>
+      <div style="padding:12px 20px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--paper);border-right:1px solid #2a2926;">Visual treatment</div>
+      <div style="padding:12px 20px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--paper);">What opens in sidecar</div>
+    </div>
+
+    <!-- Metric Signal -->
+    <div style="display:grid;grid-template-columns:160px 1fr 1fr 1fr;border-bottom:1px solid var(--rule);">
+      <div style="padding:20px;background:var(--cream);border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:6px;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent);">Metric</div>
+        <div style="font-size:13px;font-weight:500;color:var(--ink);">A number with baseline context</div>
+      </div>
+      <div style="padding:20px;border-right:1px solid var(--rule);font-size:13px;color:var(--ink-mid);line-height:1.65;">Any quantified value in the narrative — percentages, counts, rates — that has a historical baseline and variance range behind it. The number alone is insufficient without this context.</div>
+      <div style="padding:20px;border-right:1px solid var(--rule);">
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;margin-bottom:12px;">Small inline range bar immediately after the number. The bar encodes where this value sits within its historical distribution — visually communicating inside or outside normal variance <em>before</em> any tap.</div>
+        <div style="font-size:12px;font-family:'DM Mono',monospace;padding:8px 12px;background:var(--cream);border-radius:2px;color:var(--ink-mid);">
+          Example: <span style="font-weight:600;color:var(--accent);">−2.8%</span> <span style="display:inline-flex;align-items:center;gap:1px;vertical-align:middle;margin-left:4px;"><span style="width:4px;height:10px;background:var(--rule);border-radius:1px;display:inline-block;"></span><span style="width:4px;height:10px;background:var(--rule);border-radius:1px;display:inline-block;"></span><span style="width:4px;height:10px;background:var(--accent);border-radius:1px;display:inline-block;"></span><span style="width:4px;height:10px;background:var(--accent);border-radius:1px;display:inline-block;"></span><span style="width:4px;height:10px;background:var(--rule);border-radius:1px;display:inline-block;"></span></span>
+          <div style="font-size:10px;color:var(--ink-light);margin-top:4px;">Bar position = outside normal range</div>
+        </div>
+      </div>
+      <div style="padding:20px;font-size:13px;color:var(--ink-mid);line-height:1.65;">Current value, historical baseline, typical variance band, WoW / MoM / YoY in a single compact view. A sparkline showing the last 12 weeks. The calibration Alex needs to know whether to act.</div>
+    </div>
+
+    <!-- Entity Signal -->
+    <div style="display:grid;grid-template-columns:160px 1fr 1fr 1fr;border-bottom:1px solid var(--rule);">
+      <div style="padding:20px;background:var(--cream);border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:6px;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal);">Entity</div>
+        <div style="font-size:13px;font-weight:500;color:var(--ink);">A named segment, region, or type</div>
+      </div>
+      <div style="padding:20px;border-right:1px solid var(--rule);font-size:13px;color:var(--ink-mid);line-height:1.65;">Shopper types, lifecycle stages, regions, urban density classifications, trip missions, channels. Any named entity that has a governed definition and a current performance state.</div>
+      <div style="padding:20px;border-right:1px solid var(--rule);">
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;margin-bottom:12px;">Subtle typographic treatment — a fine underline and slight weight increase. Signals "this term has a body" without implying urgency. The treatment is consistent and learnable.</div>
+        <div style="font-size:12px;font-family:'DM Mono',monospace;padding:8px 12px;background:var(--cream);border-radius:2px;color:var(--ink-mid);">
+          Example: <span style="font-weight:500;border-bottom:1.5px solid var(--teal);padding-bottom:1px;color:var(--teal);">lapsing loyalty members</span>
+          <div style="font-size:10px;color:var(--ink-light);margin-top:4px;">Underline = tappable entity with profile</div>
+        </div>
+      </div>
+      <div style="padding:20px;font-size:13px;color:var(--ink-mid);line-height:1.65;">Governed definition of the segment, current size as a % of total, current performance state, WoW change, and lifecycle position. What this entity is and where it stands right now.</div>
+    </div>
+
+    <!-- Tension Signal -->
+    <div style="display:grid;grid-template-columns:160px 1fr 1fr 1fr;">
+      <div style="padding:20px;background:var(--cream);border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:6px;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);">Tension</div>
+        <div style="font-size:13px;font-weight:500;color:var(--ink);">Two diverging metrics in relation</div>
+      </div>
+      <div style="padding:20px;border-right:1px solid var(--rule);font-size:13px;color:var(--ink-mid);line-height:1.65;">Two metrics named in proximity that are moving in opposite directions — where the relationship between them is the finding. One is holding something afloat while the other deteriorates. The law of large numbers makes this expected.</div>
+      <div style="padding:20px;border-right:1px solid var(--rule);">
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;margin-bottom:12px;">A bracket or light highlight that visually connects the two terms. Distinct from both metric and entity signals — it marks a relationship, not a value or a definition. The signal says: these two things are in conversation.</div>
+        <div style="font-size:12px;font-family:'DM Mono',monospace;padding:8px 12px;background:var(--cream);border-radius:2px;color:var(--ink-mid);">
+          Example: <span style="background:var(--gold-soft);padding:2px 6px;border-radius:2px;color:var(--gold);font-weight:500;">front store stable ↔ Rx attach declining</span>
+          <div style="font-size:10px;color:var(--ink-light);margin-top:4px;">Highlight = named tension between two signals</div>
+        </div>
+      </div>
+      <div style="padding:20px;font-size:13px;color:var(--ink-mid);line-height:1.65;">Side-by-side view of both metrics with their baselines. The divergence quantified. Which one is load-bearing. What the tension implies about the underlying dynamic — and which strategic pillar it touches.</div>
+    </div>
+  </div>
+
+  <div style="background:var(--cream);border:1px solid var(--rule);padding:14px 20px;border-radius:2px;font-size:12px;color:var(--ink-mid);line-height:1.7;margin-bottom:48px;">
+    <strong style="font-weight:500;">The baseline encoding principle:</strong> The prose says "atypical." The inline range bar on the metric confirms it visually — before any tap. The sidecar proves it with full context. These three layers do different work at different levels of attention. Alex should be able to triage signal strength by scanning the prose alone, without opening anything.
+  </div>
+
+  <!-- MECE SMART HIGHLIGHTING (v1.1) -->
+  <div class="section-label">MECE Smart Highlighting</div>
+  <p class="prose">When showing a complete segment decomposition (regions, shopper types, channels), signal-bearing segments are visually foregrounded while quiet segments collapse into a summary row. The completeness guarantee is maintained — all segments remain accessible — but attention is directed to the 2-3 that are doing the work.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:32px;">
+    <div style="background:white;border:1px solid var(--rule);padding:24px;border-radius:2px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:14px;">Before — all segments equal weight</div>
+      <div style="display:flex;border:1px solid var(--rule);border-radius:2px;overflow:hidden;margin-bottom:10px;">
+        <div style="flex:1;padding:8px 6px;text-align:center;background:#f0e0db;border-right:1px solid var(--rule);">
+          <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);text-transform:uppercase;">NE Urban</div>
+          <div style="font-size:12px;font-weight:500;color:var(--accent);">−38%</div>
+        </div>
+        <div style="flex:1;padding:8px 6px;text-align:center;background:#f0e0db;border-right:1px solid var(--rule);">
+          <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);text-transform:uppercase;">MW Urban</div>
+          <div style="font-size:12px;font-weight:500;color:var(--accent);">−30%</div>
+        </div>
+        <div style="flex:1;padding:8px 6px;text-align:center;border-right:1px solid var(--rule);">
+          <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--ink-light);text-transform:uppercase;">SE Urban</div>
+          <div style="font-size:12px;font-weight:500;color:var(--ink-light);">−8%</div>
+        </div>
+        <div style="flex:1;padding:8px 6px;text-align:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--ink-light);text-transform:uppercase;">+6 more</div>
+          <div style="font-size:12px;font-weight:500;color:var(--ink-light);">flat</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--ink-light);font-style:italic;">All rendered identically — no clear signal hierarchy</div>
+    </div>
+    <div style="background:white;border:1px solid var(--rule);padding:24px;border-radius:2px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal);margin-bottom:14px;">After — smart highlighted</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <div style="flex:1;padding:10px;background:var(--accent-soft);border-top:2px solid var(--accent);border:1px solid var(--rule);border-radius:2px;text-align:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);text-transform:uppercase;">NE Urban</div>
+          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--accent);">−38%</div>
+          <div style="font-size:9px;color:var(--accent);margin-top:2px;font-family:'DM Mono',monospace;">38% of Δ</div>
+        </div>
+        <div style="flex:1;padding:10px;background:var(--accent-soft);border-top:2px solid var(--accent);border:1px solid var(--rule);border-radius:2px;text-align:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--accent);text-transform:uppercase;">MW Urban</div>
+          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--accent);">−30%</div>
+          <div style="font-size:9px;color:var(--accent);margin-top:2px;font-family:'DM Mono',monospace;">30% of Δ</div>
+        </div>
+      </div>
+      <div style="padding:8px 12px;background:var(--cream);border:1px solid var(--rule);border-radius:2px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+        <div style="font-size:11px;color:var(--ink-light);">7 other regions · combined −32%</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);">Show all ↓</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--cream);border:1px solid var(--rule);padding:14px 20px;border-radius:2px;font-size:12px;color:var(--ink-mid);line-height:1.7;margin-bottom:48px;">
+    <strong style="font-weight:500;">Threshold rule:</strong> signal_state = "signal" or "warn" → foreground. All others → collapse. The collapse row always shows combined % so completeness can be verified without expanding. If no segments have signal state, show the highest absolute_change segment.
+  </div>
+
+  <!-- BREADCRUMB TRAIL -->
+  <div class="section-label">The Breadcrumb Trail</div>
+  <p class="prose">The breadcrumb trail is the seam between conversation and investigation. It lives between the product's response and Alex's reply space, anchored to the response that generated the investigation. Collapsed by default. Expandable on demand. It does three jobs simultaneously — and must do all three without cluttering the thread.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;">
+    <div style="background:white;border:1px solid var(--rule);padding:24px;border-radius:2px;border-top:3px solid var(--ink);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;">Job 01</div>
+      <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;margin-bottom:10px;">Agent Awareness Layer</div>
+      <div style="font-size:13px;color:var(--ink-mid);line-height:1.7;">Every sidecar tap appends a structured event to the breadcrumb trail. The agent reads these events automatically when generating the next response. Alex never has to narrate what they investigated — the agent already knows. The trail is the passive awareness mechanism.</div>
+    </div>
+    <div style="background:white;border:1px solid var(--rule);padding:24px;border-radius:2px;border-top:3px solid var(--teal);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;">Job 02</div>
+      <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;margin-bottom:10px;">Investigative History</div>
+      <div style="font-size:13px;color:var(--ink-mid);line-height:1.7;">Collapsed by default and unlikely to be needed in most sessions. But when Alex needs to reconstruct their investigation path — for a debrief, a delegation note, or a backward trace through the session — the trail is there, expandable, anchored to the response that generated it.</div>
+    </div>
+    <div style="background:white;border:1px solid var(--rule);padding:24px;border-radius:2px;border-top:3px solid var(--gold);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;">Job 03</div>
+      <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;margin-bottom:10px;">Modal Offer Trigger</div>
+      <div style="font-size:13px;color:var(--ink-mid);line-height:1.7;">When sidecar activity signals that Alex is in investigative depth — multiple taps in the same dimension, or engagement with a tension — the agent's next response opens with a light modal offer. Not a narration of what was seen. A door: "It looks like you've been in the regional data — do you want me to bring that into analysis view?"</div>
+    </div>
+  </div>
+
+  <!-- BREADCRUMB ANATOMY -->
+  <div style="background:white;border:1px solid var(--rule);border-radius:2px;overflow:hidden;margin-bottom:16px;">
+    <div style="background:var(--cream);padding:14px 20px;border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:12px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-light);">Breadcrumb Trail — Collapsed State (as it appears in thread)</div>
+    </div>
+    <div style="padding:16px 20px;display:flex;align-items:center;gap:12px;">
+      <div style="width:16px;height:16px;border-radius:50%;background:var(--cream);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;">
+        <div style="width:6px;height:1px;background:var(--ink-light);"></div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--ink-light);letter-spacing:0.08em;">3 items investigated · urban store distribution · lapsing loyalty segment · front store vs Rx tension</div>
+      <div style="margin-left:auto;font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);letter-spacing:0.1em;text-transform:uppercase;">Expand ↓</div>
+    </div>
+  </div>
+
+  <div style="background:white;border:1px solid var(--rule);border-radius:2px;overflow:hidden;margin-bottom:48px;">
+    <div style="background:var(--cream);padding:14px 20px;border-bottom:1px solid var(--rule);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-light);">Breadcrumb Trail — Expanded State</div>
+    </div>
+    <div style="padding:0;">
+      <div style="padding:14px 20px;border-bottom:1px solid var(--cream);display:grid;grid-template-columns:80px 180px 1fr;gap:16px;align-items:center;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);">09:04am</div>
+        <div style="font-size:12px;font-weight:500;color:var(--ink);">urban store distribution</div>
+        <div style="font-size:12px;color:var(--ink-light);">Metric tap · front store trip decline by urban density · sidecar opened</div>
+      </div>
+      <div style="padding:14px 20px;border-bottom:1px solid var(--cream);display:grid;grid-template-columns:80px 180px 1fr;gap:16px;align-items:center;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);">09:06am</div>
+        <div style="font-size:12px;font-weight:500;color:var(--ink);">lapsing loyalty members</div>
+        <div style="font-size:12px;color:var(--ink-light);">Entity tap · segment profile opened · sidecar updated</div>
+      </div>
+      <div style="padding:14px 20px;display:grid;grid-template-columns:80px 180px 1fr;gap:16px;align-items:center;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);">09:07am</div>
+        <div style="font-size:12px;font-weight:500;color:var(--ink);">front store ↔ Rx tension</div>
+        <div style="font-size:12px;color:var(--ink-light);">Tension tap · divergence view opened · analysis view offered by agent</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYSIS VIEW PROTOCOL -->
+  <div class="section-label">Analysis View — Entry & Exit Protocol</div>
+  <p class="prose">Analysis view is not a mode Alex drifts into. It is a room they walk into deliberately and walk out of when done. The protocol governs how the transition happens, what the agent knows when Alex returns, and how the thread is preserved throughout.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:48px;">
+    <div style="background:white;border:1px solid var(--rule);padding:28px;border-radius:2px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-light);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--rule);">Entry</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;padding-left:14px;border-left:2px solid var(--teal);">Triggered by navigation prose: <em>"I can open that in analysis view."</em> Or by a control that appears in the sidecar when the content warrants deeper exploration.</div>
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;padding-left:14px;border-left:2px solid var(--teal);">Thread collapses to a narrow rail on the left — visible and scrollable throughout. Alex never loses the conversational context that led here.</div>
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;padding-left:14px;border-left:2px solid var(--teal);">Analysis view expands to occupy the right. Sidecar closes — its job passes to the analysis view itself.</div>
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;padding-left:14px;border-left:2px solid var(--teal);">A breadcrumb event is appended: "Entered analysis view · front store trip deciles · 09:08am."</div>
+      </div>
+    </div>
+    <div style="background:white;border:1px solid var(--rule);padding:28px;border-radius:2px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-light);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--rule);">Exit</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;padding-left:14px;border-left:2px solid var(--gold);">Alex taps "Return to conversation" — an explicit control, always present in analysis view. Never automatic.</div>
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;padding-left:14px;border-left:2px solid var(--gold);">Thread expands back to full width. The sidecar may reopen if Alex had one active before entering.</div>
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;padding-left:14px;border-left:2px solid var(--gold);">A breadcrumb event is appended: "Exited analysis view · 09:14am · 6 minutes."</div>
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;padding-left:14px;border-left:2px solid var(--gold);">The agent's next response opens with a light modal offer drawing on what Alex explored — not a narration, but a door: <em>"You spent time in the decile view — want me to bring that into the conversation?"</em></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AGENT AWARENESS MODEL -->
+  <div class="section-label">Agent Awareness — How the Thread Learns from the Sidecar</div>
+  <p class="prose">The agent is aware of sidecar and analysis activity through the breadcrumb trail. This awareness shapes how it opens the next response. The awareness is calibrated — the agent does not narrate everything Alex looked at. It reads the investigation and responds to its pattern.</p>
+
+  <div style="border:1px solid var(--rule);border-radius:2px;overflow:hidden;margin-bottom:48px;">
+    <div style="display:grid;grid-template-columns:200px 1fr 1fr;background:var(--ink);">
+      <div style="padding:12px 20px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--paper);border-right:1px solid #2a2926;">Investigation pattern</div>
+      <div style="padding:12px 20px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--paper);border-right:1px solid #2a2926;">What the agent reads</div>
+      <div style="padding:12px 20px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--paper);">How the next response opens</div>
+    </div>
+    <div style="display:grid;grid-template-columns:200px 1fr 1fr;border-bottom:1px solid var(--rule);">
+      <div style="padding:18px 20px;background:var(--cream);border-right:1px solid var(--rule);font-size:13px;font-weight:500;">Single metric tap, no follow-on</div>
+      <div style="padding:18px 20px;border-right:1px solid var(--rule);font-size:13px;color:var(--ink-mid);line-height:1.65;">Alex checked the baseline context and moved on. Calibration was the need. No deeper investigation signaled.</div>
+      <div style="padding:18px 20px;font-size:13px;color:var(--ink-mid);line-height:1.65;">Response proceeds normally. No modal offer. The agent treats the tap as context consumption, not investigation intent.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:200px 1fr 1fr;border-bottom:1px solid var(--rule);">
+      <div style="padding:18px 20px;background:var(--cream);border-right:1px solid var(--rule);font-size:13px;font-weight:500;">Multiple taps in same dimension</div>
+      <div style="padding:18px 20px;border-right:1px solid var(--rule);font-size:13px;color:var(--ink-mid);line-height:1.65;">Alex is investigating a pattern — multiple entity or metric taps in the same attribution dimension. Analytical mode is active.</div>
+      <div style="padding:18px 20px;font-size:13px;color:var(--ink-mid);line-height:1.65;">Response opens with a light modal offer: <em>"It looks like you've been in the regional data — do you want me to bring that into the conversation?"</em></div>
+    </div>
+    <div style="display:grid;grid-template-columns:200px 1fr 1fr;border-bottom:1px solid var(--rule);">
+      <div style="padding:18px 20px;background:var(--cream);border-right:1px solid var(--rule);font-size:13px;font-weight:500;">Tension tap with entity follow-on</div>
+      <div style="padding:18px 20px;border-right:1px solid var(--rule);font-size:13px;color:var(--ink-mid);line-height:1.65;">Alex tapped a tension then immediately investigated one of the implicated segments. They are stress-testing a hypothesis about the relationship.</div>
+      <div style="padding:18px 20px;font-size:13px;color:var(--ink-mid);line-height:1.65;">Response opens with hypothesis framing: <em>"It looks like you're exploring the Rx / front store divergence — want me to frame what the data says about that tension directly?"</em></div>
+    </div>
+    <div style="display:grid;grid-template-columns:200px 1fr 1fr;">
+      <div style="padding:18px 20px;background:var(--cream);border-right:1px solid var(--rule);font-size:13px;font-weight:500;">Analysis view entered and exited</div>
+      <div style="padding:18px 20px;border-right:1px solid var(--rule);font-size:13px;color:var(--ink-mid);line-height:1.65;">Alex went into structured exploration. Duration and focus are known from the breadcrumb events. The agent knows what analysis view was opened on.</div>
+      <div style="padding:18px 20px;font-size:13px;color:var(--ink-mid);line-height:1.65;">Response opens with a reintegration offer: <em>"You spent time in the decile view — want me to bring what you found there into the conversation?"</em></div>
+    </div>
+  </div>
+
+</div>
+
+
+<div class="page-divider"></div>
+
+<!-- TRACE — THE GOVERNED SESSION OBJECT -->
+<div class="page">
+  <div class="section-label">Trace — The Governed Session Object</div>
+  <p class="prose">Trace is the accumulated governed layer of a session. It is not a log of what Alex said — it is a record of what the governed data produced in response to Alex's investigation. Every metric tap, entity tap, tension tap, and analysis view entry automatically adds an event to Trace. By the time a session produces a finding worth delegating, Trace is already complete.</p>
+
+  <p class="prose">Trace differs from the breadcrumb trail in a critical way. The breadcrumb trail is Alex's investigation path — it tells the agent what Alex has been doing so the next response can be shaped accordingly. Trace is the governed data layer that made each finding trustworthy — it carries metric definitions, MECE decomposition, confidence levels, source, and reconciliation timestamps. The breadcrumb trail is for the agent. Trace is for the analyst.</p>
+
+  <!-- What Trace accumulates -->
+  <div class="section-label" style="margin-top:32px;">What Trace Accumulates</div>
+  <div style="border:1px solid var(--rule);border-radius:2px;overflow:hidden;margin-bottom:48px;">
+    <div style="display:grid;grid-template-columns:200px 1fr 1fr;background:var(--ink);">
+      <div style="padding:12px 20px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--paper);border-right:1px solid #2a2926;">Event type</div>
+      <div style="padding:12px 20px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--paper);border-right:1px solid #2a2926;">What gets recorded</div>
+      <div style="padding:12px 20px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--paper);">Confidence source</div>
+    </div>
+    <div style="display:grid;grid-template-columns:200px 1fr 1fr;border-bottom:1px solid var(--rule);">
+      <div style="padding:18px 20px;background:var(--cream);border-right:1px solid var(--rule);font-size:13px;font-weight:500;">Metric tap</div>
+      <div style="padding:18px 20px;border-right:1px solid var(--rule);font-size:13px;color:var(--ink-mid);line-height:1.65;">Metric name · governed definition · absolute + relative values · MECE decomposition · reconciliation timestamp</div>
+      <div style="padding:18px 20px;font-size:13px;color:var(--ink-mid);line-height:1.65;">Inherited from the governed card that opened in the sidecar</div>
+    </div>
+    <div style="display:grid;grid-template-columns:200px 1fr 1fr;border-bottom:1px solid var(--rule);">
+      <div style="padding:18px 20px;background:var(--cream);border-right:1px solid var(--rule);font-size:13px;font-weight:500;">Entity tap</div>
+      <div style="padding:18px 20px;border-right:1px solid var(--rule);font-size:13px;color:var(--ink-mid);line-height:1.65;">Segment name · governing definition (population, calculation window, threshold) · key values · data source</div>
+      <div style="padding:18px 20px;font-size:13px;color:var(--ink-mid);line-height:1.65;">Sage = Governed definition exists. Gold = Modeled. Accent = Pending reconciliation.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:200px 1fr 1fr;border-bottom:1px solid var(--rule);">
+      <div style="padding:18px 20px;background:var(--cream);border-right:1px solid var(--rule);font-size:13px;font-weight:500;">Tension tap</div>
+      <div style="padding:18px 20px;border-right:1px solid var(--rule);font-size:13px;color:var(--ink-mid);line-height:1.65;">Both metric names · net divergence value · MECE position for each · confidence note on the directional relationship</div>
+      <div style="padding:18px 20px;font-size:13px;color:var(--ink-mid);line-height:1.65;">Estimated by default — tension is directional, not causal. Flagged if either metric is unreconciled.</div>
+    </div>
+    <div style="display:grid;grid-template-columns:200px 1fr 1fr;">
+      <div style="padding:18px 20px;background:var(--cream);border-right:1px solid var(--rule);font-size:13px;font-weight:500;">Analysis view entry</div>
+      <div style="padding:18px 20px;border-right:1px solid var(--rule);font-size:13px;color:var(--ink-mid);line-height:1.65;">View type · duration · focus dimension (e.g. "top 40 store waterfall") · all visible data at time of exit</div>
+      <div style="padding:18px 20px;font-size:13px;color:var(--ink-mid);line-height:1.65;">Governed if data layer is reconciled. Duration and focus recorded from breadcrumb events.</div>
+    </div>
+  </div>
+
+  <!-- Layout contract -->
+  <div class="section-label">Layout Contract — Where Trace Lives</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:48px;">
+    <div style="background:white;border:1px solid var(--rule);padding:28px;border-radius:2px;border-left:3px solid var(--teal);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-light);margin-bottom:14px;">Primary — Reply Bar (atom-trace-indicator)</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;padding-left:14px;border-left:2px solid var(--teal);">The Trace Indicator atom lives in the left side of the reply bar. It appears on the first investigative event and grows with each subsequent one. This is where Alex's attention is during an active session — the indicator is in the flow, not outside it.</div>
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;padding-left:14px;border-left:2px solid var(--teal);">Tapping the indicator opens the Trace Panel organism, which slides up from the reply bar. Alex reviews the accumulated items, optionally edits the scope of work, and initiates delegation from within this panel.</div>
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;padding-left:14px;border-left:2px solid var(--teal);">The indicator never resets within a session. If Alex delegates and continues investigating, Trace continues accumulating for the next potential delegation.</div>
+      </div>
+    </div>
+    <div style="background:white;border:1px solid var(--rule);padding:28px;border-radius:2px;border-left:3px solid var(--gold);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-light);margin-bottom:14px;">Secondary — Topbar (existing Trace nav link)</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;padding-left:14px;border-left:2px solid var(--gold);">The existing Trace link in the topbar remains as a secondary access path. It opens the same Trace Panel organism. This serves Alex when returning to a session mid-week and wanting to review what was previously traced — a different cognitive moment than in-flow delegation.</div>
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;padding-left:14px;border-left:2px solid var(--gold);">The topbar link is not the primary affordance. The reply bar indicator is. If Alex knows to look in the topbar, the feature works — but it should not be the only way to find it.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="page-divider"></div>
+
+<!-- DELEGATE — THE GOVERNED HANDOFF -->
+<div class="page">
+  <div class="section-label">Delegate — The Governed Handoff</div>
+  <p class="prose">Delegate is the mechanism by which Alex transfers a governed finding to an analyst without transcription risk. The product owns the handoff. Alex's role is to provide scope context and name the recipient. Everything else — the definitions, the MECE data, the store IDs, the confidence levels, the data lineage — is assembled from Trace automatically and delivered as a structured Analyst Brief.</p>
+
+  <p class="prose">The current state — Alex reads the product, takes notes or screenshots, sends an email — introduces three manual steps and the transcription risk that comes with them. Delegate replaces all three with a single confirm action. The brief the analyst receives is the governed layer, not Alex's interpretation of it.</p>
+
+  <!-- The handoff gap: before / after -->
+  <div class="section-label" style="margin-top:32px;">The Handoff Gap — Before and After</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:48px;background:var(--rule);">
+    <div style="background:var(--accent-soft);padding:28px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;">Before · Current state</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;">Alex reads the governed response. The governed layer — definitions, MECE, confidence — is visible to Alex in the sidecar but not transmitted.</div>
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;">Alex takes notes, screenshots, or paraphrases. Each step introduces potential transcription error.</div>
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;">Alex sends an email with the prose summary. The analyst receives a paragraph — no definitions, no store IDs, no confidence levels, no methodology.</div>
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;">The analyst must run a clarification loop before work can begin. The governed data layer that made the finding trustworthy is invisible to the person executing on it.</div>
+      </div>
+    </div>
+    <div style="background:var(--sage-soft);padding:28px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--sage);margin-bottom:16px;">After · Delegate flow</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;">Alex investigates normally. Trace accumulates automatically from every sidecar interaction and analysis view entry.</div>
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;">Alex taps the Trace Indicator, reviews the accumulated items, adds a scope note, selects the analyst.</div>
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;">The product generates and delivers the Analyst Brief — governed definitions, MECE decomposition, store IDs, confidence levels, data lineage, investigation trace.</div>
+        <div style="font-size:13px;color:var(--ink-mid);line-height:1.65;">The analyst receives a governed document and can begin work immediately. No clarification loop. The compounding value of the governed layer reaches the execution layer.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delegate interaction flow -->
+  <div class="section-label">Delegate Interaction Flow — Step by Step</div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-bottom:16px;background:var(--rule);">
+    <div style="background:white;padding:20px 16px;text-align:center;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);margin-bottom:8px;">Step 1</div>
+      <div style="font-size:13px;font-weight:500;color:var(--ink);margin-bottom:8px;line-height:1.3;">Alex taps Trace Indicator</div>
+      <div style="font-size:11px;color:var(--ink-mid);line-height:1.5;">In reply bar. Trace Panel slides up. Alex sees all accumulated investigative events.</div>
+    </div>
+    <div style="background:white;padding:20px 16px;text-align:center;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);margin-bottom:8px;">Step 2</div>
+      <div style="font-size:13px;font-weight:500;color:var(--ink);margin-bottom:8px;line-height:1.3;">Alex reviews Trace items</div>
+      <div style="font-size:11px;color:var(--ink-mid);line-height:1.5;">Each item shows: name, event type, confidence. Alex can verify the governed layer before delegating.</div>
+    </div>
+    <div style="background:white;padding:20px 16px;text-align:center;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);margin-bottom:8px;">Step 3</div>
+      <div style="font-size:13px;font-weight:500;color:var(--ink);margin-bottom:8px;line-height:1.3;">Alex taps Delegate →</div>
+      <div style="font-size:11px;color:var(--ink-mid);line-height:1.5;">Delegate Flow replaces Trace list inside panel. Scope field pre-populated from nav prose. Editable.</div>
+    </div>
+    <div style="background:white;padding:20px 16px;text-align:center;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);margin-bottom:8px;">Step 4</div>
+      <div style="font-size:13px;font-weight:500;color:var(--ink);margin-bottom:8px;line-height:1.3;">Alex assigns analyst</div>
+      <div style="font-size:11px;color:var(--ink-mid);line-height:1.5;">mol-assignment-dropdown. Recent assignees first. Single selection. Brief preview shown.</div>
+    </div>
+    <div style="background:white;padding:20px 16px;text-align:center;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);margin-bottom:8px;">Step 5</div>
+      <div style="font-size:13px;font-weight:500;color:var(--ink);margin-bottom:8px;line-height:1.3;">Send Brief → confirms</div>
+      <div style="font-size:11px;color:var(--ink-mid);line-height:1.5;">Brief generated. Analyst notified. Assignment tag appears in thread. Panel closes. Trace Indicator updates to "Delegated."</div>
+    </div>
+  </div>
+  <div style="background:var(--cream);border:1px solid var(--rule);padding:16px 20px;border-radius:2px;font-size:12px;color:var(--ink-mid);line-height:1.7;margin-bottom:48px;">
+    <strong style="font-weight:500;">Scope pre-population:</strong> The scope field in Step 3 is pre-populated by the agent from the navigation prose of the response that prompted delegation. For example, if the nav prose read <em>"The store waterfall is specific enough to delegate directly — top 40 stores with the full MECE regional decomposition"</em>, the scope field opens as: "Build reactivation brief for top 40 urban stores by decline volume." Alex edits as needed. The agent's read is the starting point, not the final word.
+  </div>
+
+  <!-- What the analyst receives -->
+  <div class="section-label">What the Analyst Receives</div>
+  <p class="prose" style="margin-bottom:24px;">The Analyst Brief (tmpl-analyst-brief) is structured, not prose. The analyst can navigate directly to the section they need — definitions, store list, investigation trace — without reading top-to-bottom. The brief is designed for the analyst's workflow, not Alex's narrative.</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:48px;">
+    <div style="background:white;border:1px solid var(--rule);padding:20px;border-radius:2px;border-top:3px solid var(--teal);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;">What the analyst can do</div>
+      <div style="font-size:13px;color:var(--ink-mid);line-height:1.7;">Pull the lapsing segment from the data warehouse using the governed definition — without a clarification call. The 30% frequency decline threshold, the 90-day lookback, the 30-day window: all in the brief.</div>
+    </div>
+    <div style="background:white;border:1px solid var(--rule);padding:20px;border-radius:2px;border-top:3px solid var(--teal);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;">What the analyst no longer needs</div>
+      <div style="font-size:13px;color:var(--ink-mid);line-height:1.7;">A clarification meeting to understand what "lapsing" means. A second email to get the store list. A question about whether the $2.2M figure is modeled or measured. All of this is in the brief.</div>
+    </div>
+    <div style="background:white;border:1px solid var(--rule);padding:20px;border-radius:2px;border-top:3px solid var(--teal);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;">What the brief does not include</div>
+      <div style="font-size:13px;color:var(--ink-mid);line-height:1.7;">Alex's conversation thread. Alex's investigation path. The product's reasoning. The brief contains the governed data layer only — not the session that produced it. The analyst is a governed consumer, not a session spectator.</div>
+    </div>
+  </div>
+</div>
+
+<div class="page-divider"></div>
+
+<!-- CHANGELOG -->
+<div class="page">
+  <div class="section-label">Changelog</div>
+  <div style="background:white;border:1px solid var(--rule);border-radius:2px;padding:20px;">
+    <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-mid);line-height:1.8;">
+      <div style="margin-bottom:12px;"><strong style="color:var(--ink);">v1.2</strong>: Added Trace section (governed session object — what it accumulates, layout contract, distinction from breadcrumb trail). Added Delegate section (governed handoff — before/after gap, 5-step interaction flow, analyst brief content). Resolves analyst handoff gap identified in Perspective 2 review.</div>
+      <div style="margin-bottom:12px;"><strong style="color:var(--ink);">v1.1</strong>: Integrated mode shift acknowledgment, MECE smart highlighting, navigation mood variants, analysis view return flow ceremony, delegation workflow, fiscal week session model</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="doc-footer">
+  <div class="doc-footer-left">Insight Product · Interaction Spec & Product Definition</div>
+  <div class="doc-footer-right">v1.2</div>
+</footer>
+
+</body>
+</html>

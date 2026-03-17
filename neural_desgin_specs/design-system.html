@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insight Product — Atomic Design System</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* ── COLOR TOKENS ── */
+  --color-ink:       #0f0e0c;
+  --color-paper:     #f5f2ed;
+  --color-cream:     #ede9e1;
+  --color-rule:      #d4cfc5;
+  --color-ink-mid:   #4a4640;
+  --color-ink-light: #8a8480;
+
+  --color-accent:      #c84b2f;
+  --color-accent-soft: #f0e0db;
+  --color-teal:        #1a5c5a;
+  --color-teal-soft:   #d4e8e7;
+  --color-gold:        #b8860b;
+  --color-gold-soft:   #f5edd0;
+  --color-sage:        #5b8a6e;
+  --color-sage-soft:   #deeee6;
+
+  /* ── SEMANTIC ALIASES ── */
+  --signal-metric:       var(--color-accent);
+  --signal-metric-bg:    var(--color-accent-soft);
+  --signal-entity:       var(--color-teal);
+  --signal-entity-bg:    var(--color-teal-soft);
+  --signal-tension:      var(--color-gold);
+  --signal-tension-bg:   var(--color-gold-soft);
+  --signal-positive:     var(--color-sage);
+  --signal-positive-bg:  var(--color-sage-soft);
+
+  --pillar-1: var(--color-sage);   --pillar-1-bg: var(--color-sage-soft);
+  --pillar-2: var(--color-teal);   --pillar-2-bg: var(--color-teal-soft);
+  --pillar-3: var(--color-gold);   --pillar-3-bg: var(--color-gold-soft);
+  --pillar-4: var(--color-accent); --pillar-4-bg: var(--color-accent-soft);
+
+  --tier-tactical:  var(--color-accent); --tier-tactical-bg:  var(--color-accent-soft);
+  --tier-strategic: var(--color-gold);   --tier-strategic-bg: var(--color-gold-soft);
+  --tier-capital:   var(--color-teal);   --tier-capital-bg:   var(--color-teal-soft);
+
+  /* ── SPACING SCALE ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── TYPE SCALE ── */
+  --text-xs:   9px;
+  --text-sm:   11px;
+  --text-base: 13px;
+  --text-md:   14px;
+  --text-lg:   16px;
+  --text-xl:   18px;
+  --text-2xl:  22px;
+  --text-3xl:  28px;
+  --text-4xl:  36px;
+
+  /* ── RADIUS ── */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-full: 9999px;
+
+  /* ── TRANSITIONS ── */
+  --transition-fast: all 0.12s ease;
+  --transition-slide: all 0.32s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ── RESET ── */
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--color-paper); color:var(--color-ink); font-family:'DM Sans',sans-serif; font-size:var(--text-md); line-height:1.6; }
+
+/* ── DOC CHROME ── */
+.doc-cover {
+  background: var(--color-ink);
+  padding: 72px 80px;
+  position: relative;
+  overflow: hidden;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.doc-cover::after {
+  content:'';position:absolute;bottom:0;left:0;width:100%;height:3px;
+  background:linear-gradient(90deg,var(--color-accent) 0%,var(--color-gold) 50%,var(--color-teal) 100%);
+}
+.doc-cover::before {
+  content:'';position:absolute;top:0;right:0;width:45%;height:100%;
+  background:repeating-linear-gradient(-45deg,transparent,transparent 12px,rgba(245,242,237,0.02) 12px,rgba(245,242,237,0.02) 13px);
+}
+.cover-eyebrow { font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.22em;text-transform:uppercase;color:#3a3930;margin-bottom:var(--space-6); }
+.cover-title { font-family:'Playfair Display',serif;font-size:48px;font-weight:700;color:var(--color-paper);line-height:1.05;max-width:700px; }
+.cover-title em { font-style:italic;color:#c8b99a; }
+.cover-sub { font-size:var(--text-base);color:#6a6560;margin-top:var(--space-4);max-width:560px;line-height:1.75;font-weight:300; }
+.cover-meta { display:flex;gap:var(--space-10);border-top:1px solid #1f1e1b;padding-top:var(--space-6);margin-top:var(--space-10); }
+.cover-meta-item .lbl { font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.18em;text-transform:uppercase;color:#3a3930;display:block;margin-bottom:var(--space-1); }
+.cover-meta-item .val { font-size:var(--text-base);color:#9a9590; }
+
+/* LEVEL HEADERS */
+.level-header {
+  padding: var(--space-12) 80px var(--space-6);
+  border-bottom: 1px solid var(--color-rule);
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-6);
+  position: sticky;
+  top: 0;
+  background: var(--color-paper);
+  z-index: 10;
+}
+.level-number { font-family:'Playfair Display',serif;font-size:80px;font-weight:700;color:var(--color-rule);line-height:0.85;flex-shrink:0; }
+.level-info { padding-bottom:4px; }
+.level-name { font-family:'Playfair Display',serif;font-size:32px;font-weight:700;color:var(--color-ink);line-height:1; }
+.level-def { font-size:var(--text-base);color:var(--color-ink-light);margin-top:var(--space-2);max-width:600px;line-height:1.65; }
+
+/* PAGE */
+.page { padding: var(--space-10) 80px var(--space-12); }
+.section-label {
+  font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--color-ink-light);margin-bottom:var(--space-5);display:flex;align-items:center;gap:var(--space-3);
+}
+.section-label::after { content:'';flex:1;height:1px;background:var(--color-rule); }
+.section-title { font-family:'Playfair Display',serif;font-size:22px;font-weight:600;margin-bottom:var(--space-3);line-height:1.2; }
+.section-desc { font-size:var(--text-base);color:var(--color-ink-mid);line-height:1.75;max-width:680px;margin-bottom:var(--space-8); }
+
+/* SPEC BLOCK */
+.spec-block {
+  background:white;border:1px solid var(--color-rule);border-radius:var(--radius-sm);
+  overflow:hidden;margin-bottom:var(--space-6);
+}
+.spec-block-header {
+  background:var(--color-cream);padding:var(--space-3) var(--space-5);border-bottom:1px solid var(--color-rule);
+  display:flex;align-items:center;gap:var(--space-3);
+}
+.spec-name { font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.15em;text-transform:uppercase;color:var(--color-ink);font-weight:500; }
+.spec-token { font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light);background:var(--color-paper);padding:2px 8px;border-radius:var(--radius-sm);border:1px solid var(--color-rule); }
+.spec-block-body { display:grid;grid-template-columns:1fr 1fr;gap:0; }
+.spec-preview { padding:var(--space-6) var(--space-6);border-right:1px solid var(--color-rule);display:flex;align-items:center;justify-content:center;min-height:80px;background:var(--color-paper); }
+.spec-detail { padding:var(--space-5) var(--space-5); }
+.spec-row { display:flex;gap:var(--space-3);padding:var(--space-2) 0;border-bottom:1px solid var(--color-cream);font-size:var(--text-sm);align-items:flex-start; }
+.spec-row:last-child { border-bottom:none; }
+.spec-prop { font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light);flex-shrink:0;width:90px;padding-top:1px; }
+.spec-val { color:var(--color-ink-mid);line-height:1.5;font-family:'DM Mono',monospace;font-size:var(--text-xs); }
+.spec-note { font-size:var(--text-xs);color:var(--color-ink-light);font-style:italic;margin-top:var(--space-2);line-height:1.6; }
+
+/* SEMANTIC NOTE */
+.semantic-note {
+  background:var(--color-ink);color:var(--color-paper);padding:var(--space-3) var(--space-4);
+  border-radius:var(--radius-sm);font-size:var(--text-xs);line-height:1.65;margin-top:var(--space-2);
+  font-family:'DM Mono',monospace;letter-spacing:0.04em;
+}
+.semantic-note span { color:#c8b99a; }
+
+/* DIVIDER */
+.page-divider { height:1px;background:var(--color-rule); }
+
+/* TOKEN GRID */
+.token-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-2);margin-bottom:var(--space-8); }
+.token-cell { border:1px solid var(--color-rule);border-radius:var(--radius-sm);overflow:hidden; }
+.token-swatch { height:48px; }
+.token-info { padding:var(--space-2) var(--space-3);background:white; }
+.token-name { font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink);letter-spacing:0.06em; }
+.token-hex { font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light); }
+
+/* TYPE SPECIMEN */
+.type-grid { display:grid;grid-template-columns:160px 1fr;gap:0;border:1px solid var(--color-rule);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:var(--space-8); }
+.type-row { display:contents; }
+.type-label { padding:var(--space-3) var(--space-4);background:var(--color-cream);border-right:1px solid var(--color-rule);border-bottom:1px solid var(--color-rule);display:flex;flex-direction:column;gap:var(--space-1);justify-content:center; }
+.type-label:last-of-type { border-bottom:none; }
+.type-token { font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light); }
+.type-meta { font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-rule); }
+.type-sample { padding:var(--space-3) var(--space-4);background:white;border-bottom:1px solid var(--color-rule);display:flex;align-items:center; }
+
+/* ── LIVE COMPONENT STYLES ── */
+
+/* ATOMS */
+.atom-range-bar { display:inline-flex;align-items:center;gap:2px;vertical-align:middle; }
+.atom-range-bar span { display:inline-block;width:4px;height:11px;border-radius:1px;background:var(--color-rule); }
+.atom-range-bar span.active { background:var(--color-accent); }
+.atom-range-bar span.active.up { background:var(--color-sage); }
+.atom-range-bar span.active.warn { background:var(--color-gold); }
+
+.atom-entity-underline { color:var(--color-teal);font-weight:500;border-bottom:1.5px solid var(--color-teal);padding-bottom:1px;cursor:pointer;border-radius:2px 2px 0 0;transition:var(--transition-fast); }
+.atom-entity-underline:hover { background:var(--color-teal-soft); }
+
+.atom-tension-highlight { background:var(--color-gold-soft);border-bottom:2px solid var(--color-gold);padding:1px 5px;border-radius:3px 3px 0 0;font-weight:500;cursor:pointer;transition:var(--transition-fast); }
+.atom-tension-highlight:hover { background:#ffe9a0; }
+
+.atom-pillar-tag { display:inline-block;font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.08em;text-transform:uppercase;padding:2px 8px;border-radius:var(--radius-sm);vertical-align:middle; }
+.atom-pillar-1 { background:var(--pillar-1-bg);color:var(--pillar-1); }
+.atom-pillar-2 { background:var(--pillar-2-bg);color:var(--pillar-2); }
+.atom-pillar-3 { background:var(--pillar-3-bg);color:var(--pillar-3); }
+.atom-pillar-4 { background:var(--pillar-4-bg);color:var(--pillar-4); }
+
+.atom-tier-tag { display:inline-block;font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.08em;text-transform:uppercase;padding:2px 8px;border-radius:var(--radius-sm);vertical-align:middle; }
+.atom-tier-tac { background:var(--tier-tactical-bg);color:var(--tier-tactical); }
+.atom-tier-str { background:var(--tier-strategic-bg);color:var(--tier-strategic); }
+.atom-tier-cap { background:var(--tier-capital-bg);color:var(--tier-capital); }
+
+.atom-confidence { display:inline-flex;align-items:center;gap:var(--space-2);font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.08em;text-transform:uppercase; }
+.atom-conf-dot { width:6px;height:6px;border-radius:50%; }
+.conf-governed { color:var(--color-sage); } .conf-governed .atom-conf-dot { background:var(--color-sage); }
+.conf-estimated { color:var(--color-gold); } .conf-estimated .atom-conf-dot { background:var(--color-gold); }
+.conf-flagged { color:var(--color-accent); } .conf-flagged .atom-conf-dot { background:var(--color-accent); }
+
+.atom-scroll-to-bottom { width:36px;height:36px;border-radius:50%;background:white;border:1px solid var(--color-rule);box-shadow:0 2px 8px rgba(0,0,0,0.08);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition-fast); }
+.atom-scroll-to-bottom:hover { border-color:var(--color-teal);box-shadow:0 4px 12px rgba(0,0,0,0.12); }
+.atom-scroll-to-bottom svg { width:16px;height:16px;stroke:var(--color-ink-light);transition:var(--transition-fast); }
+.atom-scroll-to-bottom:hover svg { stroke:var(--color-teal); }
+
+/* MOLECULES */
+.mol-stat-pair { display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--color-rule);border:1px solid var(--color-rule);border-radius:var(--radius-sm);overflow:hidden; }
+.mol-stat-cell { background:white;padding:var(--space-3) var(--space-3); }
+.mol-stat-lbl { font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.1em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:var(--space-1); }
+.mol-stat-val { font-family:'Playfair Display',serif;font-size:20px;font-weight:600;line-height:1.1;margin-bottom:2px; }
+.mol-stat-val.neg { color:var(--color-accent); }
+.mol-stat-val.pos { color:var(--color-sage); }
+.mol-stat-val.neu { color:var(--color-ink-mid); }
+.mol-stat-sub { font-size:var(--text-xs);color:var(--color-ink-light);line-height:1.4; }
+
+.mol-variance-row { display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-3);background:var(--color-cream);border-radius:var(--radius-sm); }
+.mol-var-bars { display:flex;gap:2px;align-items:center;flex-shrink:0; }
+.mol-var-bar-seg { display:inline-block;width:5px;height:14px;border-radius:1px;background:var(--color-rule); }
+.mol-var-bar-seg.on { background:var(--color-accent); }
+.mol-var-bar-seg.on-up { background:var(--color-sage); }
+.mol-var-text { font-size:var(--text-sm);color:var(--color-ink-mid);line-height:1.55;flex:1; }
+.mol-var-text strong { color:var(--color-ink);font-weight:500; }
+
+.mol-mece-seg { flex:1;padding:var(--space-2) var(--space-2);font-size:var(--text-xs);color:var(--color-ink-light);background:white;text-align:center;border-right:1px solid var(--color-rule);transition:var(--transition-fast); }
+.mol-mece-seg:last-child { border-right:none; }
+.mol-mece-seg.focus { background:var(--color-accent-soft);color:var(--color-accent);font-weight:500; }
+.mol-mece-seg.focus-up { background:var(--color-sage-soft);color:var(--color-sage);font-weight:500; }
+.mol-mece-seg.neutral { background:var(--color-cream);color:var(--color-ink-mid); }
+.mol-mece-seg-lbl { font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:2px; }
+.mol-mece-seg-val { font-size:12px;font-weight:500; }
+.mol-mece-row { display:flex;border:1px solid var(--color-rule);border-radius:var(--radius-sm);overflow:hidden; }
+
+.mol-comp-triple { display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-2); }
+.mol-comp-cell { background:var(--color-cream);padding:var(--space-2) var(--space-3);border-radius:var(--radius-sm);text-align:center; }
+.mol-comp-lbl { font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:2px; }
+.mol-comp-val { font-size:14px;font-weight:500;font-family:'Playfair Display',serif; }
+.mol-comp-val.neg { color:var(--color-accent); }
+.mol-comp-val.pos { color:var(--color-sage); }
+
+.mol-nav-item { padding:var(--space-3) var(--space-4);border-radius:var(--radius-sm);font-size:var(--text-base);font-style:italic;line-height:1.6;cursor:pointer;transition:var(--transition-fast);border:1px solid transparent; }
+.mol-nav-primary { background:var(--color-teal-soft);color:var(--color-teal);border-color:#b0d4d2; }
+.mol-nav-secondary { background:var(--color-gold-soft);color:#7a5c00;border-color:#e0cc80; }
+
+.mol-sug-item { padding:var(--space-3) var(--space-5);background:white;border:1px solid var(--color-rule);border-radius:var(--radius-md);font-size:var(--text-base);color:var(--color-ink-mid);display:flex;align-items:center;gap:var(--space-3);line-height:1.4;cursor:pointer;transition:var(--transition-fast); }
+.mol-sug-item:hover { border-color:var(--color-teal);background:var(--color-teal-soft);color:var(--color-teal); }
+.mol-sug-num { font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-rule);flex-shrink:0; }
+.mol-sug-arr { margin-left:auto;color:var(--color-rule);font-size:11px;flex-shrink:0; }
+
+.mol-bc-row { display:grid;grid-template-columns:60px 180px 1fr;gap:var(--space-3);padding:var(--space-2) var(--space-4);border-bottom:1px solid var(--color-cream);align-items:start; }
+.mol-bc-time { font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-rule); }
+.mol-bc-name { font-size:var(--text-sm);font-weight:500;color:var(--color-ink); }
+.mol-bc-action { font-size:var(--text-sm);color:var(--color-ink-light);line-height:1.4; }
+
+/* ORGANISMS */
+.org-governed-card { background:white;border:1px solid var(--color-rule);border-radius:var(--radius-sm);overflow:hidden; }
+.org-gc-hdr { background:var(--color-cream);padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-rule); }
+.org-gc-type { font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.15em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:3px; }
+.org-gc-title { font-size:var(--text-base);font-weight:500;color:var(--color-ink); }
+.org-gc-body { padding:var(--space-4); }
+.org-gc-def { background:var(--color-cream);border-left:2px solid var(--color-rule);padding:var(--space-2) var(--space-3);border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:var(--text-sm);color:var(--color-ink-mid);line-height:1.65;margin-bottom:var(--space-3); }
+.org-gc-badge { display:inline-block;font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;border-radius:var(--radius-sm);margin-bottom:var(--space-3); }
+.org-gc-badge-metric { background:var(--color-accent-soft);color:var(--color-accent); }
+.org-gc-badge-entity { background:var(--color-teal-soft);color:var(--color-teal); }
+.org-gc-badge-tension { background:var(--color-gold-soft);color:var(--color-gold); }
+.org-gc-sec { font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.15em;text-transform:uppercase;color:var(--color-ink-light);margin:var(--space-3) 0 var(--space-2);padding-bottom:var(--space-1);border-bottom:1px solid var(--color-rule); }
+
+.org-response { background:white;border:1px solid var(--color-rule);border-radius:var(--radius-sm);overflow:hidden; }
+.org-resp-hdr { padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--color-rule);background:var(--color-cream);display:flex;align-items:center;gap:var(--space-3); }
+.org-resp-avatar { width:26px;height:26px;border-radius:50%;background:var(--color-ink);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:11px;color:var(--color-paper);font-style:italic;flex-shrink:0; }
+.org-resp-label { font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.15em;text-transform:uppercase;color:var(--color-ink-light); }
+.org-resp-time { font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-rule);margin-left:auto; }
+.org-resp-body { padding:var(--space-5) var(--space-5); }
+.org-resp-title { font-family:'Playfair Display',serif;font-size:18px;font-weight:600;line-height:1.25;margin-bottom:var(--space-3);color:var(--color-ink); }
+.org-resp-prose { font-size:var(--text-base);color:var(--color-ink-mid);line-height:1.85;margin-bottom:var(--space-3); }
+.org-resp-layer-strip { display:flex;gap:var(--space-2);margin-bottom:var(--space-3);flex-wrap:wrap; }
+.org-resp-layer { font-family:'DM Mono',monospace;font-size:var(--text-xs);padding:2px 8px;border-radius:var(--radius-sm);border:1px solid var(--color-rule);color:var(--color-ink-light); }
+.org-resp-layer.active { background:var(--color-ink);color:var(--color-paper);border-color:var(--color-ink); }
+.org-resp-nav { border-top:1px solid var(--color-rule);padding:var(--space-4) var(--space-5);display:flex;flex-direction:column;gap:var(--space-2); }
+.org-resp-nav-lbl { font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.15em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:var(--space-1); }
+
+.org-bc { border:1px solid var(--color-rule);border-radius:var(--radius-sm);overflow:hidden;background:white; }
+.org-bc-top { padding:var(--space-2) var(--space-4);display:flex;align-items:center;gap:var(--space-2);cursor:pointer;background:var(--color-cream); }
+.org-bc-dot { width:5px;height:5px;border-radius:50%;background:var(--color-ink-light);flex-shrink:0; }
+.org-bc-sum { font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light);flex:1; }
+.org-bc-tog { font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-rule); }
+
+/* TEMPLATES */
+.tmpl-diagram { border:1px solid var(--color-rule);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:var(--space-6); }
+.tmpl-diagram-label { background:var(--color-ink);padding:var(--space-2) var(--space-4);font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.15em;text-transform:uppercase;color:#6a6560; }
+.tmpl-wireframe { display:flex;height:320px;position:relative; }
+.tmpl-zone { display:flex;flex-direction:column;border-right:1px solid var(--color-rule);position:relative;overflow:hidden; }
+.tmpl-zone:last-child { border-right:none; }
+.tmpl-zone-label { font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.15em;text-transform:uppercase;padding:var(--space-2) var(--space-3);border-bottom:1px solid var(--color-rule);color:var(--color-ink-light);background:var(--color-cream);flex-shrink:0; }
+.tmpl-zone-body { flex:1;padding:var(--space-3);display:flex;flex-direction:column;gap:var(--space-2); }
+.tmpl-block { border-radius:var(--radius-sm);background:var(--color-rule);opacity:0.4; }
+.tmpl-block.response { height:80px; }
+.tmpl-block.response-sm { height:50px; }
+.tmpl-block.bc { height:24px; }
+.tmpl-block.reply { height:32px; }
+.tmpl-block.sc-hdr { height:48px;opacity:0.6; }
+.tmpl-block.sc-content { flex:1; }
+.tmpl-block.av-abs { height:60px;opacity:0.6; }
+.tmpl-block.av-mece { flex:1; }
+.tmpl-block.av-chart { height:100px; }
+.tmpl-block.cold-greeting { height:60px;opacity:0.5; }
+.tmpl-block.cold-badge { height:24px;opacity:0.3; }
+.tmpl-block.cold-sugs { flex:1; }
+.tmpl-block.cold-input { height:36px; }
+
+/* PAGES */
+.page-demo { border:1px solid var(--color-rule);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:var(--space-6); }
+.page-demo-bar { background:var(--color-ink);padding:var(--space-2) var(--space-4);display:flex;align-items:center;gap:var(--space-3); }
+.page-demo-dot { width:6px;height:6px;border-radius:50%;background:var(--color-accent); }
+.page-demo-name { font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.12em;text-transform:uppercase;color:#6a6560; }
+.page-demo-week { font-family:'DM Mono',monospace;font-size:var(--text-xs);color:#3a3930;margin-left:auto; }
+
+/* FOOTER */
+.doc-footer { border-top:1px solid var(--color-rule);padding:var(--space-8) 80px;display:flex;justify-content:space-between;align-items:center;background:var(--color-cream); }
+.doc-footer-l { font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light);letter-spacing:0.1em;text-transform:uppercase; }
+
+/* UTILITY */
+.grid-2 { display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin-bottom:var(--space-8); }
+.grid-3 { display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-4);margin-bottom:var(--space-8); }
+.mb-8 { margin-bottom:var(--space-8); }
+.prose-note { font-size:var(--text-sm);color:var(--color-ink-light);font-style:italic;line-height:1.65;margin-bottom:var(--space-6); }
+code { font-family:'DM Mono',monospace;font-size:var(--text-xs);background:var(--color-cream);padding:1px 5px;border-radius:var(--radius-sm);color:var(--color-ink-mid); }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="doc-cover">
+  <div class="cover-eyebrow">Insight Product · Design System · v1.0</div>
+  <div>
+    <div class="cover-title">Atomic Design<br><em>System Specification</em></div>
+    <div class="cover-sub">The complete component hierarchy for the Insight Product — from color tokens to page-level entry states. Built for both stakeholder review and engineering handoff.</div>
+  </div>
+  <div class="cover-meta">
+    <div class="cover-meta-item"><span class="lbl">Methodology</span><span class="val">Atomic Design (Frost)</span></div>
+    <div class="cover-meta-item"><span class="lbl">Levels</span><span class="val">Atoms → Molecules → Organisms → Templates → Pages</span></div>
+    <div class="cover-meta-item"><span class="lbl">Companion</span><span class="val">Interaction Spec v1.1 · VP User Persona v1.1</span></div>
+    <div class="cover-meta-item"><span class="lbl">Version</span><span class="val">1.0</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     LEVEL 1 · ATOMS
+══════════════════════════════════════════════════════════ -->
+<div class="level-header">
+  <div class="level-number">01</div>
+  <div class="level-info">
+    <div class="level-name">Atoms</div>
+    <div class="level-def">The smallest indivisible UI elements. Each atom carries both visual and semantic meaning — visual appearance alone is insufficient specification. Every atom must define what it communicates, not just how it looks.</div>
+  </div>
+</div>
+
+<!-- COLOR TOKENS -->
+<div class="page">
+  <div class="section-label">1.1 · Color Tokens</div>
+  <div class="section-title">Foundation Colors</div>
+  <p class="section-desc">All colors are defined as CSS custom properties on <code>:root</code>. Components reference semantic aliases, never raw hex values. This ensures a single source of truth for color changes.</p>
+
+  <div class="section-label" style="margin-top:0;">Base Palette</div>
+  <div class="token-grid" style="grid-template-columns:repeat(6,1fr);">
+    <div class="token-cell"><div class="token-swatch" style="background:#0f0e0c;"></div><div class="token-info"><div class="token-name">--color-ink</div><div class="token-hex">#0f0e0c</div></div></div>
+    <div class="token-cell"><div class="token-swatch" style="background:#f5f2ed;border-bottom:1px solid #d4cfc5;"></div><div class="token-info"><div class="token-name">--color-paper</div><div class="token-hex">#f5f2ed</div></div></div>
+    <div class="token-cell"><div class="token-swatch" style="background:#ede9e1;"></div><div class="token-info"><div class="token-name">--color-cream</div><div class="token-hex">#ede9e1</div></div></div>
+    <div class="token-cell"><div class="token-swatch" style="background:#d4cfc5;"></div><div class="token-info"><div class="token-name">--color-rule</div><div class="token-hex">#d4cfc5</div></div></div>
+    <div class="token-cell"><div class="token-swatch" style="background:#4a4640;"></div><div class="token-info"><div class="token-name">--color-ink-mid</div><div class="token-hex">#4a4640</div></div></div>
+    <div class="token-cell"><div class="token-swatch" style="background:#8a8480;"></div><div class="token-info"><div class="token-name">--color-ink-light</div><div class="token-hex">#8a8480</div></div></div>
+  </div>
+
+  <div class="section-label">Signal Palette</div>
+  <div class="token-grid">
+    <div class="token-cell"><div class="token-swatch" style="background:#c84b2f;"></div><div class="token-info"><div class="token-name">--color-accent</div><div class="token-hex">#c84b2f · Adverse signal · Metric outside range</div></div></div>
+    <div class="token-cell"><div class="token-swatch" style="background:#f0e0db;"></div><div class="token-info"><div class="token-name">--color-accent-soft</div><div class="token-hex">#f0e0db · Adverse bg · Hover state</div></div></div>
+    <div class="token-cell"><div class="token-swatch" style="background:#1a5c5a;"></div><div class="token-info"><div class="token-name">--color-teal</div><div class="token-hex">#1a5c5a · Entity signal · Pillar 2</div></div></div>
+    <div class="token-cell"><div class="token-swatch" style="background:#d4e8e7;"></div><div class="token-info"><div class="token-name">--color-teal-soft</div><div class="token-hex">#d4e8e7 · Entity bg · Hover state</div></div></div>
+    <div class="token-cell"><div class="token-swatch" style="background:#b8860b;"></div><div class="token-info"><div class="token-name">--color-gold</div><div class="token-hex">#b8860b · Tension signal · Pillar 3 · Warning</div></div></div>
+    <div class="token-cell"><div class="token-swatch" style="background:#f5edd0;"></div><div class="token-info"><div class="token-name">--color-gold-soft</div><div class="token-hex">#f5edd0 · Tension bg · Breadcrumb</div></div></div>
+    <div class="token-cell"><div class="token-swatch" style="background:#5b8a6e;"></div><div class="token-info"><div class="token-name">--color-sage</div><div class="token-hex">#5b8a6e · Positive signal · Pillar 1</div></div></div>
+    <div class="token-cell"><div class="token-swatch" style="background:#deeee6;"></div><div class="token-info"><div class="token-name">--color-sage-soft</div><div class="token-hex">#deeee6 · Positive bg · Stable signal</div></div></div>
+  </div>
+</div>
+
+<div class="page-divider"></div>
+
+<!-- TYPOGRAPHY -->
+<div class="page">
+  <div class="section-label">1.2 · Typography</div>
+  <div class="section-title">Type Scale & Families</div>
+  <p class="section-desc">Three typefaces. Each carries a distinct semantic role. Never substitute one for another — the typeface itself communicates the nature of the content.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-4);margin-bottom:var(--space-8);">
+    <div class="spec-block">
+      <div class="spec-block-header"><span class="spec-name">Playfair Display</span><span class="spec-token">display</span></div>
+      <div style="padding:var(--space-5);background:white;">
+        <div style="font-family:'Playfair Display',serif;font-size:24px;font-weight:600;margin-bottom:var(--space-2);">Finding Title</div>
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-style:italic;color:var(--color-ink-mid);margin-bottom:var(--space-3);">Named tension</div>
+        <div style="font-size:var(--text-xs);font-family:'DM Mono',monospace;color:var(--color-ink-light);">Use: response titles · section headers · large numeric values in governed cards · document headings</div>
+      </div>
+    </div>
+    <div class="spec-block">
+      <div class="spec-block-header"><span class="spec-name">DM Sans</span><span class="spec-token">body</span></div>
+      <div style="padding:var(--space-5);background:white;">
+        <div style="font-family:'DM Sans',sans-serif;font-size:14px;margin-bottom:var(--space-2);line-height:1.7;">Front store trips declined −2.8% WoW against a typical weekly variance of ±0.4%...</div>
+        <div style="font-size:var(--text-xs);font-family:'DM Mono',monospace;color:var(--color-ink-light);">Use: all narrative prose · response body text · governed definitions · UI body copy</div>
+      </div>
+    </div>
+    <div class="spec-block">
+      <div class="spec-block-header"><span class="spec-name">DM Mono</span><span class="spec-token">mono</span></div>
+      <div style="padding:var(--space-5);background:white;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:var(--space-2);">METRIC SIGNAL · WoW</div>
+        <div style="font-family:'DM Mono',monospace;font-size:11px;margin-bottom:var(--space-3);">7:02am · Pillar 2 · Tactical</div>
+        <div style="font-size:var(--text-xs);font-family:'DM Mono',monospace;color:var(--color-ink-light);">Use: labels · metadata · tags · tokens · timestamps · section labels · all UI chrome text</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="type-grid mb-8">
+    <div class="type-label"><div class="type-token">--text-xs · 9px</div><div class="type-meta">DM Mono · labels</div></div>
+    <div class="type-sample"><span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-ink-light);">METRIC SIGNAL · WEEK OVER WEEK CHANGE</span></div>
+    <div class="type-label"><div class="type-token">--text-sm · 11px</div><div class="type-meta">DM Sans · secondary</div></div>
+    <div class="type-sample"><span style="font-size:11px;color:var(--color-ink-mid);">Governed definition: all enterprise retail front store locations</span></div>
+    <div class="type-label"><div class="type-token">--text-base · 13px</div><div class="type-meta">DM Sans · body</div></div>
+    <div class="type-sample"><span style="font-size:13px;color:var(--color-ink-mid);">The decline is concentrated in lapsing loyalty members — customers in the late-active lifecycle stage.</span></div>
+    <div class="type-label"><div class="type-token">--text-md · 14px</div><div class="type-meta">DM Sans · prose</div></div>
+    <div class="type-sample"><span style="font-size:14px;color:var(--color-ink-mid);line-height:1.85;">Front store trips declined −2.8% WoW against a typical weekly variance of ±0.4%.</span></div>
+    <div class="type-label"><div class="type-token">--text-xl · 18px</div><div class="type-meta">Playfair · response title</div></div>
+    <div class="type-sample"><span style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;">Lapsing loyalty members are driving the front store trip decline</span></div>
+    <div class="type-label"><div class="type-token">--text-4xl · 36px</div><div class="type-meta">Playfair · document title</div></div>
+    <div class="type-sample"><span style="font-family:'Playfair Display',serif;font-size:36px;font-weight:700;line-height:1;">Insight <em style="font-style:italic;color:var(--color-ink-light);">Product</em></span></div>
+  </div>
+</div>
+
+<div class="page-divider"></div>
+
+<!-- SIGNAL ATOMS -->
+<div class="page">
+  <div class="section-label">1.3 · Signal Atoms</div>
+  <div class="section-title">Pre-Attentive Signal System</div>
+  <p class="section-desc">The three signal types are the core visual grammar of the product. They communicate different things at different levels of attention — before a tap, during reading, and after interaction. Each is semantically distinct. They must never be used interchangeably.</p>
+
+  <!-- METRIC SIGNAL -->
+  <div class="spec-block mb-8">
+    <div class="spec-block-header">
+      <span class="spec-name">Metric Signal — Range Bar</span>
+      <span class="spec-token">atom-signal-metric</span>
+    </div>
+    <div class="spec-block-body">
+      <div class="spec-preview" style="flex-direction:column;gap:var(--space-4);align-items:flex-start;">
+        <div>
+          <div style="font-size:var(--text-xs);font-family:'DM Mono',monospace;color:var(--color-ink-light);margin-bottom:var(--space-2);">Adverse (outside range)</div>
+          <span style="font-weight:500;font-size:14px;">−2.8% WoW</span>
+          <span class="atom-range-bar" style="margin-left:4px;"><span></span><span></span><span class="active"></span><span class="active"></span><span></span></span>
+        </div>
+        <div>
+          <div style="font-size:var(--text-xs);font-family:'DM Mono',monospace;color:var(--color-ink-light);margin-bottom:var(--space-2);">Positive (above range)</div>
+          <span style="font-weight:500;font-size:14px;">+2.1% WoW</span>
+          <span class="atom-range-bar" style="margin-left:4px;"><span class="active up"></span><span class="active up"></span><span></span><span></span><span></span></span>
+        </div>
+        <div>
+          <div style="font-size:var(--text-xs);font-family:'DM Mono',monospace;color:var(--color-ink-light);margin-bottom:var(--space-2);">Warning (boundary)</div>
+          <span style="font-weight:500;font-size:14px;">−0.8% WoW</span>
+          <span class="atom-range-bar" style="margin-left:4px;"><span></span><span></span><span></span><span class="active warn"></span><span></span></span>
+        </div>
+        <div>
+          <div style="font-size:var(--text-xs);font-family:'DM Mono',monospace;color:var(--color-ink-light);margin-bottom:var(--space-2);">Within range (no signal)</div>
+          <span style="font-weight:500;font-size:14px;">−0.2% WoW</span>
+          <span class="atom-range-bar" style="margin-left:4px;"><span></span><span></span><span></span><span></span><span></span></span>
+        </div>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Element</span><span class="spec-val">5 vertical bars · 4px wide · 11px tall · 1px border-radius · 2px gap</span></div>
+        <div class="spec-row"><span class="spec-prop">Default</span><span class="spec-val">--color-rule · inactive segments</span></div>
+        <div class="spec-row"><span class="spec-prop">Adverse</span><span class="spec-val">--color-accent · segments fill right-to-left from center</span></div>
+        <div class="spec-row"><span class="spec-prop">Positive</span><span class="spec-val">--color-sage · segments fill left-to-right from center</span></div>
+        <div class="spec-row"><span class="spec-prop">Warning</span><span class="spec-val">--color-gold · single segment at boundary</span></div>
+        <div class="spec-row"><span class="spec-prop">Placement</span><span class="spec-val">Immediately after metric value · inline · vertical-align:middle · top:-1px</span></div>
+        <div class="spec-row"><span class="spec-prop">Interaction</span><span class="spec-val">Entire metric span is tappable · hover background: --color-accent-soft · cursor:pointer</span></div>
+        <div class="spec-row"><span class="spec-prop">On tap</span><span class="spec-val">Opens sidecar with Governed Metric Card organism</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> Bar position encodes variance relative to historical normal range. Alex reads signal severity before tapping. A metric with no active segments is within normal range and does not require attention. This is pre-attentive — it works before the reader consciously processes the number.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENTITY SIGNAL -->
+  <div class="spec-block mb-8">
+    <div class="spec-block-header">
+      <span class="spec-name">Entity Signal — Underline</span>
+      <span class="spec-token">atom-signal-entity</span>
+    </div>
+    <div class="spec-block-body">
+      <div class="spec-preview" style="flex-direction:column;gap:var(--space-4);align-items:flex-start;">
+        <span class="atom-entity-underline">lapsing loyalty members</span>
+        <span class="atom-entity-underline">urban stores</span>
+        <span class="atom-entity-underline">PCW shoppers</span>
+        <span class="atom-entity-underline">front-store-only cohort</span>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Color</span><span class="spec-val">--color-teal · text + border</span></div>
+        <div class="spec-row"><span class="spec-prop">Border</span><span class="spec-val">border-bottom: 1.5px solid --color-teal</span></div>
+        <div class="spec-row"><span class="spec-prop">Weight</span><span class="spec-val">font-weight: 500</span></div>
+        <div class="spec-row"><span class="spec-prop">Radius</span><span class="spec-val">border-radius: 2px 2px 0 0 (top only)</span></div>
+        <div class="spec-row"><span class="spec-prop">Hover</span><span class="spec-val">background: --color-teal-soft</span></div>
+        <div class="spec-row"><span class="spec-prop">Transition</span><span class="spec-val">background 0.12s ease</span></div>
+        <div class="spec-row"><span class="spec-prop">On tap</span><span class="spec-val">Opens sidecar with Segment Profile organism</span></div>
+        <div class="spec-row"><span class="spec-prop">Use on</span><span class="spec-val">Lifecycle segments · shopper types · urban density classifications · regions · named cohorts</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> Underline signals "this term has a governed definition and current performance state." It does not encode direction or urgency — only the presence of a body. Distinct from metric signal intentionally.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TENSION SIGNAL -->
+  <div class="spec-block mb-8">
+    <div class="spec-block-header">
+      <span class="spec-name">Tension Signal — Highlight Bracket</span>
+      <span class="spec-token">atom-signal-tension</span>
+    </div>
+    <div class="spec-block-body">
+      <div class="spec-preview" style="flex-direction:column;gap:var(--space-4);align-items:flex-start;">
+        <span class="atom-tension-highlight">front-store-only declining ↔ Rx-attached stable</span>
+        <span class="atom-tension-highlight">trip frequency holding ↔ basket value contracting</span>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Background</span><span class="spec-val">--color-gold-soft</span></div>
+        <div class="spec-row"><span class="spec-prop">Border</span><span class="spec-val">border-bottom: 2px solid --color-gold</span></div>
+        <div class="spec-row"><span class="spec-prop">Weight</span><span class="spec-val">font-weight: 500</span></div>
+        <div class="spec-row"><span class="spec-prop">Padding</span><span class="spec-val">1px 5px</span></div>
+        <div class="spec-row"><span class="spec-prop">Radius</span><span class="spec-val">3px 3px 0 0 (top only)</span></div>
+        <div class="spec-row"><span class="spec-prop">Separator</span><span class="spec-val">↔ character between the two diverging terms</span></div>
+        <div class="spec-row"><span class="spec-prop">On tap</span><span class="spec-val">Opens sidecar with Tension Divergence organism</span></div>
+        <div class="spec-row"><span class="spec-prop">Use on</span><span class="spec-val">Two mutually exclusive metrics moving in opposite directions · must span both terms</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> The highlight marks a relationship, not a value. It signals "these two things are in conversation and the relationship is the finding." Must always span both terms — never applied to a single term. Gold is used because tension ≠ adverse. The situation requires attention, not alarm.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PILLAR + TIER TAGS -->
+  <div class="grid-2">
+    <div class="spec-block">
+      <div class="spec-block-header"><span class="spec-name">Pillar Tags</span><span class="spec-token">atom-pillar-tag</span></div>
+      <div style="padding:var(--space-5);background:white;display:flex;flex-direction:column;gap:var(--space-3);">
+        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;">
+          <span class="atom-pillar-tag atom-pillar-1">Pillar 1 · Grow</span>
+          <span class="atom-pillar-tag atom-pillar-2">Pillar 2 · Retention</span>
+          <span class="atom-pillar-tag atom-pillar-3">Pillar 3 · Frequency</span>
+          <span class="atom-pillar-tag atom-pillar-4">Pillar 4 · Value</span>
+        </div>
+        <div class="spec-row" style="border:none;padding:0;"><span class="spec-prop">Font</span><span class="spec-val">DM Mono · 9px · 0.08em spacing · uppercase</span></div>
+        <div class="spec-row" style="border:none;padding:0;"><span class="spec-prop">Padding</span><span class="spec-val">2px 7px</span></div>
+        <div class="spec-row" style="border:none;padding:0;"><span class="spec-prop">Radius</span><span class="spec-val">--radius-sm (2px)</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> Every major finding must carry at least one pillar tag. Pillar attribution is not decorative — it is the strategic context that allows Alex to prioritize without re-reading the full response.</div>
+      </div>
+    </div>
+    <div class="spec-block">
+      <div class="spec-block-header"><span class="spec-name">Tier Tags</span><span class="spec-token">atom-tier-tag</span></div>
+      <div style="padding:var(--space-5);background:white;display:flex;flex-direction:column;gap:var(--space-3);">
+        <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;">
+          <span class="atom-tier-tag atom-tier-tac">Tactical · In-week</span>
+          <span class="atom-tier-tag atom-tier-str">Strategic · Quarterly</span>
+          <span class="atom-tier-tag atom-tier-cap">Capital · Multi-year</span>
+        </div>
+        <div class="spec-row" style="border:none;padding:0;"><span class="spec-prop">Font</span><span class="spec-val">DM Mono · 9px · 0.08em spacing · uppercase</span></div>
+        <div class="spec-row" style="border:none;padding:0;"><span class="spec-prop">Padding</span><span class="spec-val">2px 7px</span></div>
+        <div class="spec-row" style="border:none;padding:0;"><span class="spec-prop">Radius</span><span class="spec-val">--radius-sm (2px)</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> Tier tags classify which decision window a finding belongs to. A finding that spans tiers shows multiple tags. Never omit — a finding without a tier classification is incomplete by spec.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIDENCE INDICATOR -->
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Confidence Indicator</span><span class="spec-token">atom-confidence</span></div>
+    <div class="spec-block-body">
+      <div class="spec-preview" style="flex-direction:column;gap:var(--space-4);align-items:flex-start;">
+        <span class="atom-confidence conf-governed"><span class="atom-conf-dot"></span>Governed</span>
+        <span class="atom-confidence conf-estimated"><span class="atom-conf-dot"></span>Estimated</span>
+        <span class="atom-confidence conf-flagged"><span class="atom-conf-dot"></span>Flagged</span>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Governed</span><span class="spec-val">--color-sage · dot + label · fully reconciled data</span></div>
+        <div class="spec-row"><span class="spec-prop">Estimated</span><span class="spec-val">--color-gold · dot + label · partial reconciliation</span></div>
+        <div class="spec-row"><span class="spec-prop">Flagged</span><span class="spec-val">--color-accent · dot + label · reconciliation pending</span></div>
+        <div class="spec-row"><span class="spec-prop">Placement</span><span class="spec-val">Sidecar header · Analysis view · Never inline in prose</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> Confidence transparency is the trust transfer mechanism. Surfacing uncertainty earns credibility — hiding it destroys it. Governed = forwardable. Estimated = verify before forwarding. Flagged = do not forward.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCROLL TO BOTTOM -->
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Scroll to Bottom</span><span class="spec-token">atom-scroll-to-bottom</span></div>
+    <div class="spec-block-body">
+      <div class="spec-preview">
+        <button class="atom-scroll-to-bottom">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Size</span><span class="spec-val">36px diameter circle</span></div>
+        <div class="spec-row"><span class="spec-prop">Background</span><span class="spec-val">white with subtle shadow (0 2px 8px rgba(0,0,0,0.08))</span></div>
+        <div class="spec-row"><span class="spec-prop">Border</span><span class="spec-val">1px --color-rule, --color-teal on hover</span></div>
+        <div class="spec-row"><span class="spec-prop">Icon</span><span class="spec-val">Chevron down, 16px, --color-ink-light (teal on hover)</span></div>
+        <div class="spec-row"><span class="spec-prop">Position</span><span class="spec-val">Fixed above input bar, centered horizontally</span></div>
+        <div class="spec-row"><span class="spec-prop">Visibility</span><span class="spec-val">Appears when thread scrolled above bottom (100px threshold)</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> Indicates content exists below current viewport. Mirrors Claude app pattern for thread navigation. On click, smooth-scrolls to bottom of thread. Auto-hides when near bottom.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODE SHIFT ACKNOWLEDGMENT ATOM (v1.1) -->
+  <div class="section-label">1.4 · Mode Shift Acknowledgment</div>
+  <p class="section-desc">A new atom that appears as the first element of a response body when the agent detects a decision mode transition. Visually lighter than the title — it reads as a transition beat, not a heading. Present only on mode shifts. Invisible when no shift is detected.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Mode Shift Acknowledgment</span><span class="spec-token">atom-mode-shift</span></div>
+    <div class="spec-block-body">
+      <div class="spec-preview" style="flex-direction:column;gap:var(--space-4);align-items:flex-start;">
+        <div>
+          <div style="font-size:var(--text-xs);font-family:'DM Mono',monospace;color:var(--color-ink-light);margin-bottom:var(--space-2);">→ Analytical</div>
+          <span style="font-size:13px;color:var(--color-ink-light);font-style:italic;">"Let me go deeper on this — something in that number is worth interrogating."</span>
+        </div>
+        <div>
+          <div style="font-size:var(--text-xs);font-family:'DM Mono',monospace;color:var(--color-ink-light);margin-bottom:var(--space-2);">→ Directional</div>
+          <span style="font-size:13px;color:var(--color-ink-light);font-style:italic;">"Pulling back to the story level — here's what this means for the week."</span>
+        </div>
+        <div>
+          <div style="font-size:var(--text-xs);font-family:'DM Mono',monospace;color:var(--color-ink-light);margin-bottom:var(--space-2);">→ Outcome-Focused</div>
+          <span style="font-size:13px;color:var(--color-ink-light);font-style:italic;">"Given you're heading into planning — let me frame this for the room."</span>
+        </div>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Font</span><span class="spec-val">DM Sans · 13px · font-style: italic · --color-ink-light</span></div>
+        <div class="spec-row"><span class="spec-prop">Placement</span><span class="spec-val">Before response title. After response header. Margin-bottom: --space-3.</span></div>
+        <div class="spec-row"><span class="spec-prop">Length</span><span class="spec-val">One sentence max. Never more.</span></div>
+        <div class="spec-row"><span class="spec-prop">Visibility</span><span class="spec-val">Conditional. Only renders when mode shift detected. Display:none when no shift.</span></div>
+        <div class="spec-row"><span class="spec-prop">→ Analytical</span><span class="spec-val">"Let me go deeper on this — something in that number is worth interrogating."</span></div>
+        <div class="spec-row"><span class="spec-prop">→ Directional</span><span class="spec-val">"Pulling back to the story level — here's what this means for the week."</span></div>
+        <div class="spec-row"><span class="spec-prop">→ Outcome</span><span class="spec-val">"Given you're heading into [context] — let me frame this for the room."</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> This atom signals alignment. It tells the VP the product understood their intent shift without requiring them to state it explicitly. It is never more than one sentence and never explains the mode — it simply orients.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION RESTORE ATOM (v1.1) -->
+  <div class="section-label">1.5 · Session Restore Atom</div>
+  <p class="section-desc">Appears above thread on mid-week return to orient the VP to their fiscal week session state.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Session Restore Atom</span><span class="spec-token">atom-session-restore</span></div>
+    <div class="spec-block-body">
+      <div class="spec-preview" style="flex-direction:column;align-items:flex-start;gap:var(--space-3);">
+        <div style="padding:10px 16px;background:var(--color-cream);border-left:2px solid var(--color-ink-light);border-radius:0 2px 2px 0;font-size:13px;font-style:italic;color:var(--color-ink-mid);line-height:1.6;max-width:320px;">"You're back in FW10 — you left off looking at the regional breakdown for the lapsing decline."</div>
+        <div style="font-size:var(--text-xs);font-family:'DM Mono',monospace;color:var(--color-ink-light);">Appears above thread on mid-week return. Auto-dismisses after 4s.</div>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Font</span><span class="spec-val">DM Sans · 13px · italic · --color-ink-mid</span></div>
+        <div class="spec-row"><span class="spec-prop">Background</span><span class="spec-val">--color-cream · border-left: 2px solid --color-ink-light</span></div>
+        <div class="spec-row"><span class="spec-prop">Placement</span><span class="spec-val">Above thread · below topbar · not part of thread scroll · position: sticky top</span></div>
+        <div class="spec-row"><span class="spec-prop">Dismissal</span><span class="spec-val">Auto after 4 seconds OR on first thread scroll — whichever comes first</span></div>
+        <div class="spec-row"><span class="spec-prop">Content</span><span class="spec-val">FW label + last active context (derived from most recent breadcrumb trail entry)</span></div>
+        <div class="spec-row"><span class="spec-prop">Trigger</span><span class="spec-val">Mid-week return only. Never shown on first visit of the week or after email entry.</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> The session restore atom signals that the product remembers the week. It is not a greeting — it is an orientation. One sentence, no action required, gone before Alex has scrolled two responses.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSIGNMENT TAG ATOM (v1.1) -->
+  <div class="section-label">1.6 · Assignment Tag</div>
+  <p class="section-desc">Status indicator for analyst assignments.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Assignment Tag</span><span class="spec-token">atom-assignment-tag</span></div>
+    <div class="spec-block-body">
+      <div class="spec-preview" style="flex-direction:column;gap:var(--space-3);align-items:flex-start;">
+        <span style="font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:4px;text-transform:uppercase;letter-spacing:0.03em;background:var(--color-gold-soft);color:var(--color-gold);">Assigned</span>
+        <span style="font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:4px;text-transform:uppercase;letter-spacing:0.03em;background:var(--color-teal-soft);color:var(--color-teal);">In Progress</span>
+        <span style="font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:4px;text-transform:uppercase;letter-spacing:0.03em;background:var(--color-sage-soft);color:var(--color-sage);">Completed</span>
+        <span style="font-size:0.75rem;padding:0.25rem 0.5rem;border-radius:4px;text-transform:uppercase;letter-spacing:0.03em;background:var(--color-accent-soft);color:var(--color-accent);">Returned</span>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Font</span><span class="spec-val">DM Mono · 0.75rem · uppercase · letter-spacing: 0.03em</span></div>
+        <div class="spec-row"><span class="spec-prop">Padding</span><span class="spec-val">0.25rem 0.5rem</span></div>
+        <div class="spec-row"><span class="spec-prop">Radius</span><span class="spec-val">4px</span></div>
+        <div class="spec-row"><span class="spec-prop">Assigned</span><span class="spec-val">--color-gold-soft bg · --color-gold text</span></div>
+        <div class="spec-row"><span class="spec-prop">In Progress</span><span class="spec-val">--color-teal-soft bg · --color-teal text</span></div>
+        <div class="spec-row"><span class="spec-prop">Completed</span><span class="spec-val">--color-sage-soft bg · --color-sage text</span></div>
+        <div class="spec-row"><span class="spec-prop">Returned</span><span class="spec-val">--color-accent-soft bg · --color-accent text</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> Assignment tags track handoff state. They appear in response footers after an assignment is created and update as the analyst progresses.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- TRACE INDICATOR ATOM (v1.2) -->
+  <div class="section-label">1.7 · Trace Indicator</div>
+  <p class="section-desc">A persistent, ambient counter in the reply bar that signals an active Trace object. Increments each time Alex investigates something — a metric tap, entity tap, tension tap, or analysis view entry. Tapping it opens the Trace Panel organism. Never zero during an active session with sidecar activity.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Trace Indicator</span><span class="spec-token">atom-trace-indicator</span></div>
+    <div class="spec-block-body">
+      <div class="spec-preview" style="flex-direction:column;gap:var(--space-4);align-items:flex-start;">
+        <div style="display:flex;align-items:center;gap:var(--space-2);padding:5px 12px;border:1px solid var(--color-rule);border-radius:var(--radius-sm);background:white;cursor:pointer;">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--color-teal);"></div>
+          <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-ink-mid);">Trace · 3 items</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--space-2);padding:5px 12px;border:1px solid var(--color-teal);border-radius:var(--radius-sm);background:var(--color-teal-soft);cursor:pointer;">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--color-teal);"></div>
+          <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-teal);">Trace · 3 items</span>
+        </div>
+        <div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--color-ink-light);">Default · Hover/Open state</div>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Position</span><span class="spec-val">Left side of reply bar inner · before the input field · always visible during active session</span></div>
+        <div class="spec-row"><span class="spec-prop">Default</span><span class="spec-val">white bg · 1px --color-rule border · teal dot · --color-ink-mid text</span></div>
+        <div class="spec-row"><span class="spec-prop">Hover / Open</span><span class="spec-val">--color-teal-soft bg · 1px --color-teal border · --color-teal text + dot</span></div>
+        <div class="spec-row"><span class="spec-prop">Dot</span><span class="spec-val">6px · border-radius 50% · --color-teal · always visible</span></div>
+        <div class="spec-row"><span class="spec-prop">Counter</span><span class="spec-val">Increments on: metric tap, entity tap, tension tap, analysis view entry. Never decrements.</span></div>
+        <div class="spec-row"><span class="spec-prop">Label</span><span class="spec-val">DM Mono · 9px · uppercase · "Trace · N items" — N is integer count of accumulated events</span></div>
+        <div class="spec-row"><span class="spec-prop">Tap action</span><span class="spec-val">Opens Trace Panel organism (org-trace-panel) · slides up from reply bar</span></div>
+        <div class="spec-row"><span class="spec-prop">Visibility</span><span class="spec-val">Hidden when Trace is empty (session start). Appears on first investigative event. Never shown in cold open state.</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> The Trace Indicator is not a nav destination — it is a live signal. Its presence tells Alex that a Trace object exists and is ready to delegate. It grows naturally from Alex's investigation behavior without requiring any deliberate action.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GOVERNED LINEAGE ROW ATOM (v1.2) -->
+  <div class="section-label">1.8 · Governed Lineage Row</div>
+  <p class="section-desc">The smallest unit of data provenance. Displays source, last reconciliation timestamp, and confidence level in a single horizontal row. Used inside governed metric cards, the Trace Panel, and the Analyst Brief. Never omitted when a metric or definition appears in a governed context.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Governed Lineage Row</span><span class="spec-token">atom-lineage-row</span></div>
+    <div class="spec-block-body">
+      <div class="spec-preview" style="flex-direction:column;gap:var(--space-3);align-items:stretch;width:100%;">
+        <div style="display:flex;align-items:center;gap:var(--space-4);padding:7px 10px;background:var(--color-cream);border-radius:var(--radius-sm);font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">
+          <span>Source: Governed metric store</span>
+          <span style="color:var(--color-rule);">·</span>
+          <span>Reconciled: Mon 06:42am</span>
+          <span style="color:var(--color-rule);">·</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:var(--color-sage);display:inline-block;"></span>Governed</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--space-4);padding:7px 10px;background:var(--color-cream);border-radius:var(--radius-sm);font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">
+          <span>Source: Modeled attribution layer</span>
+          <span style="color:var(--color-rule);">·</span>
+          <span>Reconciled: Sun 11:15pm</span>
+          <span style="color:var(--color-rule);">·</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:var(--color-gold);display:inline-block;"></span>Estimated</span>
+        </div>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Layout</span><span class="spec-val">Horizontal · flex row · gap: --space-4 · separator dots between fields</span></div>
+        <div class="spec-row"><span class="spec-prop">Background</span><span class="spec-val">--color-cream · full width of parent container</span></div>
+        <div class="spec-row"><span class="spec-prop">Font</span><span class="spec-val">DM Mono · 9px · --color-ink-light</span></div>
+        <div class="spec-row"><span class="spec-prop">Fields</span><span class="spec-val">Source (data origin) · Reconciled (timestamp) · Confidence (dot + label using atom-confidence states)</span></div>
+        <div class="spec-row"><span class="spec-prop">Confidence dot</span><span class="spec-val">5px · inherits from atom-confidence color logic: sage=Governed, gold=Estimated, accent=Flagged</span></div>
+        <div class="spec-row"><span class="spec-prop">Placement</span><span class="spec-val">Always last element inside a governed card, brief block, or trace item. Never floats standalone.</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> The lineage row is the analyst's handshake — the minimum information needed to trust a number without calling anyone. Its presence in the Analyst Brief is what makes the brief a governed document rather than a prose summary.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     LEVEL 2 · MOLECULES
+══════════════════════════════════════════════════════════ -->
+<div class="page-divider"></div>
+<div class="level-header">
+  <div class="level-number">02</div>
+  <div class="level-info">
+    <div class="level-name">Molecules</div>
+    <div class="level-def">Simple functional units built from two or more atoms. Each molecule has a single clear purpose. Molecules are the building blocks of organisms — they are not used as standalone UI elements.</div>
+  </div>
+</div>
+
+<div class="page">
+  <!-- STAT PAIR -->
+  <div class="section-label">2.1 · Governed Stat Pair</div>
+  <p class="section-desc">The fundamental unit of metric display. Always shows absolute and relative values together. Never relative alone. This is the molecule that solves the "what does 2.8% mean" problem.</p>
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Absolute + Relative Stat Pair</span><span class="spec-token">mol-stat-pair</span></div>
+    <div class="spec-block-body">
+      <div class="spec-preview">
+        <div class="mol-stat-pair" style="width:280px;">
+          <div class="mol-stat-cell">
+            <div class="mol-stat-lbl">Relative Change</div>
+            <div class="mol-stat-val neg">−2.8%</div>
+            <div class="mol-stat-sub">WoW · vs prior week</div>
+          </div>
+          <div class="mol-stat-cell">
+            <div class="mol-stat-lbl">Absolute Volume</div>
+            <div class="mol-stat-val neg" style="font-size:16px;">−118K</div>
+            <div class="mol-stat-sub">trips · ~$3.1M revenue equiv.</div>
+          </div>
+        </div>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Layout</span><span class="spec-val">2-column grid · 1px gap · --color-rule background shows as divider</span></div>
+        <div class="spec-row"><span class="spec-prop">Cell bg</span><span class="spec-val">white · each cell independent</span></div>
+        <div class="spec-row"><span class="spec-prop">Label</span><span class="spec-val">DM Mono · --text-xs · uppercase · --color-ink-light</span></div>
+        <div class="spec-row"><span class="spec-prop">Value</span><span class="spec-val">Playfair Display · 20px · weight 600 · neg/pos/neu color class</span></div>
+        <div class="spec-row"><span class="spec-prop">Sub</span><span class="spec-val">DM Sans · --text-xs · --color-ink-light · revenue equiv. always in sub</span></div>
+        <div class="spec-row"><span class="spec-prop">Rule</span><span class="spec-val">Absolute is always left cell. Relative is always right cell. Never swap.</span></div>
+        <div class="semantic-note"><span>Rule:</span> Relative change tells Alex direction. Absolute volume tells Alex stakes. Both are required. A stat pair with only one cell is incomplete and must not be rendered.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VARIANCE ROW -->
+  <div class="section-label">2.2 · Variance Context Row</div>
+  <p class="section-desc">Pairs a visual range bar with a plain-language interpretation. Contextualizes the metric relative to its normal range before any analysis is requested.</p>
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Variance Context Row</span><span class="spec-token">mol-variance-row</span></div>
+    <div class="spec-block-body">
+      <div class="spec-preview" style="flex-direction:column;gap:var(--space-3);">
+        <div class="mol-variance-row" style="width:320px;">
+          <div class="mol-var-bars"><span class="mol-var-bar-seg"></span><span class="mol-var-bar-seg"></span><span class="mol-var-bar-seg on"></span><span class="mol-var-bar-seg on"></span><span class="mol-var-bar-seg"></span></div>
+          <div class="mol-var-text"><strong>7× outside normal variance.</strong> Normal range ±0.4% WoW. Third consecutive week outside range.</div>
+        </div>
+        <div class="mol-variance-row" style="width:320px;">
+          <div class="mol-var-bars"><span class="mol-var-bar-seg"></span><span class="mol-var-bar-seg on-up"></span><span class="mol-var-bar-seg on-up"></span><span class="mol-var-bar-seg"></span><span class="mol-var-bar-seg"></span></div>
+          <div class="mol-var-text"><strong>Within normal variance.</strong> Normal range ±0.6% WoW. Stable — not a growth signal.</div>
+        </div>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Bar size</span><span class="spec-val">5 segments · 5px wide · 14px tall · larger than inline atom</span></div>
+        <div class="spec-row"><span class="spec-prop">Background</span><span class="spec-val">--color-cream · full-width row</span></div>
+        <div class="spec-row"><span class="spec-prop">Padding</span><span class="spec-val">--space-3 all sides</span></div>
+        <div class="spec-row"><span class="spec-prop">Text</span><span class="spec-val">--text-sm · --color-ink-mid · strong tag for multiplier statement</span></div>
+        <div class="spec-row"><span class="spec-prop">Placement</span><span class="spec-val">Always follows Stat Pair in Governed Metric Card. Never appears alone.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MECE SEGMENT ROW -->
+  <div class="section-label">2.3 · MECE Segment Row</div>
+  <p class="section-desc">Displays the complete mutually exclusive set of segments that sum to the whole. The focused segment is highlighted. All others visible. Never show a segment without the full MECE context.</p>
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">MECE Segment Row</span><span class="spec-token">mol-mece-row</span></div>
+    <div class="spec-block-body">
+      <div class="spec-preview" style="flex-direction:column;gap:var(--space-4);">
+        <div>
+          <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light);margin-bottom:var(--space-2);">Shopper type decomposition</div>
+          <div class="mol-mece-row">
+            <div class="mol-mece-seg focus"><div class="mol-mece-seg-lbl">Front Only ←</div><div class="mol-mece-seg-val">−4.1%</div></div>
+            <div class="mol-mece-seg neutral"><div class="mol-mece-seg-lbl">Rx-Attached</div><div class="mol-mece-seg-val">+0.3%</div></div>
+            <div class="mol-mece-seg"><div class="mol-mece-seg-lbl">PCW</div><div class="mol-mece-seg-val">+0.1%</div></div>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light);margin-bottom:var(--space-2);">Urban density decomposition</div>
+          <div class="mol-mece-row">
+            <div class="mol-mece-seg focus"><div class="mol-mece-seg-lbl">Urban ←</div><div class="mol-mece-seg-val">−2.8%</div></div>
+            <div class="mol-mece-seg"><div class="mol-mece-seg-lbl">Suburban</div><div class="mol-mece-seg-val">+0.1%</div></div>
+            <div class="mol-mece-seg"><div class="mol-mece-seg-lbl">Rural</div><div class="mol-mece-seg-val">+0.2%</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Layout</span><span class="spec-val">Flex row · equal width segments · border-right dividers</span></div>
+        <div class="spec-row"><span class="spec-prop">Focus</span><span class="spec-val">--color-accent-soft bg · --color-accent text · font-weight 500</span></div>
+        <div class="spec-row"><span class="spec-prop">Focus-up</span><span class="spec-val">--color-sage-soft bg · --color-sage text (positive signal)</span></div>
+        <div class="spec-row"><span class="spec-prop">Neutral</span><span class="spec-val">--color-cream bg · --color-ink-mid text</span></div>
+        <div class="spec-row"><span class="spec-prop">Default</span><span class="spec-val">white bg · --color-ink-light text</span></div>
+        <div class="spec-row"><span class="spec-prop">Arrow ←</span><span class="spec-val">Appended to focused segment label to indicate current context</span></div>
+        <div class="semantic-note"><span>Rule:</span> All segments in the MECE set must be present. If a decomposition has 9 segments (e.g. regions), all 9 are shown. Truncation is not permitted — it breaks the completeness guarantee.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMP TRIPLE + NAV ITEMS -->
+  <div class="grid-2">
+    <div class="spec-block">
+      <div class="spec-block-header"><span class="spec-name">Comparative Triple</span><span class="spec-token">mol-comp-triple</span></div>
+      <div style="padding:var(--space-5);background:white;display:flex;flex-direction:column;gap:var(--space-4);">
+        <div class="mol-comp-triple">
+          <div class="mol-comp-cell"><div class="mol-comp-lbl">WoW</div><div class="mol-comp-val neg">−2.8%</div></div>
+          <div class="mol-comp-cell"><div class="mol-comp-lbl">MoM</div><div class="mol-comp-val neg">−1.9%</div></div>
+          <div class="mol-comp-cell"><div class="mol-comp-lbl">YoY</div><div class="mol-comp-val neg">−0.7%</div></div>
+        </div>
+        <div class="spec-row" style="border:none;padding:0;"><span class="spec-prop">Rule</span><span class="spec-val">Always WoW · MoM · YoY in that order. Never reorder.</span></div>
+        <div class="spec-row" style="border:none;padding:0;"><span class="spec-prop">Val font</span><span class="spec-val">Playfair · 14px · neg/pos class</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> The triple provides temporal context for the metric. WoW is the tactical signal. MoM confirms persistence. YoY anchors to annual baseline. All three together distinguish a blip from a trend.</div>
+      </div>
+    </div>
+    <div class="spec-block">
+      <div class="spec-block-header"><span class="spec-name">Navigation Prose Items</span><span class="spec-token">mol-nav-item</span></div>
+      <div style="padding:var(--space-5);background:white;display:flex;flex-direction:column;gap:var(--space-3);">
+        <div class="mol-nav-item mol-nav-primary">"The regional concentration is worth seeing — urban stores are carrying a disproportionate share. Want me to break that down?"</div>
+        <div class="mol-nav-item mol-nav-secondary">"There's also a quarterly signal here if you're heading into a planning conversation."</div>
+        <div class="spec-row" style="border:none;padding:0;margin-top:var(--space-2);"><span class="spec-prop">Primary</span><span class="spec-val">--color-teal-soft bg · --color-teal text · border #b0d4d2</span></div>
+        <div class="spec-row" style="border:none;padding:0;"><span class="spec-prop">Secondary</span><span class="spec-val">--color-gold-soft bg · #7a5c00 text · border #e0cc80</span></div>
+        <div class="spec-row" style="border:none;padding:0;"><span class="spec-prop">Font</span><span class="spec-val">DM Sans · --text-base · font-style: italic</span></div>
+        <div class="semantic-note"><span>Rule:</span> Always exactly two items per response — one primary, one secondary. They must be genuinely different directions. Both in plain prose. Neither should sound like a button label.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUGGESTION ITEM + BC ROW -->
+  <div class="grid-2">
+    <div class="spec-block">
+      <div class="spec-block-header"><span class="spec-name">Suggestion Item</span><span class="spec-token">mol-suggestion-item</span></div>
+      <div style="padding:var(--space-5);background:white;display:flex;flex-direction:column;gap:var(--space-2);">
+        <div class="mol-sug-item"><span class="mol-sug-num">01</span>What happened to front store trips last week — where did we grow or shrink?<span class="mol-sug-arr">→</span></div>
+        <div class="mol-sug-item"><span class="mol-sug-num">02</span>Which customer types are driving changes in trip performance this week?<span class="mol-sug-arr">→</span></div>
+        <div class="spec-row" style="border:none;padding:0;margin-top:var(--space-2);"><span class="spec-prop">Hover</span><span class="spec-val">border-color: --color-teal · bg: --color-teal-soft · text: --color-teal</span></div>
+        <div class="spec-row" style="border:none;padding:0;"><span class="spec-prop">Num</span><span class="spec-val">DM Mono · --text-xs · --color-rule · fixed width 14px</span></div>
+        <div class="spec-row" style="border:none;padding:0;"><span class="spec-prop">Rule</span><span class="spec-val">Max 3 suggestions. Always framed as a question.</span></div>
+      </div>
+    </div>
+    <div class="spec-block">
+      <div class="spec-block-header"><span class="spec-name">Breadcrumb Event Row</span><span class="spec-token">mol-bc-row</span></div>
+      <div style="padding:var(--space-5);background:white;">
+        <div class="mol-bc-row"><span class="mol-bc-time">7:03am</span><span class="mol-bc-name">Front Store Trips WoW</span><span class="mol-bc-action">Metric tap · baseline context · sidecar updated</span></div>
+        <div class="mol-bc-row"><span class="mol-bc-time">7:04am</span><span class="mol-bc-name">Lapsing Loyalty Members</span><span class="mol-bc-action">Entity tap · segment profile opened · sidecar updated</span></div>
+        <div class="mol-bc-row" style="border:none;"><span class="mol-bc-time">7:06am</span><span class="mol-bc-name">Rx ↔ Front-Only Tension</span><span class="mol-bc-action">Tension tap · divergence view · analysis view offered</span></div>
+        <div class="spec-row" style="border:none;padding:0;margin-top:var(--space-3);"><span class="spec-prop">Grid</span><span class="spec-val">3 columns: 60px · 180px · 1fr</span></div>
+        <div class="spec-row" style="border:none;padding:0;"><span class="spec-prop">Appended</span><span class="spec-val">Every sidecar tap appends one row automatically</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MECE SEGMENT ROW - SMART HIGHLIGHTED VARIANT (v1.1) -->
+  <div class="section-label">2.5 · MECE Segment Row — Smart Highlighted</div>
+  <p class="section-desc">The MECE segment row molecule is updated to support signal-weighted display. Signal-bearing segments are foregrounded. Quiet segments are collapsed into a summary row with an expand toggle. Completeness guarantee is maintained — all segments remain accessible.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">MECE Segment Row — Smart Highlighted Variant</span><span class="spec-token">mol-mece-row-smart</span></div>
+    <div class="spec-block-body">
+      <div class="spec-preview" style="flex-direction:column;gap:var(--space-5);">
+        <div style="width:320px;">
+          <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light);margin-bottom:var(--space-2);">Signal segments — foregrounded</div>
+          <div style="display:flex;gap:var(--space-2);margin-bottom:var(--space-2);">
+            <div style="flex:1;padding:10px 10px;background:var(--color-accent-soft);border:1px solid var(--color-rule);border-top:2px solid var(--color-accent);border-radius:var(--radius-sm);text-align:center;">
+              <div style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--color-accent);margin-bottom:3px;">NE Urban</div>
+              <div style="font-size:16px;font-weight:600;color:var(--color-accent);font-family:'Playfair Display',serif;">−38%</div>
+              <div style="font-size:9px;color:var(--color-accent);margin-top:2px;font-family:'DM Mono',monospace;">38% of Δ</div>
+            </div>
+            <div style="flex:1;padding:10px 10px;background:var(--color-accent-soft);border:1px solid var(--color-rule);border-top:2px solid var(--color-accent);border-radius:var(--radius-sm);text-align:center;">
+              <div style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--color-accent);margin-bottom:3px;">MW Urban</div>
+              <div style="font-size:16px;font-weight:600;color:var(--color-accent);font-family:'Playfair Display',serif;">−30%</div>
+              <div style="font-size:9px;color:var(--color-accent);margin-top:2px;font-family:'DM Mono',monospace;">30% of Δ</div>
+            </div>
+          </div>
+          <div style="padding:8px 12px;background:var(--color-cream);border:1px solid var(--color-rule);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+            <div style="font-size:11px;color:var(--color-ink-light);">7 other regions · flat or marginal · combined −32%</div>
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">Show all ↓</div>
+          </div>
+        </div>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Threshold</span><span class="spec-val">signal_state = "signal" or "warn" → foreground. All others → collapse.</span></div>
+        <div class="spec-row"><span class="spec-prop">Foreground</span><span class="spec-val">Full stat card: label · relative value (Playfair 16px) · share_of_total_change below</span></div>
+        <div class="spec-row"><span class="spec-prop">Collapse row</span><span class="spec-val">"N other [segments] · [direction summary] · combined [%]" · expand toggle ↓</span></div>
+        <div class="spec-row"><span class="spec-prop">Expanded</span><span class="spec-val">Shows all quiet segments in original mol-mece-row format below the collapse row</span></div>
+        <div class="spec-row"><span class="spec-prop">Guarantee</span><span class="spec-val">Collapse row always shows combined % so completeness can be verified without expanding</span></div>
+        <div class="spec-row"><span class="spec-prop">Min foregrounded</span><span class="spec-val">Always show at least 1. If no segments have signal_state "signal", show the highest absolute_change segment.</span></div>
+        <div class="semantic-note"><span>Rule:</span> The smart highlighted variant is used in the sidecar and analysis view. The original flat mol-mece-row is used only in the annotated spec example. Never use the flat variant where a user will consume it.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVIGATION PROSE MOOD VARIANTS (v1.1) -->
+  <div class="section-label">2.6 · Navigation Prose — Mood Variants</div>
+  <p class="section-desc">The navigation prose molecule gains two new mood variants. Uncertain navigation surfaces when signal is present but weak. Incomplete navigation surfaces when data has a pending confidence issue. Both use the same two-item structure but with modified visual treatment and prose register.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Navigation Prose — Three Mood Variants</span><span class="spec-token">mol-nav-item · mood variants</span></div>
+    <div style="padding:var(--space-5);background:white;display:flex;flex-direction:column;gap:var(--space-6);">
+
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.12em;text-transform:uppercase;color:var(--color-teal);margin-bottom:var(--space-3);">Confident (existing)</div>
+        <div style="display:flex;flex-direction:column;gap:var(--space-2);">
+          <div class="mol-nav-item mol-nav-primary">"The regional concentration is worth seeing — urban stores are carrying 68% of the decline. Want me to break that down?"</div>
+          <div class="mol-nav-item mol-nav-secondary">"There's also a quarterly signal here if you're heading into a planning conversation."</div>
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light);margin-top:var(--space-2);">Trigger: variance_state = "outside" · 6+ attribution dimensions resolved · 2+ weeks persistence</div>
+      </div>
+
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.12em;text-transform:uppercase;color:var(--color-gold);margin-bottom:var(--space-3);">Uncertain (new)</div>
+        <div style="display:flex;flex-direction:column;gap:var(--space-2);">
+          <div style="padding:11px 14px;border-radius:var(--radius-sm);font-size:13px;font-style:italic;line-height:1.6;background:var(--color-gold-soft);color:#7a5c00;border:1px solid #e0cc80;border-left:3px dashed var(--color-gold);">"The regional pattern is suggestive but the signal isn't clean yet — I'd want to see one more week before reading this as structural. Want me to flag this for next Monday?"</div>
+          <div style="padding:11px 14px;border-radius:var(--radius-sm);font-size:13px;font-style:italic;line-height:1.6;background:var(--color-gold-soft);color:#7a5c00;border:1px solid #e0cc80;">"The shopper type split is directionally consistent but I'm only seeing it in 2 of the 11 attribution dimensions — worth treating as a hypothesis rather than a finding."</div>
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light);margin-top:var(--space-2);">Trigger: variance_state = "boundary" · fewer than 6 attribution dimensions resolved · single-week signal only</div>
+        <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light);">Visual change: primary item gets dashed left border to signal tentativeness</div>
+      </div>
+
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.12em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:var(--space-3);">Incomplete (new)</div>
+        <div style="display:flex;flex-direction:column;gap:var(--space-2);">
+          <div style="padding:11px 14px;border-radius:var(--radius-sm);font-size:13px;font-style:italic;line-height:1.6;background:var(--color-cream);color:var(--color-ink-mid);border:1px solid var(--color-rule);border-left:3px solid var(--color-ink-light);">"The decile breakdown isn't fully reconciled this week — I can show you what's available, but I'd treat it as directional rather than governed until Tuesday."</div>
+          <div style="padding:11px 14px;border-radius:var(--radius-sm);font-size:13px;font-style:italic;line-height:1.6;background:var(--color-cream);color:var(--color-ink-mid);border:1px solid var(--color-rule);">"The regional data is available and clean — if you want to stay in governed territory, that's the safer thread to pull."</div>
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light);margin-top:var(--space-2);">Trigger: confidence = "estimated" or "flagged" on primary metric · pending reconciliation flag</div>
+        <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light);">Visual change: neutral palette. Muted, not alarming. Secondary often redirects to cleaner data path.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARCHIVE ENTRY MOLECULE (v1.1) -->
+  <div class="section-label">2.7 · Archive Entry</div>
+  <p class="section-desc">Row item for the fiscal week archive panel showing session summary.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Archive Entry Molecule</span><span class="spec-token">mol-archive-entry</span></div>
+    <div class="spec-block-body">
+      <div class="spec-preview" style="flex-direction:column;gap:var(--space-2);align-items:stretch;width:100%;">
+        <div style="padding:12px 14px;background:var(--color-teal-soft);border:1px solid var(--color-teal);border-radius:var(--radius-sm);display:flex;align-items:center;gap:12px;">
+          <div style="flex:1;">
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--color-teal);font-weight:500;margin-bottom:2px;">FW10 · Mar 09</div>
+            <div style="font-size:11px;color:var(--color-teal);">Lapsing loyalty decline · urban stores</div>
+          </div>
+          <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-teal);background:white;padding:2px 8px;border-radius:var(--radius-sm);">Current</span>
+        </div>
+        <div style="padding:12px 14px;background:white;border:1px solid var(--color-rule);border-radius:var(--radius-sm);display:flex;align-items:center;gap:12px;cursor:pointer;">
+          <div style="flex:1;">
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--color-ink-mid);font-weight:500;margin-bottom:2px;">FW09 · Mar 02</div>
+            <div style="font-size:11px;color:var(--color-ink-light);">Front store trip softness first observed</div>
+          </div>
+          <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">View →</span>
+        </div>
+        <div style="padding:12px 14px;background:white;border:1px solid var(--color-rule);border-radius:var(--radius-sm);display:flex;align-items:center;gap:12px;cursor:pointer;opacity:0.6;">
+          <div style="flex:1;">
+            <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--color-ink-mid);font-weight:500;margin-bottom:2px;">FW07 · Feb 16</div>
+            <div style="font-size:11px;color:var(--color-rule);">No session this week</div>
+          </div>
+          <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-rule);">—</span>
+        </div>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Current state</span><span class="spec-val">--color-teal-soft bg · --color-teal border · "Current" badge · not tappable</span></div>
+        <div class="spec-row"><span class="spec-prop">Past session</span><span class="spec-val">white bg · --color-rule border · "View →" affordance · tappable · hover: --color-cream</span></div>
+        <div class="spec-row"><span class="spec-prop">No session</span><span class="spec-val">white bg · --color-rule border · opacity: 0.6 · "—" · not tappable</span></div>
+        <div class="spec-row"><span class="spec-prop">FW label</span><span class="spec-val">DM Mono · 10px · font-weight 500 · --color-ink-mid (past) or --color-teal (current)</span></div>
+        <div class="spec-row"><span class="spec-prop">Summary text</span><span class="spec-val">DM Sans · 11px · dominant finding title truncated to 50 chars. Auto-generated from first response title of the session.</span></div>
+        <div class="spec-row"><span class="spec-prop">Ordering</span><span class="spec-val">Most recent first (descending). Current week pinned at top. Gap weeks shown as "No session."</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSIGNMENT DROPDOWN MOLECULE (v1.1) -->
+  <div class="section-label">2.8 · Assignment Dropdown</div>
+  <p class="section-desc">Analyst selection dropdown for task assignment.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Assignment Dropdown</span><span class="spec-token">mol-assignment-dropdown</span></div>
+    <div class="spec-block-body">
+      <div class="spec-preview" style="flex-direction:column;gap:var(--space-2);align-items:stretch;">
+        <div style="background:white;border:1px solid var(--color-rule);border-radius:var(--radius-sm);overflow:hidden;width:240px;">
+          <input type="text" placeholder="Search analysts..." style="width:100%;padding:8px 12px;border:none;border-bottom:1px solid var(--color-rule);font-size:12px;">
+          <div style="padding:4px;">
+            <div style="padding:8px 10px;border-radius:2px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:12px;color:var(--color-ink);">Sarah Chen</span>
+              <span style="font-size:10px;color:var(--color-ink-light);">Senior Analyst</span>
+            </div>
+            <div style="padding:8px 10px;border-radius:2px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:12px;color:var(--color-ink);">Marcus Johnson</span>
+              <span style="font-size:10px;color:var(--color-ink-light);">Data Scientist</span>
+            </div>
+            <div style="padding:8px 10px;border-radius:2px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:12px;color:var(--color-ink);">Emily Rodriguez</span>
+              <span style="font-size:10px;color:var(--color-ink-light);">Analytics Lead</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Trigger</span><span class="spec-val">"Assign to..." button in response footer</span></div>
+        <div class="spec-row"><span class="spec-prop">Search</span><span class="spec-val">Filters list as user types</span></div>
+        <div class="spec-row"><span class="spec-prop">Click</span><span class="spec-val">Selects analyst and closes dropdown</span></div>
+        <div class="spec-row"><span class="spec-prop">Escape</span><span class="spec-val">Closes without selection</span></div>
+        <div class="spec-row"><span class="spec-prop">Recent</span><span class="spec-val">Shows recent assignees first</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA LINEAGE PANEL MOLECULE (v1.1) -->
+  <div class="section-label">2.9 · Data Lineage Panel</div>
+  <p class="section-desc">Collapsible panel showing data source lineage for a finding.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Data Lineage Panel</span><span class="spec-token">mol-data-lineage-panel</span></div>
+    <div class="spec-block-body">
+      <div class="spec-preview" style="flex-direction:column;gap:var(--space-2);align-items:flex-start;">
+        <div style="background:var(--color-cream);padding:12px;border-radius:var(--radius-sm);width:260px;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:8px;">Data Lineage</div>
+          <div style="display:flex;flex-direction:column;gap:4px;font-family:'DM Mono',monospace;font-size:10px;">
+            <div style="padding:6px 8px;background:white;border:1px solid var(--color-rule);border-radius:2px;color:var(--color-teal);">fact_customer_weekly</div>
+            <div style="text-align:center;color:var(--color-ink-light);font-size:9px;">↓ JOIN ON customer_id</div>
+            <div style="padding:6px 8px;background:white;border:1px solid var(--color-rule);border-radius:2px;color:var(--color-teal);">dim_segment</div>
+            <div style="text-align:center;color:var(--color-ink-light);font-size:9px;">↓ WHERE fiscal_week = 'FW10'</div>
+            <div style="padding:6px 8px;background:var(--color-teal-soft);border:1px solid var(--color-teal);border-radius:2px;color:var(--color-teal);">segment_performance_yoy</div>
+          </div>
+        </div>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Layout</span><span class="spec-val">Vertical tree with connector labels</span></div>
+        <div class="spec-row"><span class="spec-prop">Source nodes</span><span class="spec-val">White bg · --color-rule border · --color-teal text</span></div>
+        <div class="spec-row"><span class="spec-prop">Output node</span><span class="spec-val">--color-teal-soft bg · --color-teal border</span></div>
+        <div class="spec-row"><span class="spec-prop">Connectors</span><span class="spec-val">↓ with JOIN/WHERE labels · --color-ink-light</span></div>
+        <div class="spec-row"><span class="spec-prop">Placement</span><span class="spec-val">Governed Analysis Session overlay · collapsible section</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- TRACE ITEM ROW MOLECULE (v1.2) -->
+  <div class="section-label">2.10 · Trace Item Row</div>
+  <p class="section-desc">A single event in the Trace Panel. Records the timestamp, what Alex investigated, what the investigation produced (which governed card opened), and the confidence level of the result. Trace Item Rows are the body of the Trace Panel organism and the lineage backbone of the Analyst Brief.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Trace Item Row</span><span class="spec-token">mol-trace-item-row</span></div>
+    <div class="spec-block-body">
+      <div class="spec-preview" style="flex-direction:column;gap:var(--space-1);align-items:stretch;width:100%;">
+        <div style="display:grid;grid-template-columns:56px 1fr auto;gap:var(--space-3);padding:10px 12px;background:white;border-bottom:1px solid var(--color-cream);align-items:start;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">7:03am</div>
+          <div>
+            <div style="font-size:12px;font-weight:500;color:var(--color-ink);margin-bottom:2px;">Lapsing Loyalty Members</div>
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">Entity tap · segment profile opened</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:9px;color:var(--color-sage);"><span style="width:5px;height:5px;border-radius:50%;background:var(--color-sage);display:inline-block;"></span>Governed</div>
+        </div>
+        <div style="display:grid;grid-template-columns:56px 1fr auto;gap:var(--space-3);padding:10px 12px;background:white;border-bottom:1px solid var(--color-cream);align-items:start;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">7:06am</div>
+          <div>
+            <div style="font-size:12px;font-weight:500;color:var(--color-ink);margin-bottom:2px;">Rx ↔ Front-Only Tension</div>
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">Tension tap · divergence view · analysis view offered</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:9px;color:var(--color-gold);"><span style="width:5px;height:5px;border-radius:50%;background:var(--color-gold);display:inline-block;"></span>Estimated</div>
+        </div>
+        <div style="display:grid;grid-template-columns:56px 1fr auto;gap:var(--space-3);padding:10px 12px;background:var(--color-teal-soft);border-bottom:1px solid var(--color-cream);align-items:start;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-teal);">7:09am</div>
+          <div>
+            <div style="font-size:12px;font-weight:500;color:var(--color-teal);margin-bottom:2px;">Top 40 Store Waterfall</div>
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-teal);">Analysis view · store decline ranking · 6 min</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:9px;color:var(--color-teal);"><span style="width:5px;height:5px;border-radius:50%;background:var(--color-teal);display:inline-block;"></span>Governed</div>
+        </div>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Grid</span><span class="spec-val">3-column: 56px timestamp · 1fr content · auto confidence</span></div>
+        <div class="spec-row"><span class="spec-prop">Name</span><span class="spec-val">DM Sans · 12px · weight 500 · --color-ink. The metric/entity/tension name as it appeared in the thread.</span></div>
+        <div class="spec-row"><span class="spec-prop">Action</span><span class="spec-val">DM Mono · 9px · --color-ink-light. Event type: "Metric tap", "Entity tap", "Tension tap", "Analysis view". Includes what opened.</span></div>
+        <div class="spec-row"><span class="spec-prop">Confidence</span><span class="spec-val">Inherits from atom-lineage-row confidence states. Sage=Governed · Gold=Estimated · Accent=Flagged.</span></div>
+        <div class="spec-row"><span class="spec-prop">Analysis view row</span><span class="spec-val">--color-teal-soft bg · --color-teal text · indicates deep exploration event. Duration included in action text.</span></div>
+        <div class="spec-row"><span class="spec-prop">Separator</span><span class="spec-val">1px --color-cream bottom border between rows. Last row: no border.</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> The Trace Item Row is auto-generated — Alex never writes it. Every sidecar tap and analysis view entry creates one. The confidence column is populated from the governed card that opened, not inferred. If no governed card opened, confidence is "Estimated."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GOVERNED BRIEF BLOCK MOLECULE (v1.2) -->
+  <div class="section-label">2.11 · Governed Brief Block</div>
+  <p class="section-desc">The analyst-consumable content unit. Pairs a governed definition with its key metric values and a lineage row. The atomic unit of the Analyst Brief template — one Governed Brief Block per finding or metric handed off. Self-contained: an analyst can act on this block without opening the product.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Governed Brief Block</span><span class="spec-token">mol-governed-brief-block</span></div>
+    <div class="spec-block-body">
+      <div class="spec-preview" style="flex-direction:column;gap:0;align-items:stretch;width:100%;">
+        <div style="background:white;border:1px solid var(--color-rule);border-radius:var(--radius-sm);overflow:hidden;">
+          <div style="padding:10px 14px;border-bottom:1px solid var(--color-rule);display:flex;align-items:center;gap:var(--space-2);">
+            <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:2px 7px;border-radius:var(--radius-sm);background:var(--color-teal-soft);color:var(--color-teal);">Entity · Segment</span>
+            <span style="font-size:12px;font-weight:500;color:var(--color-ink);">Lapsing Loyalty Members</span>
+          </div>
+          <div style="padding:10px 14px;background:var(--color-cream);border-bottom:1px solid var(--color-rule);font-size:11px;color:var(--color-ink-mid);line-height:1.65;border-left:2px solid var(--color-teal);">Loyalty members with ≥3 trips in prior 90 days whose trip frequency declined ≥30% in most recent 30-day window vs. personal baseline. ~3 weeks to churn classification. <strong style="color:var(--color-ink);">14.2% of active loyalty base.</strong></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--color-rule);">
+            <div style="background:white;padding:10px 14px;">
+              <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:3px;">Segment Size</div>
+              <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--color-accent);">−30%</div>
+              <div style="font-size:10px;color:var(--color-ink-light);">WoW frequency · this segment</div>
+            </div>
+            <div style="background:white;padding:10px 14px;">
+              <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:3px;">Addressable Revenue</div>
+              <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--color-accent);">~$2.2M</div>
+              <div style="font-size:10px;color:var(--color-ink-light);">top 40 stores · reactivation scope</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:var(--space-4);padding:7px 14px;background:var(--color-cream);font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">
+            <span>Source: Governed metric store</span>
+            <span style="color:var(--color-rule);">·</span>
+            <span>Reconciled: Mon 06:42am</span>
+            <span style="color:var(--color-rule);">·</span>
+            <span style="display:flex;align-items:center;gap:4px;color:var(--color-sage);"><span style="width:5px;height:5px;border-radius:50%;background:var(--color-sage);display:inline-block;"></span>Governed</span>
+          </div>
+        </div>
+      </div>
+      <div class="spec-detail">
+        <div class="spec-row"><span class="spec-prop">Assembly</span><span class="spec-val">1. Type badge + name header · 2. Governed definition (cream, teal left-border) · 3. Stat pair (2-col grid) · 4. Lineage row (atom-lineage-row)</span></div>
+        <div class="spec-row"><span class="spec-prop">Header</span><span class="spec-val">Type badge (inherits from atom-pillar-tag color logic) + metric/entity name. No separate title.</span></div>
+        <div class="spec-row"><span class="spec-prop">Definition</span><span class="spec-val">--color-cream bg · 2px --color-teal left-border · 11px prose. Must include: population, calculation window, threshold. Max 2 sentences.</span></div>
+        <div class="spec-row"><span class="spec-prop">Stat pair</span><span class="spec-val">2-column: absolute change left · addressable value right. Both required. Revenue equivalent in sub-label.</span></div>
+        <div class="spec-row"><span class="spec-prop">Lineage row</span><span class="spec-val">atom-lineage-row. Always last. Source + reconciliation timestamp + confidence dot.</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> The Governed Brief Block is what the analyst means when they say "I need the governed layer." It is the minimum self-contained unit of trustworthy information — definition, values, and provenance in a single molecule. The analyst can pull the segment from the data warehouse using only this block.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     LEVEL 3 · ORGANISMS
+══════════════════════════════════════════════════════════ -->
+<div class="page-divider"></div>
+<div class="level-header">
+  <div class="level-number">03</div>
+  <div class="level-info">
+    <div class="level-name">Organisms</div>
+    <div class="level-def">Complex, self-contained UI components built from molecules and atoms. Organisms are the meaningful, reusable sections of the interface. Each has a defined role and a defined assembly order.</div>
+  </div>
+</div>
+
+<div class="page">
+  <!-- GOVERNED METRIC CARD -->
+  <div class="section-label">3.1 · Governed Metric Card</div>
+  <p class="section-desc">The sidecar's primary content organism. Renders in response to any metric or entity signal tap. Always follows the same five-section assembly order regardless of content type.</p>
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Governed Metric Card</span><span class="spec-token">org-governed-card</span></div>
+    <div style="display:grid;grid-template-columns:320px 1fr;gap:0;">
+      <div style="padding:var(--space-5);border-right:1px solid var(--color-rule);background:var(--color-paper);">
+        <div class="org-governed-card">
+          <div class="org-gc-hdr">
+            <div class="org-gc-type">Metric Signal</div>
+            <div class="org-gc-title">Front Store Trips — WoW Change</div>
+          </div>
+          <div class="org-gc-body">
+            <span class="org-gc-badge org-gc-badge-metric">Metric · Weekly Change</span>
+            <div class="org-gc-def"><strong>Governed scope:</strong> All enterprise retail front store locations. Active + non-loyalty customers. Mon–Sun window. 892 stores nationally.</div>
+            <div class="mol-stat-pair">
+              <div class="mol-stat-cell"><div class="mol-stat-lbl">Relative Change</div><div class="mol-stat-val neg">−2.8%</div><div class="mol-stat-sub">WoW · vs prior week</div></div>
+              <div class="mol-stat-cell"><div class="mol-stat-lbl">Absolute Volume</div><div class="mol-stat-val neg" style="font-size:16px;">−118K</div><div class="mol-stat-sub">trips · ~$3.1M revenue equiv.</div></div>
+            </div>
+            <div class="mol-variance-row" style="margin-top:var(--space-2);">
+              <div class="mol-var-bars"><span class="mol-var-bar-seg"></span><span class="mol-var-bar-seg"></span><span class="mol-var-bar-seg on"></span><span class="mol-var-bar-seg on"></span><span class="mol-var-bar-seg"></span></div>
+              <div class="mol-var-text"><strong>7× outside normal variance.</strong> Normal ±0.4%. Third consecutive week.</div>
+            </div>
+            <div class="org-gc-sec">MECE Position — Shopper Types</div>
+            <div class="mol-mece-row" style="margin-bottom:var(--space-2);">
+              <div class="mol-mece-seg focus"><div class="mol-mece-seg-lbl">Front Only</div><div class="mol-mece-seg-val">−4.1%</div></div>
+              <div class="mol-mece-seg neutral"><div class="mol-mece-seg-lbl">Rx-Attached</div><div class="mol-mece-seg-val">+0.3%</div></div>
+              <div class="mol-mece-seg"><div class="mol-mece-seg-lbl">PCW</div><div class="mol-mece-seg-val">+0.1%</div></div>
+            </div>
+            <div class="mol-comp-triple" style="margin-top:var(--space-2);">
+              <div class="mol-comp-cell"><div class="mol-comp-lbl">WoW</div><div class="mol-comp-val neg">−2.8%</div></div>
+              <div class="mol-comp-cell"><div class="mol-comp-lbl">MoM</div><div class="mol-comp-val neg">−1.9%</div></div>
+              <div class="mol-comp-cell"><div class="mol-comp-lbl">YoY</div><div class="mol-comp-val neg">−0.7%</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spec-detail" style="padding:var(--space-5);">
+        <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.15em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:var(--space-3);">Assembly order — always in this sequence</div>
+        <div class="spec-row"><span class="spec-prop" style="width:24px;">1</span><span class="spec-val"><strong style="font-weight:500;">Type badge</strong> — Metric / Entity / Tension. Sets the frame for what follows.</span></div>
+        <div class="spec-row"><span class="spec-prop" style="width:24px;">2</span><span class="spec-val"><strong style="font-weight:500;">Governed definition</strong> — Population, calculation, time window. One paragraph max. This is the contract.</span></div>
+        <div class="spec-row"><span class="spec-prop" style="width:24px;">3</span><span class="spec-val"><strong style="font-weight:500;">Stat pair</strong> — Absolute + relative. Always both. Revenue equivalent in sub-label.</span></div>
+        <div class="spec-row"><span class="spec-prop" style="width:24px;">4</span><span class="spec-val"><strong style="font-weight:500;">Variance context row</strong> — Visual bar + plain-language interpretation. Never omit.</span></div>
+        <div class="spec-row"><span class="spec-prop" style="width:24px;">5</span><span class="spec-val"><strong style="font-weight:500;">MECE position</strong> — Full decomposition with all segments. Focused segment highlighted.</span></div>
+        <div class="spec-row"><span class="spec-prop" style="width:24px;">6</span><span class="spec-val"><strong style="font-weight:500;">Comparative triple</strong> — WoW / MoM / YoY.</span></div>
+        <div class="spec-row"><span class="spec-prop" style="width:24px;">7</span><span class="spec-val"><strong style="font-weight:500;">Chart section</strong> — 12-week sparkline via Plotly. Optional for entity profiles.</span></div>
+        <div class="spec-row"><span class="spec-prop" style="width:24px;">8</span><span class="spec-val"><strong style="font-weight:500;">Analysis offer</strong> — Gold offer block with "Open in Analysis View" CTA. Only when deeper exploration is warranted.</span></div>
+        <div class="semantic-note" style="margin-top:var(--space-3);"><span>Variant types:</span> Metric card (all 8 sections) · Entity card (def + stat pair + MECE + optional chart) · Tension card (def + stat pair for both metrics + net impact + MECE + divergence chart + analysis offer)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESPONSE ORGANISM -->
+  <div class="section-label">3.2 · Response Organism</div>
+  <p class="section-desc">The primary conversational unit. Every response follows this anatomy regardless of entry mode or decision depth. Layer visibility varies — structure does not.</p>
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Response Organism — Full Anatomy</span><span class="spec-token">org-response</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+      <div style="padding:var(--space-5);border-right:1px solid var(--color-rule);background:var(--color-paper);">
+        <div class="org-response">
+          <div class="org-resp-hdr">
+            <div class="org-resp-avatar">I</div>
+            <div class="org-resp-label">Monday Diagnostic · Week 10</div>
+            <div class="org-resp-time">7:02am</div>
+          </div>
+          <div class="org-resp-body">
+            <div class="org-resp-layer-strip">
+              <span class="org-resp-layer active">L1 Frame</span>
+              <span class="org-resp-layer active">L2 Outcomes</span>
+              <span class="org-resp-layer active">L3 Drivers</span>
+              <span class="org-resp-layer">L4 Value</span>
+              <span class="org-resp-layer active">L5 Tier</span>
+            </div>
+            <div class="org-resp-title">Lapsing loyalty members in urban stores are driving the front store trip decline</div>
+            <div class="org-resp-prose">Front store trips declined <span style="font-weight:500;cursor:default;">−2.8% WoW<span class="atom-range-bar"><span></span><span></span><span class="active"></span><span class="active"></span><span></span></span></span> against ±0.4% typical variance. Concentrated in <span class="atom-entity-underline">lapsing loyalty members</span>. <span class="atom-pillar-tag atom-pillar-2">Pillar 2 · Retention</span> is the strategic lever. <span class="atom-tier-tag atom-tier-tac">Tactical</span> + <span class="atom-tier-tag atom-tier-str">Strategic</span> implications.</div>
+          </div>
+          <div class="org-resp-nav">
+            <div class="org-resp-nav-lbl">Where to go next</div>
+            <div class="mol-nav-item mol-nav-primary">"The regional concentration is worth seeing — want me to break that down?"</div>
+            <div class="mol-nav-item mol-nav-secondary">"There's also a quarterly framing here for your planning review."</div>
+          </div>
+        </div>
+      </div>
+      <div class="spec-detail" style="padding:var(--space-5);">
+        <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.15em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:var(--space-3);">Anatomy sections</div>
+        <div class="spec-row"><span class="spec-prop">Header</span><span class="spec-val">Avatar (26px · Playfair italic) · Label (DM Mono · --text-xs · uppercase) · Time (right-aligned · --color-rule)</span></div>
+        <div class="spec-row"><span class="spec-prop">Layer strip</span><span class="spec-val">Active layers highlighted --color-ink bg. Inactive layers: --color-cream bg. Not shown to user — spec artifact only.</span></div>
+        <div class="spec-row"><span class="spec-prop">Title</span><span class="spec-val">Playfair 18px weight 600. Finding: declarative statement. Tension: uses tension-mark atom spanning both terms.</span></div>
+        <div class="spec-row"><span class="spec-prop">Prose</span><span class="spec-val">DM Sans 13.5px --color-ink-mid line-height 1.85. Signal atoms inline. Pillar + tier tags inline.</span></div>
+        <div class="spec-row"><span class="spec-prop">Modal offer</span><span class="spec-val">Optional. Appears when agent acknowledges sidecar activity. Gold left-border. Italic prose. Above title.</span></div>
+        <div class="spec-row"><span class="spec-prop">Nav block</span><span class="spec-val">Border-top --color-rule. Nav label. Two mol-nav-item molecules. Primary then secondary. Always last.</span></div>
+        <div class="spec-row"><span class="spec-prop">Padding</span><span class="spec-val">Body: --space-5 all sides. Header: --space-3 top/bottom --space-4 left/right.</span></div>
+        <div class="semantic-note"><span>Entry state:</span> Responses animate in — opacity 0→1 · translateY 8px→0 · 0.35s ease. Never appear instantly. The animation signals the product is generating, not retrieving.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BREADCRUMB TRAIL -->
+  <div class="section-label">3.3 · Breadcrumb Trail</div>
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Breadcrumb Trail Organism</span><span class="spec-token">org-bc-trail</span></div>
+    <div style="display:grid;grid-template-columns:320px 1fr;gap:0;">
+      <div style="padding:var(--space-5);border-right:1px solid var(--color-rule);background:var(--color-paper);">
+        <div class="org-bc">
+          <div class="org-bc-top">
+            <div class="org-bc-dot"></div>
+            <div class="org-bc-sum">3 items investigated · Front Store Trips · Lapsing Members · Rx ↔ FS Tension</div>
+            <div class="org-bc-tog">▾</div>
+          </div>
+          <div style="border-top:1px solid var(--color-rule);">
+            <div class="mol-bc-row"><span class="mol-bc-time">7:03am</span><span class="mol-bc-name">Front Store Trips WoW</span><span class="mol-bc-action">Metric tap · sidecar updated</span></div>
+            <div class="mol-bc-row"><span class="mol-bc-time">7:04am</span><span class="mol-bc-name">Lapsing Loyalty Members</span><span class="mol-bc-action">Entity tap · segment profile</span></div>
+            <div class="mol-bc-row" style="border:none;"><span class="mol-bc-time">7:06am</span><span class="mol-bc-name">Rx ↔ Front-Only Tension</span><span class="mol-bc-action">Tension tap · divergence view</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="spec-detail" style="padding:var(--space-5);">
+        <div class="spec-row"><span class="spec-prop">Placement</span><span class="spec-val">Between response body and next user message. Anchored to the response that generated it. Margin-left: 36px (aligned with response body).</span></div>
+        <div class="spec-row"><span class="spec-prop">Default</span><span class="spec-val">Collapsed. Hidden until first sidecar tap from that response.</span></div>
+        <div class="spec-row"><span class="spec-prop">Collapsed</span><span class="spec-val">Shows dot · summary text (N items · names) · expand toggle. --color-cream background.</span></div>
+        <div class="spec-row"><span class="spec-prop">Expanded</span><span class="spec-val">Shows mol-bc-row molecules in chronological order. Toggle rotates 180deg.</span></div>
+        <div class="spec-row"><span class="spec-prop">Agent use</span><span class="spec-val">Trail is machine-readable. Agent reads all events before generating next response. Never narrates the trail — infers the investigation pattern instead.</span></div>
+        <div class="spec-row"><span class="spec-prop">History</span><span class="spec-val">Trail is persistent for session. Cannot be deleted. Thread is the memory.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYSIS VIEW RETURN FLOW ORGANISM (v1.1) -->
+  <div class="section-label">3.4 · Analysis View Return Flow</div>
+  <p class="section-desc">The analysis view exit sequence is updated with a four-beat ceremony. The "Return with this finding" button triggers a composition animation — the finding types itself into the thread as a user message before the agent responds. The transition is visible and satisfying.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Return Flow — Four-Beat Sequence</span><span class="spec-token">org-av-return-flow</span></div>
+    <div style="padding:var(--space-5);background:white;">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-2);margin-bottom:var(--space-5);">
+        <div style="padding:var(--space-4);background:var(--color-cream);border-radius:var(--radius-sm);text-align:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light);margin-bottom:var(--space-2);">Beat 1 · Tap (0ms)</div>
+          <div style="font-size:var(--text-sm);color:var(--color-ink-mid);line-height:1.6;">VP taps button. Overlay slide-out begins (350ms cubic-bezier).</div>
+        </div>
+        <div style="padding:var(--space-4);background:var(--color-cream);border-radius:var(--radius-sm);text-align:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light);margin-bottom:var(--space-2);">Beat 2 · Compose (200ms)</div>
+          <div style="font-size:var(--text-sm);color:var(--color-ink-mid);line-height:1.6;">As overlay closes, user bubble types into thread. Character-by-character at ~40ms/char.</div>
+        </div>
+        <div style="padding:var(--space-4);background:var(--color-cream);border-radius:var(--radius-sm);text-align:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light);margin-bottom:var(--space-2);">Beat 3 · Think (600ms)</div>
+          <div style="font-size:var(--text-sm);color:var(--color-ink-mid);line-height:1.6;">Thread full width. Bubble complete. Typing indicator. Agent processing.</div>
+        </div>
+        <div style="padding:var(--space-4);background:var(--color-cream);border-radius:var(--radius-sm);text-align:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);color:var(--color-ink-light);margin-bottom:var(--space-2);">Beat 4 · Respond</div>
+          <div style="font-size:var(--text-sm);color:var(--color-ink-mid);line-height:1.6;">Reintegration response animates in. Opens with modal offer.</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);">
+        <div>
+          <div class="spec-row"><span class="spec-prop">Beat 2 timing</span><span class="spec-val">Start at 200ms after tap (after overlay has begun but not completed). End at ~800ms depending on message length.</span></div>
+          <div class="spec-row"><span class="spec-prop">Typing speed</span><span class="spec-val">~40ms per character. Cap at 2 seconds total regardless of message length — truncate animation, not content.</span></div>
+          <div class="spec-row"><span class="spec-prop">Bubble style</span><span class="spec-val">Standard user bubble (--color-ink bg, --color-paper text). No visual difference from a typed message.</span></div>
+        </div>
+        <div>
+          <div class="spec-row"><span class="spec-prop">Beat 3 duration</span><span class="spec-val">600ms minimum, up to 1600ms if session context is complex. Typing indicator visible throughout.</span></div>
+          <div class="spec-row"><span class="spec-prop">Beat 4 content</span><span class="spec-val">Agent opens with modal offer: "You spent time in the [view] — want me to bring what you found into the conversation?"</span></div>
+          <div class="spec-row"><span class="spec-prop">Button label</span><span class="spec-val">Update from "Return with this finding →" to "Bring this into the conversation" — present tense, inviting, not conclusive.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARCHIVE PANEL ORGANISM (v1.1) -->
+  <div class="section-label">3.5 · Archive Panel</div>
+  <p class="section-desc">Slide-in panel for navigating fiscal week session history.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Archive Panel Organism</span><span class="spec-token">org-archive-panel</span></div>
+    <div style="display:grid;grid-template-columns:300px 1fr;gap:0;">
+      <div style="padding:var(--space-5);border-right:1px solid var(--color-rule);background:var(--color-paper);">
+        <div style="background:white;border:1px solid var(--color-rule);border-radius:var(--radius-sm);overflow:hidden;">
+          <div style="background:var(--color-cream);padding:12px 16px;border-bottom:1px solid var(--color-rule);display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:2px;">Session Archive</div>
+              <div style="font-size:12px;font-weight:500;color:var(--color-ink);">Fiscal Year 2025</div>
+            </div>
+            <div style="width:22px;height:22px;border-radius:50%;border:1px solid var(--color-rule);background:white;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--color-ink-light);cursor:pointer;">✕</div>
+          </div>
+          <div style="padding:12px;display:flex;flex-direction:column;gap:6px;">
+            <div style="padding:10px 12px;background:var(--color-teal-soft);border:1px solid var(--color-teal);border-radius:var(--radius-sm);display:flex;align-items:center;gap:10px;">
+              <div style="flex:1;"><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--color-teal);font-weight:500;">FW10 · Mar 09</div><div style="font-size:10px;color:var(--color-teal);margin-top:1px;">Lapsing loyalty decline</div></div>
+              <span style="font-family:'DM Mono',monospace;font-size:8px;color:var(--color-teal);background:white;padding:1px 6px;border-radius:var(--radius-sm);">Current</span>
+            </div>
+            <div style="padding:10px 12px;background:white;border:1px solid var(--color-rule);border-radius:var(--radius-sm);display:flex;align-items:center;gap:10px;cursor:pointer;">
+              <div style="flex:1;"><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--color-ink-mid);font-weight:500;">FW09 · Mar 02</div><div style="font-size:10px;color:var(--color-ink-light);margin-top:1px;">Trip softness observed</div></div>
+              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">→</span>
+            </div>
+            <div style="padding:10px 12px;background:white;border:1px solid var(--color-rule);border-radius:var(--radius-sm);display:flex;align-items:center;gap:10px;cursor:pointer;">
+              <div style="flex:1;"><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--color-ink-mid);font-weight:500;">FW08 · Feb 23</div><div style="font-size:10px;color:var(--color-ink-light);margin-top:1px;">Rx attach stable · PCW growth</div></div>
+              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">→</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spec-detail" style="padding:var(--space-5);">
+        <div class="spec-row"><span class="spec-prop">Width</span><span class="spec-val">380px · matches sidecar width for visual consistency</span></div>
+        <div class="spec-row"><span class="spec-prop">Position</span><span class="spec-val">Slides in from LEFT · opposite side from sidecar · position: absolute · left: 0 · top: 0 · bottom: 0 · z-index: 100</span></div>
+        <div class="spec-row"><span class="spec-prop">Open</span><span class="spec-val">transform: translateX(0) · transition: --transition-slide</span></div>
+        <div class="spec-row"><span class="spec-prop">Closed</span><span class="spec-val">transform: translateX(-100%)</span></div>
+        <div class="spec-row"><span class="spec-prop">Trigger</span><span class="spec-val">Calendar icon in topbar (left side). Tap to open. Tap again or tap thread to dismiss.</span></div>
+        <div class="spec-row"><span class="spec-prop">Header</span><span class="spec-val">--color-cream · "Session Archive" label + fiscal year · close button</span></div>
+        <div class="spec-row"><span class="spec-prop">Body</span><span class="spec-val">Scrollable list of mol-archive-entry molecules · most recent first · padding: 12px</span></div>
+        <div class="spec-row"><span class="spec-prop">Coexistence</span><span class="spec-val">Archive panel and sidecar can both be open simultaneously. Thread compresses to accommodate both.</span></div>
+        <div class="semantic-note"><span>Topbar addition:</span> A calendar icon button is added to the left side of the topbar, mirroring the structural position of the sidecar trigger. The calendar icon uses --color-ink-light, brightens to --color-paper on hover, and shows a subtle active state when the panel is open.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GOVERNED SESSION ORGANISM (v1.1) -->
+  <div class="section-label">3.6 · Governed Session</div>
+  <p class="section-desc">Full data layer view for analyst handoff — extends Analyst Brief with technical detail.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Governed Session Organism</span><span class="spec-token">org-governed-session</span></div>
+    <div style="padding:var(--space-5);background:white;">
+      <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.12em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:var(--space-3);">Composition</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin-bottom:var(--space-4);">
+        <div style="font-size:var(--text-sm);color:var(--color-ink-mid);line-height:1.7;">
+          <ul style="padding-left:16px;margin:0;">
+            <li>mol-data-lineage-panel (for each data source)</li>
+            <li>Tool call output cards (query, parameters, results)</li>
+            <li>MECE breakdown tables (full numerical data)</li>
+            <li>Confidence indicators per metric</li>
+            <li>Metric definition tooltips</li>
+          </ul>
+        </div>
+        <div>
+          <div class="spec-row"><span class="spec-prop">Access</span><span class="spec-val">"Open Governed Analysis Session →" link in Analyst Brief</span></div>
+          <div class="spec-row"><span class="spec-prop">Also via</span><span class="spec-val">"View data lineage" link in response footer</span></div>
+          <div class="spec-row"><span class="spec-prop">Properties</span><span class="spec-val">Shareable via immutable link · Read-only · Timestamped</span></div>
+        </div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--color-ink-mid);line-height:1.8;background:var(--color-cream);padding:16px;border-radius:var(--radius-sm);">
+┌─────────────────────────────────────────────┐<br>
+│ Governed Analysis Session    [Copy Link] [Close] │<br>
+├─────────────────────────────────────────────┤<br>
+│ Finding: PCW customer growth accelerating   │<br>
+│ Generated: FW10 · Mon 9:41am               │<br>
+├─────────────────────────────────────────────┤<br>
+│ ▼ Data Lineage                              │<br>
+│   [mol-data-lineage-panel]                  │<br>
+├─────────────────────────────────────────────┤<br>
+│ ▼ Tool Outputs                              │<br>
+│   Query: SELECT segment, COUNT(*)...        │<br>
+│   Parameters: { fiscal_week: 'FW10', ... }  │<br>
+├─────────────────────────────────────────────┤<br>
+│ ▼ MECE Decomposition                        │<br>
+│   [Full breakdown table with all numbers]   │<br>
+├─────────────────────────────────────────────┤<br>
+│ ▼ Confidence & Definitions                  │<br>
+│   Customer count: High (direct measurement) │<br>
+│   Growth rate: High (YoY comparison)        │<br>
+│   Attribution: Medium (modeled)             │<br>
+└─────────────────────────────────────────────┘
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- TRACE PANEL ORGANISM (v1.2) -->
+  <div class="section-label">3.7 · Trace Panel</div>
+  <p class="section-desc">The accumulated governed session object. Slides up from the reply bar when Alex taps the Trace Indicator atom. Contains every investigative event in the current session as mol-trace-item-rows, ordered chronologically. The Delegate Flow organism lives inside this panel — Alex cannot access Delegate without first opening Trace. This is intentional: delegation requires review of what is being handed off.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Trace Panel Organism</span><span class="spec-token">org-trace-panel</span></div>
+    <div style="display:grid;grid-template-columns:320px 1fr;gap:0;">
+      <div style="padding:var(--space-5);border-right:1px solid var(--color-rule);background:var(--color-paper);">
+        <div style="background:white;border:1px solid var(--color-rule);border-radius:var(--radius-sm);overflow:hidden;width:300px;">
+          <!-- Panel header -->
+          <div style="background:var(--color-ink);padding:12px 16px;display:flex;align-items:flex-start;justify-content:space-between;">
+            <div>
+              <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#4a4640;margin-bottom:4px;">Session Trace · FW10</div>
+              <div style="font-size:13px;font-weight:500;color:var(--color-paper);line-height:1.3;">Lapsing loyalty — urban store decline</div>
+            </div>
+            <div style="width:22px;height:22px;border-radius:50%;border:1px solid #2a2926;display:flex;align-items:center;justify-content:center;font-size:11px;color:#4a4640;cursor:pointer;flex-shrink:0;margin-left:8px;">✕</div>
+          </div>
+          <!-- Trace items -->
+          <div style="display:grid;grid-template-columns:52px 1fr auto;gap:10px;padding:10px 12px;border-bottom:1px solid var(--color-cream);align-items:start;">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">7:03am</div>
+            <div><div style="font-size:11px;font-weight:500;color:var(--color-ink);margin-bottom:1px;">Front Store Trips WoW</div><div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--color-ink-light);">Metric tap · sidecar</div></div>
+            <div style="display:flex;align-items:center;gap:3px;font-family:'DM Mono',monospace;font-size:8px;color:var(--color-sage);"><span style="width:4px;height:4px;border-radius:50%;background:var(--color-sage);display:inline-block;"></span>Gov.</div>
+          </div>
+          <div style="display:grid;grid-template-columns:52px 1fr auto;gap:10px;padding:10px 12px;border-bottom:1px solid var(--color-cream);align-items:start;">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">7:06am</div>
+            <div><div style="font-size:11px;font-weight:500;color:var(--color-ink);margin-bottom:1px;">Lapsing Loyalty Members</div><div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--color-ink-light);">Entity tap · segment profile</div></div>
+            <div style="display:flex;align-items:center;gap:3px;font-family:'DM Mono',monospace;font-size:8px;color:var(--color-sage);"><span style="width:4px;height:4px;border-radius:50%;background:var(--color-sage);display:inline-block;"></span>Gov.</div>
+          </div>
+          <div style="display:grid;grid-template-columns:52px 1fr auto;gap:10px;padding:10px 12px;border-bottom:1px solid var(--color-cream);align-items:start;background:var(--color-teal-soft);">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-teal);">7:09am</div>
+            <div><div style="font-size:11px;font-weight:500;color:var(--color-teal);margin-bottom:1px;">Top 40 Store Waterfall</div><div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--color-teal);">Analysis view · 6 min</div></div>
+            <div style="display:flex;align-items:center;gap:3px;font-family:'DM Mono',monospace;font-size:8px;color:var(--color-teal);"><span style="width:4px;height:4px;border-radius:50%;background:var(--color-teal);display:inline-block;"></span>Gov.</div>
+          </div>
+          <!-- Delegate CTA -->
+          <div style="padding:12px 16px;border-top:1px solid var(--color-rule);background:var(--color-cream);display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <div style="font-size:11px;color:var(--color-ink-mid);">3 items · all governed</div>
+            <button style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:7px 14px;background:var(--color-ink);color:var(--color-paper);border:none;border-radius:var(--radius-sm);cursor:pointer;">Delegate →</button>
+          </div>
+        </div>
+      </div>
+      <div class="spec-detail" style="padding:var(--space-5);">
+        <div class="spec-row"><span class="spec-prop">Trigger</span><span class="spec-val">Tap on atom-trace-indicator in reply bar. Slides up over reply bar from bottom. Does not overlay thread content.</span></div>
+        <div class="spec-row"><span class="spec-prop">Position</span><span class="spec-val">Anchored to bottom of screen, above reply bar. Max-height: 60vh. Overflow-y: auto for long sessions. z-index: 150.</span></div>
+        <div class="spec-row"><span class="spec-prop">Header</span><span class="spec-val">--color-ink bg. "Session Trace · FW[N]" label + dominant finding title auto-populated from first response. Close button.</span></div>
+        <div class="spec-row"><span class="spec-prop">Body</span><span class="spec-val">Scrollable list of mol-trace-item-rows in chronological order. Analysis view events use --color-teal-soft bg treatment.</span></div>
+        <div class="spec-row"><span class="spec-prop">Footer</span><span class="spec-val">--color-cream bg. Item count + aggregate confidence summary ("N items · all governed" or "N items · N estimated"). Delegate button right-aligned.</span></div>
+        <div class="spec-row"><span class="spec-prop">Delegate button</span><span class="spec-val">--color-ink bg. Only active when at least 1 item exists. Tapping opens org-delegate-flow inside this same panel (replaces content, back affordance appears).</span></div>
+        <div class="spec-row"><span class="spec-prop">Dismiss</span><span class="spec-val">✕ button · tapping thread · reply bar input focus. Never auto-dismisses.</span></div>
+        <div class="spec-row"><span class="spec-prop">Topbar link</span><span class="spec-val">The "Trace" link in topbar opens this same panel. Secondary access path for returning users who may not notice the reply bar indicator.</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> Trace is not a log for Alex — it is a handoff preparation surface. Alex opens it to review what accumulated naturally from investigation before deciding whether to delegate. The panel makes the governed data layer visible without requiring Alex to have curated it deliberately.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELEGATE FLOW ORGANISM (v1.2) -->
+  <div class="section-label">3.8 · Delegate Flow</div>
+  <p class="section-desc">The governed handoff step. Appears inside the Trace Panel when Alex taps "Delegate →". Replaces the Trace item list with an assignment confirmation surface: scope of work input, analyst selection, and preview of what the analyst will receive. On confirm, generates the Analyst Brief and sends a governed notification. The brief — not Alex's prose — is the handoff object.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Delegate Flow Organism</span><span class="spec-token">org-delegate-flow</span></div>
+    <div style="display:grid;grid-template-columns:320px 1fr;gap:0;">
+      <div style="padding:var(--space-5);border-right:1px solid var(--color-rule);background:var(--color-paper);">
+        <div style="background:white;border:1px solid var(--color-rule);border-radius:var(--radius-sm);overflow:hidden;width:300px;">
+          <!-- Header with back -->
+          <div style="background:var(--color-ink);padding:12px 16px;display:flex;align-items:center;gap:10px;">
+            <button style="font-family:'DM Mono',monospace;font-size:9px;color:#4a4640;background:transparent;border:1px solid #2a2926;border-radius:var(--radius-sm);padding:3px 8px;cursor:pointer;">← Trace</button>
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#4a4640;">Delegate Finding</div>
+          </div>
+          <!-- Scope input -->
+          <div style="padding:12px 14px;border-bottom:1px solid var(--color-rule);">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:6px;">Scope of work</div>
+            <div style="padding:8px 10px;background:var(--color-cream);border:1px solid var(--color-rule);border-radius:var(--radius-sm);font-size:12px;color:var(--color-ink-mid);font-style:italic;line-height:1.5;">Build reactivation brief for top 40 urban stores by decline volume</div>
+          </div>
+          <!-- What analyst receives preview -->
+          <div style="padding:12px 14px;border-bottom:1px solid var(--color-rule);background:var(--color-paper);">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:6px;">Analyst will receive</div>
+            <div style="display:flex;flex-direction:column;gap:3px;">
+              <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--color-ink-mid);"><span style="color:var(--color-sage);">✓</span> Governed definitions (3)</div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--color-ink-mid);"><span style="color:var(--color-sage);">✓</span> MECE decomposition · top 40 store IDs</div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--color-ink-mid);"><span style="color:var(--color-sage);">✓</span> Confidence levels + data lineage</div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:var(--color-ink-mid);"><span style="color:var(--color-sage);">✓</span> Shareable link · no product login required</div>
+            </div>
+          </div>
+          <!-- Analyst selector -->
+          <div style="padding:12px 14px;border-bottom:1px solid var(--color-rule);">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:6px;">Assign to</div>
+            <div style="background:white;border:1px solid var(--color-rule);border-radius:var(--radius-sm);overflow:hidden;">
+              <input type="text" placeholder="Search analysts..." style="width:100%;padding:7px 10px;border:none;border-bottom:1px solid var(--color-rule);font-size:11px;color:var(--color-ink);outline:none;">
+              <div style="padding:4px;">
+                <div style="padding:6px 8px;border-radius:2px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--color-teal-soft);">
+                  <span style="font-size:11px;color:var(--color-teal);font-weight:500;">Sarah Chen</span>
+                  <span style="font-size:9px;color:var(--color-teal);">Senior Analyst</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Confirm -->
+          <div style="padding:12px 14px;display:flex;gap:8px;align-items:center;background:var(--color-cream);">
+            <button style="flex:1;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:8px;background:var(--color-teal);color:white;border:none;border-radius:var(--radius-sm);cursor:pointer;">Send Brief →</button>
+          </div>
+        </div>
+      </div>
+      <div class="spec-detail" style="padding:var(--space-5);">
+        <div class="spec-row"><span class="spec-prop">Entry</span><span class="spec-val">Tap "Delegate →" in Trace Panel footer. Panel content replaces with this view. "← Trace" back button appears in header.</span></div>
+        <div class="spec-row"><span class="spec-prop">Scope field</span><span class="spec-val">Editable text input, pre-populated by agent from the navigation prose of the most recent response ("the store waterfall is specific enough to delegate directly"). Alex edits freely before sending.</span></div>
+        <div class="spec-row"><span class="spec-prop">Preview section</span><span class="spec-val">Static checklist of what the brief will contain — derived from Trace items. Not editable. Governed confidence shown per item (✓ = Governed, ~ = Estimated, ⚠ = Flagged).</span></div>
+        <div class="spec-row"><span class="spec-prop">Analyst selector</span><span class="spec-val">mol-assignment-dropdown with search. Recent assignees shown first. Single selection only. Required before "Send Brief" activates.</span></div>
+        <div class="spec-row"><span class="spec-prop">Send Brief</span><span class="spec-val">Generates Analyst Brief (tmpl-analyst-brief) · creates shareable link · sends notification to analyst · appends atom-assignment-tag to originating response in thread. Panel closes on confirm.</span></div>
+        <div class="spec-row"><span class="spec-prop">Post-send state</span><span class="spec-val">Trace Indicator in reply bar updates to show "Delegated · [name]". Assignment tag "Assigned" state appears beneath R3 nav block in thread.</span></div>
+        <div class="spec-row"><span class="spec-prop">Back</span><span class="spec-val">"← Trace" returns to Trace Panel without losing scope text or analyst selection.</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> The product owns the handoff. Alex's role is scope + assignment. The brief — with governed definitions, MECE data, store IDs, confidence levels, and lineage — is assembled from Trace automatically. The three manual steps Alex previously took (read, screenshot, email) are replaced by a single confirm action.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     LEVEL 4 · TEMPLATES
+══════════════════════════════════════════════════════════ -->
+<div class="page-divider"></div>
+<div class="level-header">
+  <div class="level-number">04</div>
+  <div class="level-info">
+    <div class="level-name">Templates</div>
+    <div class="level-def">Page-level structural layouts. Templates define the spatial relationships between organisms. They contain no real content — only the zones, proportions, and behavioral rules that govern how organisms are arranged.</div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- THREAD TEMPLATE -->
+  <div class="section-label">4.1 · Thread Template</div>
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Thread Template — Default State</span><span class="spec-token">tmpl-thread</span></div>
+    <div class="tmpl-diagram">
+      <div class="tmpl-diagram-label">Layout wireframe — Thread default (no sidecar)</div>
+      <div class="tmpl-wireframe" style="flex-direction:column;">
+        <div style="background:var(--color-ink);height:50px;padding:0 28px;display:flex;align-items:center;gap:var(--space-3);flex-shrink:0;">
+          <div style="width:7px;height:7px;border-radius:50%;background:var(--color-accent);"></div>
+          <div style="width:60px;height:8px;background:rgba(255,255,255,0.1);border-radius:2px;"></div>
+          <div style="width:120px;height:20px;background:rgba(255,255,255,0.05);border-radius:3px;margin:0 auto;"></div>
+          <div style="width:80px;height:16px;background:rgba(255,255,255,0.05);border-radius:2px;margin-left:auto;"></div>
+        </div>
+        <div style="flex:1;display:flex;overflow:hidden;">
+          <div style="flex:1;padding:28px;display:flex;flex-direction:column;gap:var(--space-3);">
+            <div style="max-width:700px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:var(--space-3);">
+              <div class="tmpl-block response"></div>
+              <div class="tmpl-block bc"></div>
+              <div style="height:28px;display:flex;justify-content:flex-end;"><div style="width:200px;height:28px;background:var(--color-ink);border-radius:14px 14px 4px 14px;opacity:0.3;"></div></div>
+              <div class="tmpl-block response-sm"></div>
+              <div class="tmpl-block bc"></div>
+            </div>
+          </div>
+        </div>
+        <div style="height:56px;border-top:1px solid var(--color-rule);padding:0 28px;display:flex;align-items:center;background:var(--color-paper);">
+          <div style="max-width:700px;width:100%;margin:0 auto;height:36px;background:white;border:1px solid var(--color-rule);border-radius:6px;"></div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:var(--space-5);background:white;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-8);">
+        <div>
+          <div class="spec-row"><span class="spec-prop">Topbar</span><span class="spec-val">50px · --color-ink bg · fixed · z-index 300 · contains brand, mode toggle, week badge, user identity</span></div>
+          <div class="spec-row"><span class="spec-prop">Thread</span><span class="spec-val">flex: 1 · overflow-y: auto · padding 28px 0 96px (bottom clears reply bar)</span></div>
+          <div class="spec-row"><span class="spec-prop">Thread inner</span><span class="spec-val">max-width: 700px · margin: 0 auto · padding 0 28px</span></div>
+          <div class="spec-row"><span class="spec-prop">Reply bar</span><span class="spec-val">position: fixed · bottom: 0 · left: 0 · right: 0 · height ~56px · z-index 50</span></div>
+        </div>
+        <div>
+          <div class="spec-row"><span class="spec-prop">With sidecar</span><span class="spec-val">Reply bar: right = --sc-w (380px) · transition: --transition-slide</span></div>
+          <div class="spec-row"><span class="spec-prop">Response gap</span><span class="spec-val">No margin between responses — breadcrumb trail provides visual separation</span></div>
+          <div class="spec-row"><span class="spec-prop">User message</span><span class="spec-val">display: flex · justify-content: flex-end · margin 10px 0</span></div>
+          <div class="spec-row"><span class="spec-prop">Scrollbar</span><span class="spec-val">3px width · --color-rule thumb · no track · webkit only</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDECAR TEMPLATE -->
+  <div class="section-label">4.2 · Sidecar Template</div>
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Sidecar Template</span><span class="spec-token">tmpl-sidecar</span></div>
+    <div class="tmpl-diagram">
+      <div class="tmpl-diagram-label">Layout wireframe — Thread + Sidecar open</div>
+      <div class="tmpl-wireframe">
+        <div class="tmpl-zone" style="flex:1;">
+          <div class="tmpl-zone-label">Thread (compressed)</div>
+          <div class="tmpl-zone-body">
+            <div class="tmpl-block response"></div>
+            <div class="tmpl-block bc"></div>
+            <div class="tmpl-block response-sm"></div>
+          </div>
+        </div>
+        <div class="tmpl-zone" style="width:380px;">
+          <div class="tmpl-zone-label">Sidecar (380px fixed)</div>
+          <div class="tmpl-zone-body">
+            <div class="tmpl-block sc-hdr"></div>
+            <div class="tmpl-block sc-content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:var(--space-5);background:white;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-8);">
+        <div>
+          <div class="spec-row"><span class="spec-prop">Width</span><span class="spec-val">--sc-w: 380px · fixed · does not compress thread</span></div>
+          <div class="spec-row"><span class="spec-prop">Position</span><span class="spec-val">absolute · right: 0 · top: 0 · bottom: 0 · z-index: 100</span></div>
+          <div class="spec-row"><span class="spec-prop">Open</span><span class="spec-val">transform: translateX(0) · transition: --transition-slide</span></div>
+          <div class="spec-row"><span class="spec-prop">Closed</span><span class="spec-val">transform: translateX(100%)</span></div>
+        </div>
+        <div>
+          <div class="spec-row"><span class="spec-prop">Border</span><span class="spec-val">border-left: 1px solid --color-rule</span></div>
+          <div class="spec-row"><span class="spec-prop">Header</span><span class="spec-val">--color-cream bg · type label + title + close button · border-bottom</span></div>
+          <div class="spec-row"><span class="spec-prop">Body</span><span class="spec-val">flex: 1 · overflow-y: auto · padding: 16px · holds Governed Metric Card organism</span></div>
+          <div class="spec-row"><span class="spec-prop">Updates</span><span class="spec-val">On every tap · no animation between states · instant content swap</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYSIS VIEW TEMPLATE -->
+  <div class="section-label">4.3 · Analysis View Template</div>
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Analysis View Template</span><span class="spec-token">tmpl-analysis-view</span></div>
+    <div class="tmpl-diagram">
+      <div class="tmpl-diagram-label">Layout wireframe — Analysis View open (full-screen overlay)</div>
+      <div class="tmpl-wireframe">
+        <div class="tmpl-zone" style="width:210px;">
+          <div class="tmpl-zone-label">Enterprise Anchor (210px)</div>
+          <div class="tmpl-zone-body">
+            <div style="display:flex;flex-direction:column;gap:4px;">
+              <div style="height:48px;background:var(--color-teal-soft);border:1px solid var(--color-teal);border-radius:2px;opacity:0.6;"></div>
+              <div style="height:40px;background:var(--color-rule);border-radius:2px;opacity:0.3;"></div>
+              <div style="height:40px;background:var(--color-rule);border-radius:2px;opacity:0.3;"></div>
+              <div style="height:1px;background:var(--color-rule);margin:4px 0;"></div>
+              <div style="height:28px;background:var(--color-teal-soft);border:1px solid var(--color-teal);border-radius:2px;opacity:0.6;"></div>
+              <div style="height:24px;background:var(--color-rule);border-radius:2px;opacity:0.2;"></div>
+              <div style="height:24px;background:var(--color-rule);border-radius:2px;opacity:0.2;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="tmpl-zone" style="flex:1;">
+          <div class="tmpl-zone-label">Analysis Main (flex: 1)</div>
+          <div class="tmpl-zone-body">
+            <div class="tmpl-block av-abs"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:4px;">
+              <div style="height:70px;background:var(--color-accent-soft);border:1px solid var(--color-rule);border-radius:2px;border-top:3px solid var(--color-accent);opacity:0.5;"></div>
+              <div style="height:70px;background:var(--color-sage-soft);border:1px solid var(--color-rule);border-radius:2px;border-top:3px solid var(--color-sage);opacity:0.5;"></div>
+              <div style="height:70px;background:var(--color-cream);border:1px solid var(--color-rule);border-radius:2px;opacity:0.5;"></div>
+            </div>
+            <div class="tmpl-block av-chart"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:var(--space-5);background:white;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-8);">
+        <div>
+          <div class="spec-row"><span class="spec-prop">Trigger</span><span class="spec-val">Explicit only — via nav prose or sidecar analysis offer button. Never automatic.</span></div>
+          <div class="spec-row"><span class="spec-prop">Entry</span><span class="spec-val">Full overlay: position absolute · inset: 0 · z-index: 200 · transform: translateX(100%) → translateX(0)</span></div>
+          <div class="spec-row"><span class="spec-prop">Top bar</span><span class="spec-val">50px · --color-ink · Back button + mode label + question title (right-aligned)</span></div>
+          <div class="spec-row"><span class="spec-prop">Anchor panel</span><span class="spec-val">210px fixed · white bg · border-right · overflow-y: auto · enterprise questions + pillar state</span></div>
+        </div>
+        <div>
+          <div class="spec-row"><span class="spec-prop">Main panel</span><span class="spec-val">flex: 1 · overflow-y: auto · padding: 22px 26px 80px (bottom clears return bar)</span></div>
+          <div class="spec-row"><span class="spec-prop">Return bar</span><span class="spec-val">position: fixed · bottom: 0 · left: 210px · right: 0 · --color-ink bg · return text + return button</span></div>
+          <div class="spec-row"><span class="spec-prop">Exit</span><span class="spec-val">Back button or "Return with this finding" — both close overlay · thread remains intact</span></div>
+          <div class="spec-row"><span class="spec-prop">On return</span><span class="spec-val">Finding summary appended as user message in thread · agent responds with reintegration offer</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLD OPEN TEMPLATE -->
+  <div class="section-label">4.4 · Cold Open Template</div>
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Cold Open Template</span><span class="spec-token">tmpl-cold-open</span></div>
+    <div class="tmpl-diagram">
+      <div class="tmpl-diagram-label">Layout wireframe — Cold open (blank canvas)</div>
+      <div class="tmpl-wireframe" style="justify-content:center;align-items:center;flex-direction:column;gap:16px;padding:32px;">
+        <div class="tmpl-block cold-greeting" style="width:320px;"></div>
+        <div class="tmpl-block cold-badge" style="width:200px;"></div>
+        <div class="tmpl-block cold-sugs" style="width:520px;height:120px;"></div>
+        <div class="tmpl-block cold-input" style="width:520px;"></div>
+      </div>
+    </div>
+    <div style="padding:var(--space-5);background:white;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-8);">
+        <div>
+          <div class="spec-row"><span class="spec-prop">Layout</span><span class="spec-val">Flex column · align-items: center · justify-content: center · full height</span></div>
+          <div class="spec-row"><span class="spec-prop">Greeting</span><span class="spec-val">Playfair 30px · "Good morning, Alex." — italic name in --color-ink-light</span></div>
+          <div class="spec-row"><span class="spec-prop">Sub</span><span class="spec-val">DM Sans 13px · --color-ink-light · "Week N data is governed and ready."</span></div>
+          <div class="spec-row"><span class="spec-prop">Week badge</span><span class="spec-val">DM Mono · --text-xs · --color-cream bg · border · uppercase · date + week number</span></div>
+        </div>
+        <div>
+          <div class="spec-row"><span class="spec-prop">Suggestions</span><span class="spec-val">max-width: 600px · 3 mol-suggestion-item molecules · flex column · gap: 7px</span></div>
+          <div class="spec-row"><span class="spec-prop">Input</span><span class="spec-val">max-width: 600px · white bg · border · border-radius: 6px · DM Sans 13px · send button</span></div>
+          <div class="spec-row"><span class="spec-prop">On interact</span><span class="spec-val">View transitions to convo shell · typing indicator appears · response animates in</span></div>
+          <div class="spec-row"><span class="spec-prop">Max suggestions</span><span class="spec-val">Always exactly 3. Questions calibrated to the current week's data signal.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- ANALYST BRIEF TEMPLATE (v1.2) -->
+  <div class="section-label">4.5 · Analyst Brief Template</div>
+  <p class="section-desc">The governed handoff document. Generated by the Delegate Flow organism. Self-contained — the analyst does not need product access to consume it. Composed of mol-governed-brief-blocks arranged in a fixed section order. The template enforces completeness: a brief missing any required section cannot be sent.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Analyst Brief Template</span><span class="spec-token">tmpl-analyst-brief</span></div>
+    <div class="tmpl-diagram">
+      <div class="tmpl-diagram-label">Layout wireframe — Analyst Brief (self-contained, shareable)</div>
+      <div class="tmpl-wireframe" style="flex-direction:column;padding:0;background:var(--color-paper);">
+        <!-- Header zone -->
+        <div style="background:var(--color-ink);padding:16px 20px;display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:6px;height:6px;border-radius:50%;background:var(--color-accent);"></div>
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#4a4640;">Analyst Brief · Delegated by Alex · FW10</div>
+          </div>
+          <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--color-paper);line-height:1.25;">Lapsing loyalty members in urban stores are driving the front store trip decline</div>
+          <div style="display:flex;gap:6px;">
+            <span style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 8px;border-radius:var(--radius-sm);background:var(--color-teal-soft);color:var(--color-teal);">Pillar 2 · Retention</span>
+            <span style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 8px;border-radius:var(--radius-sm);background:var(--color-accent-soft);color:var(--color-accent);">Tactical · In-week</span>
+          </div>
+        </div>
+        <!-- Scope zone -->
+        <div style="padding:12px 20px;border-bottom:1px solid var(--color-rule);background:white;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:6px;">Scope of work</div>
+          <div style="padding:8px 12px;background:var(--color-cream);border-left:2px solid var(--color-teal);font-size:12px;color:var(--color-ink-mid);line-height:1.55;border-radius:0 var(--radius-sm) var(--radius-sm) 0;">Build reactivation brief for top 40 urban stores by decline volume</div>
+        </div>
+        <!-- Governed brief blocks zone -->
+        <div style="padding:12px 20px;border-bottom:1px solid var(--color-rule);background:white;display:flex;flex-direction:column;gap:8px;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:2px;">Governed definitions + key metrics</div>
+          <div style="height:52px;background:var(--color-cream);border:1px solid var(--color-rule);border-radius:var(--radius-sm);display:flex;align-items:center;padding:0 12px;gap:8px;">
+            <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-teal);">mol-governed-brief-block</span>
+            <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">Lapsing Loyalty Members</span>
+          </div>
+          <div style="height:52px;background:var(--color-cream);border:1px solid var(--color-rule);border-radius:var(--radius-sm);display:flex;align-items:center;padding:0 12px;gap:8px;">
+            <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-teal);">mol-governed-brief-block</span>
+            <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">Front Store Trip Decline · Urban Concentration</span>
+          </div>
+        </div>
+        <!-- Store list zone -->
+        <div style="padding:12px 20px;border-bottom:1px solid var(--color-rule);background:white;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:6px;">Store scope · top 40 by decline volume</div>
+          <div style="height:36px;background:var(--color-cream);border:1px solid var(--color-rule);border-radius:var(--radius-sm);display:flex;align-items:center;padding:0 12px;">
+            <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">Store IDs · MECE regional breakdown · absolute trip counts · % of total Δ</span>
+          </div>
+        </div>
+        <!-- Session trace zone -->
+        <div style="padding:12px 20px;border-bottom:1px solid var(--color-rule);background:white;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:6px;">Investigation trace · how this finding was reached</div>
+          <div style="display:flex;flex-direction:column;gap:3px;">
+            <div style="display:grid;grid-template-columns:52px 1fr auto;gap:8px;padding:6px 10px;background:var(--color-cream);border-radius:var(--radius-sm);font-family:'DM Mono',monospace;font-size:9px;">
+              <span style="color:var(--color-ink-light);">7:03am</span>
+              <span style="color:var(--color-ink-mid);">Front Store Trips WoW · metric tap</span>
+              <span style="color:var(--color-sage);">Governed</span>
+            </div>
+            <div style="display:grid;grid-template-columns:52px 1fr auto;gap:8px;padding:6px 10px;background:var(--color-cream);border-radius:var(--radius-sm);font-family:'DM Mono',monospace;font-size:9px;">
+              <span style="color:var(--color-ink-light);">7:09am</span>
+              <span style="color:var(--color-ink-mid);">Top 40 Store Waterfall · analysis view · 6 min</span>
+              <span style="color:var(--color-teal);">Governed</span>
+            </div>
+          </div>
+        </div>
+        <!-- Lineage footer zone -->
+        <div style="padding:10px 20px;background:var(--color-cream);display:flex;align-items:center;gap:var(--space-4);font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">
+          <span>Governed metric store</span><span style="color:var(--color-rule);">·</span><span>Last reconciled: Mon 06:42am</span><span style="color:var(--color-rule);">·</span><span style="color:var(--color-sage);">All definitions: Governed</span>
+        </div>
+      </div>
+    </div>
+    <div style="padding:var(--space-5);background:white;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-8);">
+        <div>
+          <div style="font-family:'DM Mono',monospace;font-size:var(--text-xs);letter-spacing:0.15em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:var(--space-3);">Required sections — in this order</div>
+          <div class="spec-row"><span class="spec-prop" style="width:20px;">1</span><span class="spec-val"><strong style="font-weight:500;">Header</strong> — Finding title · pillar tag · tier tag · delegator + FW label. --color-ink bg.</span></div>
+          <div class="spec-row"><span class="spec-prop" style="width:20px;">2</span><span class="spec-val"><strong style="font-weight:500;">Scope of work</strong> — Alex's assignment note (editable in Delegate Flow). Teal left-border block.</span></div>
+          <div class="spec-row"><span class="spec-prop" style="width:20px;">3</span><span class="spec-val"><strong style="font-weight:500;">Governed Brief Blocks</strong> — One mol-governed-brief-block per finding/metric in Trace. Min 1. Each includes definition, stat pair, lineage row.</span></div>
+          <div class="spec-row"><span class="spec-prop" style="width:20px;">4</span><span class="spec-val"><strong style="font-weight:500;">Store scope</strong> — Conditional. Present when analysis view included store-level data. Store IDs + MECE regional breakdown + absolute counts.</span></div>
+          <div class="spec-row"><span class="spec-prop" style="width:20px;">5</span><span class="spec-val"><strong style="font-weight:500;">Investigation trace</strong> — Mol-trace-item-rows in chronological order. Shows how the finding was reached. Not the conversation — the governed data layer that produced it.</span></div>
+          <div class="spec-row"><span class="spec-prop" style="width:20px;">6</span><span class="spec-val"><strong style="font-weight:500;">Lineage footer</strong> — Atom-lineage-row spanning the brief. Aggregate confidence. Source + reconciliation timestamp.</span></div>
+        </div>
+        <div>
+          <div class="spec-row"><span class="spec-prop">Format</span><span class="spec-val">Structured document. Not prose. Each section is a discrete block — the analyst can navigate directly to definitions, store list, or trace without reading top-to-bottom.</span></div>
+          <div class="spec-row"><span class="spec-prop">Delivery</span><span class="spec-val">Shareable link. Opens as read-only. No product login required. Analyst-facing — designed for consumption, not investigation.</span></div>
+          <div class="spec-row"><span class="spec-prop">Notification</span><span class="spec-val">Analyst receives: brief link + scope of work + assignor identity + FW context. Delivered via product notification (not email). Analyst opens brief directly.</span></div>
+          <div class="spec-row"><span class="spec-prop">No product access required</span><span class="spec-val">The brief is the product's output to the analyst. It is not a gateway to the product. The analyst's governed workflow begins from this document, not from inside the insight product.</span></div>
+          <div class="spec-row"><span class="spec-prop">Confidence flags</span><span class="spec-val">Any Estimated or Flagged item in the trace surfaces a yellow advisory at the top of the relevant mol-governed-brief-block: "This metric is modeled — validate against warehouse before committing."</span></div>
+          <div class="semantic-note"><span>Design intent:</span> The Analyst Brief is what resolves Perspective 2's core complaint. The analyst gets the governed layer — definitions, methodology, confidence, lineage, store IDs — not prose. The investigation trace shows not what Alex said but what the governed data produced. The brief travels with the finding and eliminates the clarification loop.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     LEVEL 5 · PAGES
+══════════════════════════════════════════════════════════ -->
+<div class="page-divider"></div>
+<div class="level-header">
+  <div class="level-number">05</div>
+  <div class="level-info">
+    <div class="level-name">Pages</div>
+    <div class="level-def">Templates filled with real governed content. Two entry states define the product's first impression. Both must be tested and specified because they establish different trust contexts for the session.</div>
+  </div>
+</div>
+
+<div class="page">
+  <div class="section-label">5.1 · Cold Open Entry State</div>
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Cold Open Page</span><span class="spec-token">page-cold-open</span></div>
+    <div class="page-demo">
+      <div class="page-demo-bar">
+        <div class="page-demo-dot"></div>
+        <div class="page-demo-name">Insight · Cold Open · Monday Morning</div>
+        <div class="page-demo-week" style="margin-left:auto;">Week 10 · Mar 10</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 32px;min-height:320px;gap:0;background:var(--color-paper);">
+        <div style="font-family:'Playfair Display',serif;font-size:26px;color:var(--color-ink);margin-bottom:6px;text-align:center;">Good morning, <em style="font-style:italic;color:var(--color-ink-light);">Alex.</em></div>
+        <div style="font-size:13px;color:var(--color-ink-light);margin-bottom:28px;text-align:center;">Week 10 data is governed and ready. Where would you like to start?</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-ink-light);background:var(--color-cream);border:1px solid var(--color-rule);padding:4px 12px;border-radius:2px;margin-bottom:32px;">Monday · March 10, 2025 · Week 10 of 52</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:12px;text-align:center;">Suggested starting points</div>
+        <div style="display:flex;flex-direction:column;gap:6px;width:100%;max-width:560px;margin-bottom:28px;">
+          <div class="mol-sug-item"><span class="mol-sug-num">01</span>What happened to front store trips last week — and where did we grow or shrink?<span class="mol-sug-arr">→</span></div>
+          <div class="mol-sug-item"><span class="mol-sug-num">02</span>Which customer types are driving changes in trip performance this week?<span class="mol-sug-arr">→</span></div>
+          <div class="mol-sug-item"><span class="mol-sug-num">03</span>How is Rx attach rate trending and what's behind any change?<span class="mol-sug-arr">→</span></div>
+        </div>
+        <div style="width:100%;max-width:560px;display:flex;align-items:center;gap:10px;background:white;border:1px solid var(--color-rule);border-radius:6px;padding:9px 14px;">
+          <span style="flex:1;font-size:13px;color:var(--color-ink-light);">Or ask your own question, or state a hypothesis to test…</span>
+          <div style="width:28px;height:28px;border-radius:4px;background:var(--color-ink);display:flex;align-items:center;justify-content:center;color:var(--color-paper);font-size:12px;">→</div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:var(--space-5);background:white;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-8);">
+        <div>
+          <div class="spec-row"><span class="spec-prop">Template</span><span class="spec-val">tmpl-cold-open</span></div>
+          <div class="spec-row"><span class="spec-prop">Context</span><span class="spec-val">Alex opens the product independently — no email link. No pre-loaded data.</span></div>
+          <div class="spec-row"><span class="spec-prop">Trust state</span><span class="spec-val">Neutral. Alex has not yet seen any governed data. Suggestions establish the product's understanding of the week.</span></div>
+          <div class="spec-row"><span class="spec-prop">Suggestions</span><span class="spec-val">Generated from current week's data — the three questions with the most available governed signal. Not static.</span></div>
+        </div>
+        <div>
+          <div class="spec-row"><span class="spec-prop">Input</span><span class="spec-val">Accepts natural language questions and hypothesis statements. Both route to the same governed response system.</span></div>
+          <div class="spec-row"><span class="spec-prop">On tap</span><span class="spec-val">View fades to convo shell. Typing indicator appears. Response animates in after 1.2–1.6s simulated latency.</span></div>
+          <div class="spec-row"><span class="spec-prop">No state</span><span class="spec-val">No history, no pre-loaded content, no scroll position. True blank canvas.</span></div>
+          <div class="semantic-note"><span>Design intent:</span> The blank canvas is not emptiness — it is confidence. The product has the week's data ready. It is waiting for Alex's direction, not for Alex to navigate to something.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMAIL ENTRY STATE -->
+  <div class="section-label">5.2 · Email Entry State</div>
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Email Entry Page</span><span class="spec-token">page-email-entry</span></div>
+    <div class="page-demo">
+      <div class="page-demo-bar">
+        <div class="page-demo-dot"></div>
+        <div class="page-demo-name">Insight · Email Entry · Tapped from Monday Push</div>
+        <div class="page-demo-week" style="margin-left:auto;">Week 10 · 7:02am</div>
+      </div>
+      <div style="padding:24px;background:var(--color-paper);min-height:280px;">
+        <div style="max-width:700px;margin:0 auto;">
+          <div class="org-response">
+            <div class="org-resp-hdr">
+              <div class="org-resp-avatar">I</div>
+              <div class="org-resp-label">Monday Diagnostic · Week 10</div>
+              <div class="org-resp-time">7:02am</div>
+            </div>
+            <div class="org-resp-body">
+              <div class="org-resp-title">Lapsing loyalty members in urban stores are driving the front store trip decline</div>
+              <div class="org-resp-prose">Front store trips declined <span style="font-weight:500;">−2.8% WoW<span class="atom-range-bar"><span></span><span></span><span class="active"></span><span class="active"></span><span></span></span></span> against ±0.4% typical variance — outside normal range for the third consecutive week. Concentrated in <span class="atom-entity-underline">lapsing loyalty members</span>. <span class="atom-pillar-tag atom-pillar-2">Pillar 2 · Retention</span> · <span class="atom-tier-tag atom-tier-tac">Tactical</span> + <span class="atom-tier-tag atom-tier-str">Strategic</span>.</div>
+            </div>
+            <div class="org-resp-nav">
+              <div class="org-resp-nav-lbl">Where to go next</div>
+              <div class="mol-nav-item mol-nav-primary">"The regional concentration is worth seeing — urban stores are carrying a disproportionate share. Want me to break that down?"</div>
+              <div class="mol-nav-item mol-nav-secondary">"There's also a quarterly framing here for your planning review."</div>
+            </div>
+          </div>
+          <div style="margin-top:8px;display:flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid var(--color-rule);border-radius:3px;background:white;">
+            <div style="width:5px;height:5px;border-radius:50%;background:var(--color-ink-light);flex-shrink:0;"></div>
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">0 items investigated</div>
+          </div>
+          <div style="margin-top:10px;background:white;border:1px solid var(--color-rule);border-radius:6px;padding:9px 14px;display:flex;align-items:center;gap:10px;">
+            <span style="flex:1;font-size:13px;color:var(--color-ink-light);">Ask a follow-on or state a hypothesis to test…</span>
+            <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-rule);letter-spacing:0.08em;text-transform:uppercase;">Prototype v3</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:var(--space-5);background:white;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-8);">
+        <div>
+          <div class="spec-row"><span class="spec-prop">Template</span><span class="spec-val">tmpl-thread (with pre-loaded response)</span></div>
+          <div class="spec-row"><span class="spec-prop">Context</span><span class="spec-val">Alex tapped a deep link from the Monday push email. The product opens pre-scoped to the specific finding that was pushed.</span></div>
+          <div class="spec-row"><span class="spec-prop">Trust state</span><span class="spec-val">Primed. Alex has already read the push summary. The response is not new — it is the detail behind something Alex has already decided is worth exploring.</span></div>
+          <div class="spec-row"><span class="spec-prop">No typing</span><span class="spec-val">Response appears without typing indicator. It was "already there" — the push and the product are the same governed answer.</span></div>
+        </div>
+        <div>
+          <div class="spec-row"><span class="spec-prop">Breadcrumb</span><span class="spec-val">Trail initialized empty and visible. Signals that investigation history will accumulate from this point.</span></div>
+          <div class="spec-row"><span class="spec-prop">Reply bar</span><span class="spec-val">Immediately available. Alex's first message continues from the pre-loaded response context.</span></div>
+          <div class="spec-row"><span class="spec-prop">Cold open</span><span class="spec-val">Not shown. The blank canvas is the cold open state. Email entry begins mid-conversation by design.</span></div>
+          <div class="semantic-note"><span>Design intent:</span> The email entry state collapses the latency between "reading the push" and "investigating the finding." Alex does not re-read the summary — they arrive inside it. The thread has already started.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYST BRIEF PAGE (v1.2) -->
+  <div class="section-label">5.3 · Analyst Brief Export Page</div>
+  <p class="section-desc">The governed brief that travels from the VP to the analyst. Generated by org-delegate-flow using tmpl-analyst-brief. Self-contained — no product access required. Composed of mol-governed-brief-blocks with atom-lineage-rows. v1.2 adds investigation trace section and store scope section not present in v1.1.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Analyst Brief Export Page</span><span class="spec-token">page-analyst-brief</span></div>
+    <div class="page-demo">
+      <div class="page-demo-bar">
+        <div class="page-demo-dot"></div>
+        <div class="page-demo-name">Analyst Brief · Delegated from Alex · Week 10</div>
+        <div class="page-demo-week" style="margin-left:auto;">Governed · Mar 10, 2025</div>
+      </div>
+      <div style="padding:24px;background:var(--color-paper);">
+        <div style="max-width:700px;margin:0 auto;background:white;border:1px solid var(--color-rule);border-radius:2px;overflow:hidden;">
+          <div style="background:var(--color-ink);padding:20px 24px;">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#4a4640;margin-bottom:8px;">Analyst Brief · Delegated by Alex · Week 10</div>
+            <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--color-paper);font-weight:600;line-height:1.25;margin-bottom:8px;">Lapsing loyalty members in urban stores are driving the front store trip decline</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <span style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 8px;border-radius:2px;background:var(--color-teal-soft);color:var(--color-teal);">Pillar 2 · Retention</span>
+              <span style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 8px;border-radius:2px;background:var(--color-accent-soft);color:var(--color-accent);">Tactical · In-week</span>
+            </div>
+          </div>
+          <div style="padding:16px 24px;border-bottom:1px solid var(--color-rule);">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:10px;">Scope of work assigned</div>
+            <div style="font-size:13px;color:var(--color-ink-mid);padding:9px 12px;background:var(--color-cream);border-radius:2px;border-left:2px solid var(--color-teal);line-height:1.6;">Build reactivation brief for top 40 urban stores by decline volume</div>
+          </div>
+          <div style="padding:16px 24px;border-bottom:1px solid var(--color-rule);">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-ink-light);margin-bottom:10px;">Governed definitions</div>
+            <div style="font-size:11px;color:var(--color-ink-mid);background:var(--color-cream);padding:10px;border-radius:2px;line-height:1.6;"><strong style="color:var(--color-teal);">Lapsing Loyalty Members:</strong> Loyalty members with ≥3 trips in prior 90 days whose trip frequency declined ≥30% in most recent 30-day window. Confidence: Governed.</div>
+          </div>
+          <div style="padding:12px 24px;background:var(--color-cream);font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">Data source: Governed metric store · Last reconciled: Mar 10 06:42am</div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:var(--space-5);background:white;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-8);">
+        <div>
+          <div class="spec-row"><span class="spec-prop">Trigger</span><span class="spec-val">"Delegate" or "Assign to..." action in response nav block</span></div>
+          <div class="spec-row"><span class="spec-prop">Format</span><span class="spec-val">Structured export. Not prose. Self-contained — no product access required to consume.</span></div>
+          <div class="spec-row"><span class="spec-prop">Required</span><span class="spec-val">Finding title · pillar + tier tags · scope of work · governed definitions · key metrics · confidence level</span></div>
+        </div>
+        <div>
+          <div class="spec-row"><span class="spec-prop">Delivery</span><span class="spec-val">Shareable link or formatted export. Opens as a read-only view. Does not require product login.</span></div>
+          <div class="spec-row"><span class="spec-prop">Navigation</span><span class="spec-val">Third nav element: "Delegate this finding →" — appears after nav-secondary</span></div>
+          <div class="semantic-note"><span>Design intent:</span> The analyst brief carries the governed context that makes the finding trustworthy — not just the conclusion, but the definitions, the methodology, the confidence level, and the open questions.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARCHIVE THREAD PAGE (v1.1) -->
+  <div class="section-label">5.4 · Archive Thread Page State</div>
+  <p class="section-desc">Read-only view of a past fiscal week's conversation thread.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Archive Thread Page State</span><span class="spec-token">page-archive-thread</span></div>
+    <div class="page-demo">
+      <div class="page-demo-bar" style="display:grid;grid-template-columns:auto 1fr auto auto;gap:12px;align-items:center;">
+        <div style="display:flex;align-items:center;gap:8px;"><div class="page-demo-dot"></div><div class="page-demo-name">Insight</div></div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#6a6560;">FW09 · Mar 02 · Read-Only Archive</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:#c84b2f;background:rgba(200,75,47,0.15);padding:3px 10px;border-radius:2px;letter-spacing:0.1em;text-transform:uppercase;">Read Only</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:#9a9590;padding:3px 10px;border:1px solid #2a2926;border-radius:2px;cursor:pointer;">← Return to FW10</div>
+      </div>
+      <div style="padding:20px 28px;background:var(--color-paper);min-height:160px;">
+        <div style="max-width:700px;margin:0 auto;">
+          <div style="background:white;border:1px solid var(--color-rule);border-radius:2px;padding:16px 20px;opacity:0.85;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+              <div style="width:22px;height:22px;border-radius:50%;background:var(--color-ink);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:10px;color:var(--color-paper);font-style:italic;">I</div>
+              <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--color-ink-light);">Monday Diagnostic · Week 09</div>
+            </div>
+            <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--color-ink);margin-bottom:8px;">Front store trips showing early softness — below trend for the first time in six weeks</div>
+            <div style="font-size:12px;color:var(--color-ink-light);font-style:italic;">Signal elements tappable for reference only — no breadcrumb events generated</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:var(--space-5);background:white;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-8);">
+        <div>
+          <div class="spec-row"><span class="spec-prop">Topbar state</span><span class="spec-val">FW label + date in center. "Read Only" badge. "← Return to FW[N]" button.</span></div>
+          <div class="spec-row"><span class="spec-prop">Thread</span><span class="spec-val">Full historical thread rendered exactly as it existed. All responses intact.</span></div>
+          <div class="spec-row"><span class="spec-prop">Opacity</span><span class="spec-val">Thread renders at 0.85 opacity — visually distinct from live session.</span></div>
+          <div class="spec-row"><span class="spec-prop">Reply bar</span><span class="spec-val">Hidden entirely. No input field. No affordance for new messages.</span></div>
+        </div>
+        <div>
+          <div class="spec-row"><span class="spec-prop">Signal taps</span><span class="spec-val">Metric, entity, and tension signals still tappable. Sidecar opens with historical data. No breadcrumb event generated.</span></div>
+          <div class="spec-row"><span class="spec-prop">Return</span><span class="spec-val">"← Return to FW[N]" button always visible in topbar. Returns to current session.</span></div>
+          <div class="semantic-note"><span>Design intent:</span> The archive thread is a governed historical record. It should feel like opening a locked file — accessible, readable, complete — but clearly distinct from the live session.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGELOG -->
+<section class="page" style="padding-bottom:var(--space-12);">
+  <div class="section-label">Changelog</div>
+  <div style="background:white;border:1px solid var(--color-rule);border-radius:var(--radius-sm);padding:var(--space-5);">
+    <div style="font-family:'DM Mono',monospace;font-size:var(--text-sm);color:var(--color-ink-mid);line-height:1.8;">
+      <div style="margin-bottom:var(--space-3);"><strong style="color:var(--color-ink);">v1.2</strong>: Added Trace Indicator atom (1.7), Governed Lineage Row atom (1.8), Trace Item Row molecule (2.10), Governed Brief Block molecule (2.11), Trace Panel organism (3.7), Delegate Flow organism (3.8), Analyst Brief template (4.5). Updated page 5.3 Analyst Brief to reference tmpl-analyst-brief and add investigation trace + store scope sections. Resolves analyst handoff gap identified in Perspective 2 review.</div>
+      <div style="margin-bottom:var(--space-3);"><strong style="color:var(--color-ink);">v1.1</strong>: Added mode shift atom, MECE smart highlighting, return flow ceremony, nav mood variants, analyst brief page, fiscal week session components</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="doc-footer">
+  <div class="doc-footer-l">Insight Product · Atomic Design System · v1.2</div>
+  <div class="doc-footer-l">Atoms → Molecules → Organisms → Templates → Pages</div>
+</footer>
+
+</body>
+</html>

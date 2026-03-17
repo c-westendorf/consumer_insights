@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Persona — VP Enterprise Retail</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f0e0c;
+    --paper: #f5f2ed;
+    --cream: #ede9e1;
+    --rule: #d4cfc5;
+    --accent: #c84b2f;
+    --accent-soft: #f0e0db;
+    --teal: #1a5c5a;
+    --teal-soft: #d4e8e7;
+    --gold: #b8860b;
+    --gold-soft: #f5edd0;
+    --ink-mid: #4a4640;
+    --ink-light: #8a8480;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  .doc-header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 56px 64px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .doc-header::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 40%;
+    height: 100%;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 8px,
+      rgba(245,242,237,0.03) 8px,
+      rgba(245,242,237,0.03) 9px
+    );
+  }
+
+  .doc-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 20px;
+  }
+
+  .doc-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--paper);
+    max-width: 680px;
+  }
+
+  .doc-title em {
+    font-style: italic;
+    color: #c8b99a;
+  }
+
+  .doc-subtitle {
+    margin-top: 16px;
+    font-size: 15px;
+    color: #9a9590;
+    max-width: 560px;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  .doc-meta {
+    margin-top: 40px;
+    display: flex;
+    gap: 40px;
+    border-top: 1px solid rgba(245,242,237,0.1);
+    padding-top: 24px;
+  }
+
+  .doc-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .doc-meta-item .label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+  }
+
+  .doc-meta-item .value {
+    font-size: 13px;
+    color: #c8b99a;
+    font-weight: 500;
+  }
+
+  /* ── LAYOUT ── */
+  .page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 56px 64px;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    line-height: 1.2;
+  }
+
+  /* ── PERSONA CARD ── */
+  .persona-card {
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    padding: 40px;
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 40px;
+    margin-bottom: 48px;
+    position: relative;
+  }
+
+  .persona-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px 0 0 2px;
+  }
+
+  .persona-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .avatar-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    color: var(--paper);
+    font-style: italic;
+    position: relative;
+  }
+
+  .avatar-circle::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+  }
+
+  .persona-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .persona-role {
+    font-size: 12px;
+    color: var(--ink-light);
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .persona-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    padding: 6px 10px;
+    background: var(--cream);
+    border-radius: 2px;
+  }
+
+  .stat-row .stat-label {
+    color: var(--ink-light);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .stat-row .stat-val {
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .persona-body {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .persona-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-style: italic;
+    color: var(--ink-mid);
+    line-height: 1.4;
+    border-left: 3px solid var(--accent);
+    padding-left: 16px;
+  }
+
+  .persona-description {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--ink-mid);
+  }
+
+  /* ── TAGS ── */
+  .tag-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    padding: 4px 10px;
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+
+  .tag-ink { background: var(--ink); color: var(--paper); }
+  .tag-accent { background: var(--accent-soft); color: var(--accent); border: 1px solid #e8b5ab; }
+  .tag-teal { background: var(--teal-soft); color: var(--teal); }
+  .tag-gold { background: var(--gold-soft); color: var(--gold); }
+  .tag-neutral { background: var(--cream); color: var(--ink-mid); border: 1px solid var(--rule); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: var(--rule);
+    margin: 48px 0;
+  }
+
+  /* ── TRUST ARC ── */
+  .trust-arc {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 48px;
+    border-radius: 2px;
+    margin-bottom: 48px;
+  }
+
+  .trust-arc .section-label {
+    color: #6a6560;
+  }
+
+  .trust-arc .section-title {
+    color: var(--paper);
+    margin-bottom: 8px;
+  }
+
+  .trust-arc-subtitle {
+    font-size: 14px;
+    color: #9a9590;
+    margin-bottom: 36px;
+    max-width: 580px;
+    line-height: 1.7;
+  }
+
+  .trust-stages {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .trust-stage {
+    padding: 28px 24px;
+    background: rgba(245,242,237,0.04);
+    position: relative;
+  }
+
+  .trust-stage:first-child {
+    border-left: 3px solid var(--accent);
+  }
+  .trust-stage:nth-child(2) {
+    border-left: 3px solid var(--gold);
+  }
+  .trust-stage:last-child {
+    border-left: 3px solid var(--teal);
+  }
+
+  .trust-stage-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    font-weight: 700;
+    color: rgba(245,242,237,0.06);
+    line-height: 1;
+    position: absolute;
+    top: 16px;
+    right: 16px;
+  }
+
+  .trust-stage-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #6a6560;
+    margin-bottom: 12px;
+  }
+
+  .trust-stage-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    color: var(--paper);
+    margin-bottom: 12px;
+  }
+
+  .trust-stage-desc {
+    font-size: 13px;
+    color: #9a9590;
+    line-height: 1.65;
+  }
+
+  .trust-stage-signal {
+    margin-top: 16px;
+    font-size: 12px;
+    color: #c8b99a;
+    font-style: italic;
+    border-top: 1px solid rgba(245,242,237,0.08);
+    padding-top: 12px;
+  }
+
+  /* ── DECISION MODES ── */
+  .modes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .mode-card {
+    border: 1px solid var(--rule);
+    padding: 28px 24px;
+    background: white;
+    position: relative;
+    border-radius: 2px;
+  }
+
+  .mode-card.mode-1 { border-top: 3px solid #5b8a6e; }
+  .mode-card.mode-2 { border-top: 3px solid var(--gold); }
+  .mode-card.mode-3 { border-top: 3px solid var(--accent); }
+
+  .mode-trigger {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 12px;
+  }
+
+  .mode-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .mode-subtitle {
+    font-size: 12px;
+    color: var(--ink-light);
+    margin-bottom: 20px;
+  }
+
+  .mode-body {
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .mode-needs {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .mode-need {
+    font-size: 12px;
+    color: var(--ink-mid);
+    padding: 8px 10px;
+    background: var(--cream);
+    border-radius: 2px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.5;
+  }
+
+  .mode-need::before {
+    content: '→';
+    color: var(--ink-light);
+    font-size: 11px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .mode-output {
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--gold-soft);
+    border-radius: 2px;
+    font-size: 12px;
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── MONDAY RITUAL ── */
+  .ritual-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 200px;
+    gap: 0;
+    border-bottom: 1px solid var(--rule);
+    align-items: stretch;
+  }
+
+  .ritual-row:first-child {
+    border-top: 1px solid var(--rule);
+  }
+
+  .ritual-time {
+    padding: 20px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-light);
+    border-right: 1px solid var(--rule);
+    display: flex;
+    align-items: flex-start;
+    background: var(--cream);
+  }
+
+  .ritual-activity {
+    padding: 20px 24px;
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.65;
+    border-right: 1px solid var(--rule);
+  }
+
+  .ritual-activity strong {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 4px;
+    font-size: 14px;
+  }
+
+  .ritual-tension {
+    padding: 20px 16px;
+    font-size: 12px;
+    color: var(--ink-light);
+    font-style: italic;
+    line-height: 1.6;
+    display: flex;
+    align-items: flex-start;
+  }
+
+  /* ── FRICTION POINTS ── */
+  .friction-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .friction-card {
+    padding: 24px;
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+  }
+
+  .friction-card.friction-pain {
+    border-left: 3px solid var(--accent);
+  }
+
+  .friction-card.friction-want {
+    border-left: 3px solid var(--teal);
+  }
+
+  .friction-card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 16px;
+  }
+
+  .friction-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .friction-item {
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.6;
+    padding-left: 14px;
+    position: relative;
+  }
+
+  .friction-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 8px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--rule);
+  }
+
+  .friction-card.friction-pain .friction-item::before { background: #e8b5ab; }
+  .friction-card.friction-want .friction-item::before { background: var(--teal-soft); }
+
+  /* ── DESIGN IMPLICATIONS ── */
+  .implications-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .implication-card {
+    background: white;
+    border: 1px solid var(--rule);
+    padding: 24px;
+    border-radius: 2px;
+  }
+
+  .implication-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    color: var(--rule);
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .implication-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .implication-body {
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.7;
+  }
+
+  /* ── QUOTE ── */
+  .persona-quote {
+    background: var(--cream);
+    border-left: 4px solid var(--ink);
+    padding: 28px 32px;
+    margin: 32px 0;
+    border-radius: 0 2px 2px 0;
+  }
+
+  .persona-quote p {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-style: italic;
+    color: var(--ink);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  .persona-quote cite {
+    font-size: 12px;
+    color: var(--ink-light);
+    font-style: normal;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    border-top: 1px solid var(--rule);
+    padding: 32px 64px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--cream);
+  }
+
+  .doc-footer-left {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-light);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .doc-footer-right {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-light);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ── UTILITIES ── */
+  .mt-8 { margin-top: 8px; }
+  .mt-16 { margin-top: 16px; }
+  .mt-24 { margin-top: 24px; }
+  .mb-32 { margin-bottom: 32px; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .info-block {
+    background: white;
+    border: 1px solid var(--rule);
+    padding: 24px;
+    border-radius: 2px;
+  }
+
+  .info-block-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-light);
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .info-list-item {
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.6;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .info-list-item .dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--ink-light);
+    margin-top: 8px;
+    flex-shrink: 0;
+  }
+
+  @media print {
+    body { background: white; }
+    .doc-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .trust-arc { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="doc-header">
+  <div class="doc-label">Insight Product · User Persona · v1.0</div>
+  <h1 class="doc-title">The VP of <em>Enterprise Retail</em></h1>
+  <p class="doc-subtitle">A primary persona and decision-mode framework for the enterprise retail executive who receives governed weekly insights every Monday morning.</p>
+  <div class="doc-meta">
+    <div class="doc-meta-item">
+      <span class="label">Persona Type</span>
+      <span class="value">Primary — Anchor</span>
+    </div>
+    <div class="doc-meta-item">
+      <span class="label">Scope</span>
+      <span class="value">Proof of Concept</span>
+    </div>
+    <div class="doc-meta-item">
+      <span class="label">Context</span>
+      <span class="value">Enterprise Retail (Front Store + Pharmacy)</span>
+    </div>
+    <div class="doc-meta-item">
+      <span class="label">Interaction</span>
+      <span class="value">Push Summary + Drill-In</span>
+    </div>
+  </div>
+</header>
+
+<main class="page">
+
+  <!-- PERSONA CARD -->
+  <div class="section-label">01 · Who They Are</div>
+
+  <div class="persona-card">
+    <div class="persona-avatar">
+      <div class="avatar-circle">A</div>
+      <div class="persona-name">Alex</div>
+      <div class="persona-role">VP, Enterprise Retail Performance<br>Fortune 500 Pharmacy-Retail Chain</div>
+      <div class="persona-stats">
+        <div class="stat-row">
+          <span class="stat-label">Scope</span>
+          <span class="stat-val">National</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Reports</span>
+          <span class="stat-val">4–6 directors</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Data fluency</span>
+          <span class="stat-val">High</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Analyst deps.</span>
+          <span class="stat-val">3–5 days/question</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Meeting cadence</span>
+          <span class="stat-val">Mon–Fri senior reviews</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="persona-body">
+      <p class="persona-headline">"I don't need more data. I need to know what to act on, and why I should trust it."</p>
+
+      <p class="persona-description">Alex oversees enterprise-wide retail performance across a national pharmacy-retail footprint spanning front store, pharmacy, and PCW channels. Every week, the business produces a volume of operational data that outpaces the team's capacity to synthesize it. Alex has learned to operate on directional reads — anchored by known baselines, sharpened by team briefings — because waiting for a complete picture means missing the window to act.</p>
+
+      <p class="persona-description">Alex is not anti-data. In fact, Alex is analytically sophisticated enough to know when a number feels off and to push back on an analyst's framing. The problem isn't access — it's the cost and latency of governed, trustworthy answers. The current system forces a tradeoff: fast and informal, or slow and credible. Alex wants a third option.</p>
+
+      <div class="tag-group mt-16">
+        <span class="tag tag-ink">Decision Velocity</span>
+        <span class="tag tag-accent">Trust-First</span>
+        <span class="tag tag-teal">Pillar-Oriented</span>
+        <span class="tag tag-gold">Delegation-Ready</span>
+        <span class="tag tag-neutral">Pattern Recognition</span>
+        <span class="tag tag-neutral">Narrative Thinker</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STRATEGIC CONTEXT -->
+  <div class="section-label">02 · Strategic Orientation</div>
+
+  <div class="two-col mb-32">
+    <div class="info-block">
+      <div class="info-block-title">The Four Pillars Alex Manages Against</div>
+      <div class="info-list">
+        <div class="info-list-item">
+          <div class="dot"></div>
+          <span><strong style="font-weight:500">Grow Active Customers</strong> — Are we attracting new customers and reactivating lapsed ones? Net new counts and reactivation rates are directional health signals.</span>
+        </div>
+        <div class="info-list-item">
+          <div class="dot"></div>
+          <span><strong style="font-weight:500">Improve Retention</strong> — Are existing customers continuing to transact? Are active engagement windows elongating or contracting?</span>
+        </div>
+        <div class="info-list-item">
+          <div class="dot"></div>
+          <span><strong style="font-weight:500">Increase Visits & Frequency</strong> — Are customers shopping more often and with deeper basket intent? Trip decile shifts tell this story.</span>
+        </div>
+        <div class="info-list-item">
+          <div class="dot"></div>
+          <span><strong style="font-weight:500">Increase Value</strong> — Are customers generating more long-term value? Basket size, Rx attach rates, and PCW penetration are the levers.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-block">
+      <div class="info-block-title">The Three Monday Questions</div>
+      <div class="info-list">
+        <div class="info-list-item">
+          <div class="dot"></div>
+          <span><strong style="font-weight:500">What happened?</strong> — Front store performance vs. comparative periods. Where did we grow and shrink? Top-line trip performance by channel, trip type, and basket type.</span>
+        </div>
+        <div class="info-list-item">
+          <div class="dot"></div>
+          <span><strong style="font-weight:500">Who drove it?</strong> — Customer KPIs by shopper type (Front Store, Rx, PCW, non-loyalty). Which segments are driving increases or decreases in trips and value?</span>
+        </div>
+        <div class="info-list-item">
+          <div class="dot"></div>
+          <span><strong style="font-weight:500">Where did it happen?</strong> — Region and store lens. Where is trip change concentrated? Waterfall view across region, urban density, and store-level distribution.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUOTE -->
+  <div class="persona-quote">
+    <p>"By Monday at 9am, I need to walk into my leadership sync knowing: what the week told us, what we should be paying attention to, and what I'm going to ask my team to look at. That's three different things, and today I get maybe one of them before the meeting starts."</p>
+    <cite>— Alex, VP Enterprise Retail</cite>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- DECISION MODES -->
+  <div class="section-label">03 · Decision Modes</div>
+  <p style="font-size:14px;color:var(--ink-mid);line-height:1.75;max-width:700px;margin-bottom:32px;">Alex is not a fixed decision-making type. The mode shifts week to week depending on what the data surfaces. The insight product must serve all three modes — and ideally signal which mode a given week calls for.</p>
+
+  <div class="modes-grid">
+
+    <div class="mode-card mode-1">
+      <div class="mode-trigger">Triggered when: signal is clear, direction is confirmed</div>
+      <div class="mode-title">Directional</div>
+      <div class="mode-subtitle">Read, align, delegate</div>
+      <div class="mode-body">The summary confirms what Alex expected or reveals a clean directional signal. Trust is high, urgency is moderate. Alex's job is to align their team and assign ownership. They don't need to zoom in — they need to forward the right frame to the right person.</div>
+      <div class="mode-needs">
+        <div class="mode-need">Summary that names the dominant story in one sentence</div>
+        <div class="mode-need">Clear pillar attribution (which of the 4 pillars is at stake)</div>
+        <div class="mode-need">A suggested "assign to" — the right team or director to act</div>
+        <div class="mode-need">Confidence indicator on the governed answer</div>
+      </div>
+      <div class="mode-output">OUTPUT → Delegation with context</div>
+    </div>
+
+    <div class="mode-card mode-2">
+      <div class="mode-trigger">Triggered when: a number surprises or a pattern breaks</div>
+      <div class="mode-title">Analytical</div>
+      <div class="mode-subtitle">Interrogate, form a view, verify</div>
+      <div class="mode-body">Something in the summary doesn't match Alex's mental model of the business. They want to see the underlying metric, understand the composition, and form their own read before deciding whether to act or investigate further. The drill-in is purposeful and bounded.</div>
+      <div class="mode-needs">
+        <div class="mode-need">Friction-free zoom-in on the flagged metric or segment</div>
+        <div class="mode-need">WoW / MoM / YoY toggles without rebuilding context</div>
+        <div class="mode-need">Waterfall or attribution view for trip change drivers</div>
+        <div class="mode-need">Ability to ask a follow-on question without leaving the flow</div>
+      </div>
+      <div class="mode-output">OUTPUT → A revised or confirmed view, then act</div>
+    </div>
+
+    <div class="mode-card mode-3">
+      <div class="mode-trigger">Triggered when: a decision or communication is imminent</div>
+      <div class="mode-title">Outcome-Focused</div>
+      <div class="mode-subtitle">Implication-first, narrative-ready</div>
+      <div class="mode-body">Alex has a meeting, a board prep, or a peer alignment conversation in the next few hours. They need the insight translated into a business implication — not what happened, but what it means for a decision already in motion. Speed and clarity of framing are paramount.</div>
+      <div class="mode-needs">
+        <div class="mode-need">Implication statement: "This means..." not just "This shows..."</div>
+        <div class="mode-need">Narrative-ready summary they can speak to without re-reading</div>
+        <div class="mode-need">Strategic pillar anchoring for each key finding</div>
+        <div class="mode-need">Clean shareable artifact or exportable talking point</div>
+      </div>
+      <div class="mode-output">OUTPUT → Synthesized upward or laterally</div>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- TRUST ARC -->
+  <div class="trust-arc">
+    <div class="section-label" style="color:#4a4640;">04 · The Trust Arc</div>
+    <div class="section-title">How Alex Transfers Trust to a Governed System</div>
+    <p class="trust-arc-subtitle">The core product challenge is not delivery speed — it's trust transfer. Alex is accustomed to trusting analysts they know, whose logic they can interrogate. Trusting a governed system requires a different journey.</p>
+
+    <div class="trust-stages">
+      <div class="trust-stage">
+        <div class="trust-stage-num">1</div>
+        <div class="trust-stage-label">Stage One</div>
+        <div class="trust-stage-title">Verification</div>
+        <div class="trust-stage-desc">Alex checks the governed answer against their existing mental model. If it matches what they already believe, trust seeds. If it surprises, they drill in and check the logic. Early weeks are calibration weeks — they're not using the product to decide, they're auditing it.</div>
+        <div class="trust-stage-signal">Signal to watch: Does Alex drill in to verify, or to explore? Verification mode means the product is earning trust.</div>
+      </div>
+
+      <div class="trust-stage">
+        <div class="trust-stage-num">2</div>
+        <div class="trust-stage-label">Stage Two</div>
+        <div class="trust-stage-title">Delegation</div>
+        <div class="trust-stage-desc">Alex begins forwarding governed summaries to their directors without adding manual commentary. They've stopped needing to re-explain or qualify. The product answer is credible enough to carry authority into downstream conversations. This is the critical inflection.</div>
+        <div class="trust-stage-signal">Signal to watch: Is Alex forwarding insights as-is, or translating them? Forwarding unedited is the trust threshold.</div>
+      </div>
+
+      <div class="trust-stage">
+        <div class="trust-stage-num">3</div>
+        <div class="trust-stage-label">Stage Three</div>
+        <div class="trust-stage-title">Reliance</div>
+        <div class="trust-stage-desc">Alex's Monday rhythm is restructured around the product. They've stopped maintaining a parallel analyst pipeline for these questions. When the product surfaces something unexpected, they don't distrust it — they investigate it. The system is the source of record.</div>
+        <div class="trust-stage-signal">Signal to watch: Has Alex stopped asking analysts to "double check" the governed answer? Reliance means the analyst queue shrinks.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONDAY RITUAL -->
+  <div class="section-label">05 · The Monday Ritual</div>
+  <p style="font-size:14px;color:var(--ink-mid);line-height:1.75;max-width:700px;margin-bottom:24px;">Alex's Monday morning is structured around a series of meetings and responsibilities. The insight product must fit into this rhythm — not require Alex to reorganize around it.</p>
+
+  <div style="margin-bottom:48px;">
+    <div class="ritual-row">
+      <div class="ritual-time">Pre-7am</div>
+      <div class="ritual-activity">
+        <strong>Receives the pushed summary</strong>
+        Reviews the weekly diagnostic on their phone or tablet before arriving at the office. Scans headline findings. Forms an initial read on the week.
+      </div>
+      <div class="ritual-tension">Needs: A summary that respects scanning behavior. 3 headlines max before detail.</div>
+    </div>
+
+    <div class="ritual-row">
+      <div class="ritual-time">7–8am</div>
+      <div class="ritual-activity">
+        <strong>Drills in (selectively)</strong>
+        If something flags, Alex opens the product to zoom in. This session is short — 10–15 minutes. They are building a point of view, not doing analysis.
+      </div>
+      <div class="ritual-tension">Needs: Fast load, no context loss, bounded zoom. Don't make the drill-in feel like opening a dashboard.</div>
+    </div>
+
+    <div class="ritual-row">
+      <div class="ritual-time">8–9am</div>
+      <div class="ritual-activity">
+        <strong>Prepares for leadership sync</strong>
+        Converts their read into talking points. Identifies what to assign, what to escalate, what to watch. May forward the governed summary to 1–2 direct reports.
+      </div>
+      <div class="ritual-tension">Needs: Shareable artifact. Pillar-attributed framing. A "so what" statement they can speak to without slides.</div>
+    </div>
+
+    <div class="ritual-row">
+      <div class="ritual-time">9–10am</div>
+      <div class="ritual-activity">
+        <strong>Monday leadership sync</strong>
+        Presents the weekly read to peers and senior leadership. The governed insight is the basis of the conversation — not a supporting reference.
+      </div>
+      <div class="ritual-tension">Needs: Confidence in the governed answer. Awareness of what's been reconciled vs. estimated.</div>
+    </div>
+
+    <div class="ritual-row">
+      <div class="ritual-time">Post-sync</div>
+      <div class="ritual-activity">
+        <strong>Delegates investigation items</strong>
+        Assigns follow-on questions to directors or analysts — but only for things the product flagged as needing deeper dive. Everything else is governed and closed.
+      </div>
+      <div class="ritual-tension">Needs: Clear distinction between governed answers (closed) and open questions (flagged for investigation).</div>
+    </div>
+  </div>
+
+  <!-- FRICTION & WANTS -->
+  <div class="section-label">06 · Today's Pain · Tomorrow's Want</div>
+
+  <div class="friction-grid">
+    <div class="friction-card friction-pain">
+      <div class="friction-card-label">Current Frustrations</div>
+      <div class="friction-items">
+        <div class="friction-item">Answering "what happened last week" costs 3–5 analyst days and produces a one-time deliverable with no compounding value</div>
+        <div class="friction-item">By the time the answer arrives, the decision window has often passed or the question has shifted</div>
+        <div class="friction-item">Every analyst framing carries implicit choices — which comparisons, which segments — that Alex can't always interrogate quickly</div>
+        <div class="friction-item">Insights are delivered as standalone artifacts with no lineage — it's impossible to know how this week compares to how last week was analyzed</div>
+        <div class="friction-item">The 11-layer diagnostic exists in pieces across multiple teams, never synthesized into a single coherent weekly view</div>
+        <div class="friction-item">Alex cannot forward an analyst deck to leadership with confidence — they have to re-narrate it themselves</div>
+      </div>
+    </div>
+
+    <div class="friction-card friction-want">
+      <div class="friction-card-label">What the Insight Product Must Deliver</div>
+      <div class="friction-items">
+        <div class="friction-item">A governed, consistent answer to the same 3 questions every Monday — with the same logic, same comparisons, same attribution model</div>
+        <div class="friction-item">A summary that surfaces the most important signal first — not all 11 layers equally — with intelligent prioritization</div>
+        <div class="friction-item">A drill-in path that feels like zooming, not switching contexts — the same governed frame, just more granular</div>
+        <div class="friction-item">Pillar attribution on every finding, so Alex immediately knows which strategic lever is being pulled</div>
+        <div class="friction-item">Confidence transparency — which answers are fully governed, which contain estimates, which are flagged for reconciliation</div>
+        <div class="friction-item">A shareable format that carries authority without Alex needing to re-narrate it for their team or leadership</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- DESIGN IMPLICATIONS -->
+  <div class="section-label">07 · Design Implications</div>
+  <p style="font-size:14px;color:var(--ink-mid);line-height:1.75;max-width:700px;margin-bottom:32px;">What this persona requires from the experience design of the insight product's output space.</p>
+
+  <div class="implications-grid">
+    <div class="implication-card">
+      <div class="implication-num">01</div>
+      <div class="implication-title">The summary must have a hierarchy, not a list</div>
+      <div class="implication-body">Alex scans. The most important finding must be surfaced first, with a clear signal strength indicator. Don't present all 11 layers equally — the product should have a point of view on what matters most this week, and lead with it. Secondary and tertiary findings are available but not forced.</div>
+    </div>
+
+    <div class="implication-card">
+      <div class="implication-num">02</div>
+      <div class="implication-title">Pillar anchoring on every major insight</div>
+      <div class="implication-body">Every key finding should be labeled against one of the four strategic pillars. Alex thinks in pillars — this is how they frame conversations with their team and with leadership. An insight without pillar attribution requires translation work that the product should eliminate.</div>
+    </div>
+
+    <div class="implication-card">
+      <div class="implication-num">03</div>
+      <div class="implication-title">Zoom-in must not break the frame</div>
+      <div class="implication-body">When Alex drills into a metric, the experience should feel like zooming into the same governed answer — not opening a new tool or switching contexts. The 11 attribution layers (channel, trip type, shopper type, decile, region, etc.) should feel like depth, not width. Each layer is reachable without losing the top-line narrative.</div>
+    </div>
+
+    <div class="implication-card">
+      <div class="implication-num">04</div>
+      <div class="implication-title">Confidence must be legible, not buried</div>
+      <div class="implication-body">Alex will test the governed answer against their mental model. The product must be transparent about the confidence level of each finding — fully governed, reconciled, estimated, or flagged. This is not a weakness to hide; it's the mechanism by which Alex transfers trust. Surfacing uncertainty is how the product earns credibility.</div>
+    </div>
+
+    <div class="implication-card">
+      <div class="implication-num">05</div>
+      <div class="implication-title">The "so what" must be explicit</div>
+      <div class="implication-body">Alex needs an implication statement, not just a metric movement. "Front store trips declined 3.2% WoW" requires translation. "Front store trip decline was concentrated in lapsing loyalty members in urban stores, suggesting a retention risk in Pillar 2" does not. The product should offer the framing — Alex can reject it, but they shouldn't have to generate it from scratch.</div>
+    </div>
+
+    <div class="implication-card">
+      <div class="implication-num">06</div>
+      <div class="implication-title">The output must be forwardable</div>
+      <div class="implication-body">A governed insight Alex can forward without re-narrating is 10x more valuable than one they have to translate. The summary format should carry its own authority — clear provenance, consistent logic, pillar framing — so Alex can send it to a director or include it in a leadership brief without adding a cover note that essentially rewrites it.</div>
+    </div>
+  </div>
+
+  <!-- PAGE BREAK -->
+  <div style="height:1px;background:var(--rule);margin:0 -64px 64px;"></div>
+
+  <!-- INTERACTION MODEL SUMMARY -->
+  <div class="section-label">08 · Interaction Model Summary</div>
+  <p style="font-size:14px;color:var(--ink-mid);line-height:1.75;max-width:700px;margin-bottom:40px;">How the insight product communicates with Alex. A full interaction specification is maintained in the companion document. This page captures the contract that governs every response Alex receives.</p>
+
+  <!-- CORE CONTRACT -->
+  <div style="background:var(--ink);color:var(--paper);padding:40px 48px;border-radius:2px;margin-bottom:32px;">
+    <div class="section-label" style="color:#4a4640;">The Interaction Contract</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-top:8px;">
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#6a6560;margin-bottom:10px;">Voice</div>
+        <div style="font-size:13px;color:#c8b99a;line-height:1.7;">The product speaks in plain prose. It sounds like a brilliant analyst sitting across the table — not a dashboard that learned to talk. Every response has a point of view.</div>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#6a6560;margin-bottom:10px;">Thread</div>
+        <div style="font-size:13px;color:#c8b99a;line-height:1.7;">The conversation thread stays intact and accumulates context. Alex builds a reading of the week through the exchange, not by navigating a UI. The product references what it already said.</div>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#6a6560;margin-bottom:10px;">Navigation</div>
+        <div style="font-size:13px;color:#c8b99a;line-height:1.7;">Every response closes with one strong recommendation and one alternative, in plain prose. The product thinks ahead. The navigation is the product's read on what Alex's decision mode requires next.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSIGHT TEMPLATE SUMMARY -->
+  <div class="section-label">The Insight Template — Generation Constraint, Not Display Format</div>
+  <p style="font-size:13px;color:var(--ink-mid);line-height:1.75;max-width:680px;margin-bottom:24px;">The template governs what the product knows how to build. What it delivers in any given response is determined by who is asking and why. The five layers are always available. They are not always shown.</p>
+
+  <div style="margin-bottom:32px;">
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-bottom:16px;">
+      <div style="background:white;border:1px solid var(--rule);border-top:3px solid var(--accent);padding:20px 16px;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:8px;">Layer 1</div>
+        <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;margin-bottom:8px;">Frame</div>
+        <div style="font-size:12px;color:var(--ink-mid);line-height:1.6;">Customer segment, value measurement, state. Who, what, where. The governed scope of the response.</div>
+      </div>
+      <div style="background:white;border:1px solid var(--rule);border-top:3px solid var(--gold);padding:20px 16px;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:8px;">Layer 2</div>
+        <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;margin-bottom:8px;">Observable Outcomes</div>
+        <div style="font-size:12px;color:var(--ink-mid);line-height:1.6;">Lagging behaviors. Baseline and persistence. Stickiness distinguishes a blip from a structural shift.</div>
+      </div>
+      <div style="background:white;border:1px solid var(--rule);border-top:3px solid var(--teal);padding:20px 16px;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:8px;">Layer 3</div>
+        <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;margin-bottom:8px;">Drivers</div>
+        <div style="font-size:12px;color:var(--ink-mid);line-height:1.6;">Directional statistics, signal strength, early warning. No causal claims. Only load-bearing signals from the 11 attribution dimensions.</div>
+      </div>
+      <div style="background:white;border:1px solid var(--rule);border-top:3px solid #5b8a6e;padding:20px 16px;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:8px;">Layer 4</div>
+        <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;margin-bottom:8px;">Business Value</div>
+        <div style="font-size:12px;color:var(--ink-mid);line-height:1.6;">Enterprise outcomes quantified. What layers 2 and 3 mean in value terms. Converts behavior into financial or strategic stake.</div>
+      </div>
+      <div style="background:white;border:1px solid var(--rule);border-top:3px solid var(--ink);padding:20px 16px;">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:8px;">Layer 5</div>
+        <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:600;margin-bottom:8px;">Implication</div>
+        <div style="font-size:12px;color:var(--ink-mid);line-height:1.6;">Current state, opportunity, early warnings, intervention, and decision tier. A finding can span in-week, quarterly, and multi-year tiers simultaneously.</div>
+      </div>
+    </div>
+    <div style="background:var(--cream);border:1px solid var(--rule);padding:16px 20px;border-radius:2px;font-size:12px;color:var(--ink-mid);line-height:1.7;">
+      <strong style="font-weight:500;">The 11 attribution layers</strong> — channel, trip type, shopper type, trip decile, behavior segment, lifecycle stage, region, urban density, trip mission, basket type, Rx attach — are internal completeness grading criteria. The product checks all 11 before committing to a finding. Only the ones with sufficient directional signal appear in the response. They are a quality gate, not a navigation system.
+    </div>
+  </div>
+
+  <!-- THREE ENTRY MODES -->
+  <div class="section-label">Three Entry Modes</div>
+  <p style="font-size:13px;color:var(--ink-mid);line-height:1.75;max-width:680px;margin-bottom:24px;">The product opens to a blank canvas. Alex's entry mode shapes the structure of the response. Decision mode shapes its depth. Neither is fixed — both can shift within the same session.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:48px;">
+    <div style="background:white;border:1px solid var(--rule);padding:24px;border-radius:2px;border-left:3px solid var(--teal);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;">Entry Mode 1</div>
+      <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:600;margin-bottom:8px;">Open Exploration</div>
+      <div style="font-size:12px;color:var(--ink-mid);line-height:1.65;margin-bottom:16px;">Alex hasn't framed a question yet. The product orients — leading with the most signal-bearing finding of the week and a light map of what else is available. The product says: here's what I'd lead with if I were briefing you.</div>
+      <div style="font-size:11px;color:var(--teal);font-family:'DM Mono',monospace;background:var(--teal-soft);padding:8px 10px;border-radius:2px;">Response shape: finding-led, breadth before depth</div>
+    </div>
+    <div style="background:white;border:1px solid var(--rule);padding:24px;border-radius:2px;border-left:3px solid var(--gold);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;">Entry Mode 2</div>
+      <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:600;margin-bottom:8px;">Directed Question</div>
+      <div style="font-size:12px;color:var(--ink-mid);line-height:1.65;margin-bottom:16px;">Alex asks something specific. The product answers that question completely — at the depth implied by the decision mode in the question — and doesn't volunteer everything else it knows. Precision over completeness.</div>
+      <div style="font-size:11px;color:var(--gold);font-family:'DM Mono',monospace;background:var(--gold-soft);padding:8px 10px;border-radius:2px;">Response shape: question-scoped, depth before breadth</div>
+    </div>
+    <div style="background:white;border:1px solid var(--rule);padding:24px;border-radius:2px;border-left:3px solid var(--accent);">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;">Entry Mode 3</div>
+      <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:600;margin-bottom:8px;">Hypothesis Validation</div>
+      <div style="font-size:12px;color:var(--ink-mid);line-height:1.65;margin-bottom:16px;">Alex arrives with a point of view forming and asks the product to stress-test it. The product confirms, complicates, or refutes the hypothesis with directional evidence. The response is structured around the hypothesis, not the full template.</div>
+      <div style="font-size:11px;color:var(--accent);font-family:'DM Mono',monospace;background:var(--accent-soft);padding:8px 10px;border-radius:2px;">Response shape: hypothesis-anchored, evidence-led</div>
+    </div>
+  </div>
+
+  <!-- GENERATED NAVIGATION -->
+  <div class="section-label">Generated Navigation</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:48px;">
+    <div style="background:white;border:1px solid var(--rule);padding:28px;border-radius:2px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-light);margin-bottom:14px;">How It Works</div>
+      <div style="font-size:13px;color:var(--ink-mid);line-height:1.75;">Every response ends with <strong style="font-weight:500;">one strong recommendation</strong> and <strong style="font-weight:500;">one alternative</strong>, written in plain prose. Not buttons. Not labels. A sentence that sounds like a person who has already thought ahead.<br><br>The navigation is drawn from what is most open or most consequential in the response — pointing deeper into attribution, across to an adjacent finding, or upward to a different decision tier. The product infers Alex's decision mode from the exchange and shapes the navigation accordingly.<br><br>Every time the recommendation leads somewhere genuinely useful, the product earns another unit of credibility. The navigation is the trust-building mechanism.</div>
+    </div>
+    <div style="background:white;border:1px solid var(--rule);padding:28px;border-radius:2px;">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-light);margin-bottom:14px;">Example Navigation Prose</div>
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <div style="background:var(--cream);padding:14px 16px;border-radius:2px;border-left:2px solid var(--teal);">
+          <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--teal);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">Strong recommendation</div>
+          <div style="font-size:13px;color:var(--ink);font-style:italic;line-height:1.6;">"The regional concentration behind this is worth seeing — urban stores are carrying a disproportionate share of the decline. Want me to break that down?"</div>
+        </div>
+        <div style="background:var(--cream);padding:14px 16px;border-radius:2px;border-left:2px solid var(--gold);">
+          <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--gold);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">Alternative</div>
+          <div style="font-size:13px;color:var(--ink);font-style:italic;line-height:1.6;">"There's also a quarterly signal here that may be relevant to your retention strategy review — I can frame that if useful."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="doc-footer">
+  <div class="doc-footer-left">Insight Product · User Persona · VP Enterprise Retail</div>
+  <div class="doc-footer-right">v1.1 · Includes Interaction Model Summary</div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,2184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Insight Product — Prototype v3</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#0f0e0c; --paper:#f5f2ed; --cream:#ede9e1; --rule:#d4cfc5;
+  --accent:#c84b2f; --accent-soft:#f0e0db;
+  --teal:#1a5c5a; --teal-soft:#d4e8e7;
+  --gold:#b8860b; --gold-soft:#f5edd0;
+  --sage:#5b8a6e; --sage-soft:#deeee6;
+  --ink-mid:#4a4640; --ink-light:#8a8480;
+  --sc-w:380px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+/* TOPBAR */
+.topbar{background:var(--ink);padding:0 24px;height:50px;display:flex;align-items:center;gap:14px;flex-shrink:0;z-index:300;}
+.tb-brand{display:flex;align-items:center;gap:8px;margin-right:auto;}
+.tb-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);}
+.tb-name{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9590;}
+.mode-toggle{display:flex;gap:2px;background:rgba(255,255,255,0.05);padding:3px;border-radius:4px;border:1px solid rgba(255,255,255,0.07);}
+.mode-btn{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:5px 12px;border-radius:3px;cursor:pointer;color:#5a5550;border:none;background:transparent;transition:all 0.2s;}
+.mode-btn.active{background:rgba(255,255,255,0.12);color:var(--paper);}
+.tb-week{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:#3a3930;padding:4px 10px;border:1px solid #2a2926;border-radius:2px;}
+.tb-user{font-family:'DM Mono',monospace;font-size:9px;color:#3a3930;}
+
+/* APP SHELL */
+.app{display:flex;flex:1;overflow:hidden;position:relative;}
+.view{position:absolute;inset:0;transition:opacity 0.25s;}
+.view.hidden{opacity:0;pointer-events:none;}
+
+/* ══ COLD OPEN ══ */
+.cold-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:40px;}
+.cold-greeting{font-family:'Playfair Display',serif;font-size:30px;font-weight:400;color:var(--ink);margin-bottom:6px;text-align:center;}
+.cold-greeting em{font-style:italic;color:var(--ink-light);}
+.cold-sub{font-size:13px;color:var(--ink-light);margin-bottom:36px;text-align:center;line-height:1.65;}
+.cold-badge{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);background:var(--cream);border:1px solid var(--rule);padding:5px 14px;border-radius:2px;margin-bottom:40px;}
+.sug-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-light);margin-bottom:14px;text-align:center;}
+.suggestions{display:flex;flex-direction:column;gap:7px;width:100%;max-width:600px;margin-bottom:36px;}
+.sug-item{padding:13px 18px;background:white;border:1px solid var(--rule);border-radius:4px;font-size:13px;color:var(--ink-mid);cursor:pointer;transition:all 0.14s;display:flex;align-items:center;gap:12px;line-height:1.4;}
+.sug-item:hover{border-color:var(--teal);background:var(--teal-soft);color:var(--teal);}
+.sug-item:hover .sug-arr{color:var(--teal);}
+.sug-n{font-family:'DM Mono',monospace;font-size:9px;color:var(--rule);flex-shrink:0;width:14px;}
+.sug-arr{margin-left:auto;color:var(--rule);font-size:11px;flex-shrink:0;}
+.cold-input-wrap{width:100%;max-width:600px;display:flex;align-items:center;gap:10px;background:white;border:1px solid var(--rule);border-radius:6px;padding:10px 16px;}
+.cold-input{flex:1;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:transparent;}
+.cold-input::placeholder{color:var(--ink-light);}
+.cold-send{width:28px;height:28px;border-radius:4px;background:var(--ink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--paper);font-size:12px;transition:opacity 0.12s;}
+.cold-send:hover{opacity:0.75;}
+
+/* ══ CONVO SHELL ══ */
+.convo-shell{display:flex;flex:1;height:100%;overflow:hidden;position:relative;}
+
+/* THREAD */
+.thread{flex:1;overflow-y:auto;padding:28px 0 96px;min-width:0;}
+.thread-inner{max-width:700px;margin:0 auto;padding:0 28px;}
+
+/* RESPONSES */
+.response{opacity:0;transform:translateY(8px);transition:opacity 0.35s,transform 0.35s;}
+.response.vis{opacity:1;transform:translateY(0);}
+.r-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.r-avatar{width:26px;height:26px;border-radius:50%;background:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:11px;color:var(--paper);font-style:italic;flex-shrink:0;}
+.r-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);}
+.r-time{font-family:'DM Mono',monospace;font-size:9px;color:var(--rule);margin-left:auto;}
+.r-body{padding-left:36px;}
+.r-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;line-height:1.25;margin-bottom:13px;color:var(--ink);}
+.tension-mark{background:var(--gold-soft);border-bottom:2px solid var(--gold);padding:0 3px;border-radius:3px 3px 0 0;cursor:pointer;transition:background 0.12s;}
+.tension-mark:hover{background:#ffe9a0;}
+.prose{font-size:13.5px;color:var(--ink-mid);line-height:1.85;margin-bottom:12px;}
+.prose p{margin-bottom:10px;}.prose p:last-child{margin-bottom:0;}
+
+/* SIGNAL TYPES */
+.sm{cursor:pointer;font-weight:500;color:var(--ink);padding:0 1px;border-radius:2px;transition:background 0.12s;}
+.sm:hover{background:var(--accent-soft);}
+.rb{display:inline-flex;align-items:center;gap:1.5px;vertical-align:middle;margin-left:3px;position:relative;top:-1px;}
+.rb span{display:inline-block;width:3px;height:9px;border-radius:1px;background:var(--rule);}
+.rb span.h{background:var(--accent);}
+.rb span.h.up{background:var(--sage);}
+.rb span.h.w{background:var(--gold);}
+.se{cursor:pointer;color:var(--teal);font-weight:500;border-bottom:1.5px solid var(--teal);padding-bottom:1px;border-radius:2px 2px 0 0;transition:background 0.12s;}
+.se:hover{background:var(--teal-soft);}
+.st{cursor:pointer;background:var(--gold-soft);border-bottom:2px solid var(--gold);padding:1px 5px;border-radius:3px 3px 0 0;font-weight:500;transition:background 0.12s;}
+.st:hover{background:#ffe9a0;}
+.pt{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border-radius:2px;margin:0 2px;vertical-align:middle;}
+.p1{background:var(--sage-soft);color:var(--sage);}
+.p2{background:var(--teal-soft);color:var(--teal);}
+.p3{background:var(--gold-soft);color:var(--gold);}
+.p4{background:var(--accent-soft);color:var(--accent);}
+.tt{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border-radius:2px;margin:0 2px;vertical-align:middle;}
+.tac{background:var(--accent-soft);color:var(--accent);}
+.str{background:var(--gold-soft);color:var(--gold);}
+
+/* NAV PROSE */
+.nav-blk{margin-top:20px;padding-top:16px;border-top:1px solid var(--rule);display:flex;flex-direction:column;gap:7px;}
+.nav-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:3px;}
+.nav-item{padding:11px 14px;border-radius:3px;font-size:13px;font-style:italic;line-height:1.6;cursor:pointer;transition:all 0.12s;border:1px solid transparent;}
+.nav-p{background:var(--teal-soft);color:var(--teal);border-color:#b0d4d2;}
+.nav-p:hover{background:#bddcda;}
+.nav-s{background:var(--gold-soft);color:#7a5c00;border-color:#e0cc80;}
+.nav-s:hover{background:#ffe9a0;}
+
+/* BREADCRUMB */
+.bc{margin:10px 0 22px 36px;border:1px solid var(--rule);border-radius:3px;overflow:hidden;background:white;display:none;}
+.bc-top{padding:8px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:background 0.12s;}
+.bc-top:hover{background:var(--cream);}
+.bc-dot{width:5px;height:5px;border-radius:50%;background:var(--ink-light);flex-shrink:0;}
+.bc-sum{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);letter-spacing:0.06em;flex:1;}
+.bc-tog{font-family:'DM Mono',monospace;font-size:9px;color:var(--rule);transition:transform 0.2s;}
+.bc.open .bc-tog{transform:rotate(180deg);}
+.bc-rows{display:none;border-top:1px solid var(--rule);}
+.bc.open .bc-rows{display:block;}
+.bc-row{padding:8px 14px;border-bottom:1px solid var(--cream);display:grid;grid-template-columns:52px 160px 1fr;gap:10px;}
+.bc-row:last-child{border-bottom:none;}
+.bc-t{font-family:'DM Mono',monospace;font-size:9px;color:var(--rule);}
+.bc-n{font-size:11px;font-weight:500;color:var(--ink);}
+.bc-a{font-size:11px;color:var(--ink-light);line-height:1.4;}
+
+/* USER MSG */
+.umsg{display:none;justify-content:flex-end;margin:10px 0;}
+.ububble{background:var(--ink);color:var(--paper);padding:9px 14px;border-radius:16px 16px 3px 16px;font-size:13px;max-width:72%;line-height:1.5;}
+
+/* MODAL OFFER */
+.modal-offer{background:var(--cream);border:1px solid var(--rule);border-left:3px solid var(--gold);padding:10px 14px;border-radius:0 3px 3px 0;margin-bottom:13px;font-size:13px;color:var(--ink-mid);font-style:italic;line-height:1.6;}
+.modal-offer strong{font-style:normal;color:var(--ink);font-weight:500;}
+
+/* RESP DIVIDER */
+.rdiv{height:1px;background:var(--rule);margin:22px 0 22px 36px;opacity:0.4;}
+
+/* TYPING */
+.typing{display:flex;align-items:center;gap:8px;padding:10px 0 10px 36px;opacity:0;transition:opacity 0.2s;}
+.typing.on{opacity:1;}
+.tds{display:flex;gap:4px;}
+.td{width:5px;height:5px;border-radius:50%;background:var(--ink-light);animation:tp 1.2s infinite;}
+.td:nth-child(2){animation-delay:0.2s;}.td:nth-child(3){animation-delay:0.4s;}
+@keyframes tp{0%,60%,100%{opacity:0.25;transform:scale(0.9)}30%{opacity:1;transform:scale(1.1)}}
+.tlbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-light);}
+
+/* REPLY BAR */
+.reply-bar{position:absolute;bottom:0;left:0;right:0;background:var(--paper);border-top:1px solid var(--rule);padding:12px 28px;z-index:50;transition:right 0.32s cubic-bezier(0.4,0,0.2,1);}
+.reply-bar.sc-open{right:var(--sc-w);}
+.reply-inner{max-width:700px;margin:0 auto;display:flex;align-items:center;gap:10px;background:white;border:1px solid var(--rule);border-radius:6px;padding:9px 14px;}
+.reply-input{flex:1;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:transparent;caret-color:var(--teal);}
+.reply-input::placeholder{color:var(--ink-light);}
+.reply-hint{font-family:'DM Mono',monospace;font-size:9px;color:var(--rule);letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap;}
+
+/* ══ SIDECAR ══ */
+.sidecar{width:var(--sc-w);background:white;border-left:1px solid var(--rule);display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.32s cubic-bezier(0.4,0,0.2,1);position:absolute;right:0;top:0;bottom:0;z-index:100;}
+.sidecar.open{transform:translateX(0);}
+.sc-hdr{padding:14px 16px;border-bottom:1px solid var(--rule);background:var(--cream);display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-shrink:0;}
+.sc-hdr-l{flex:1;min-width:0;}
+.sc-type-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:3px;}
+.sc-title-txt{font-size:13px;font-weight:500;color:var(--ink);}
+.sc-x{width:26px;height:26px;border-radius:50%;border:1px solid var(--rule);background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink-light);transition:all 0.12s;flex-shrink:0;}
+.sc-x:hover{background:var(--cream);color:var(--ink);}
+.sc-body{flex:1;overflow-y:auto;padding:16px;}
+
+/* governed metric card structure */
+.gc-badge{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:2px 8px;border-radius:2px;margin-bottom:10px;}
+.gc-metric{background:var(--accent-soft);color:var(--accent);}
+.gc-entity{background:var(--teal-soft);color:var(--teal);}
+.gc-tension{background:var(--gold-soft);color:var(--gold);}
+
+/* governed definition block */
+.gc-def{background:var(--cream);border-left:2px solid var(--rule);padding:9px 12px;border-radius:0 2px 2px 0;font-size:11.5px;color:var(--ink-mid);line-height:1.65;margin-bottom:12px;}
+.gc-def strong{color:var(--ink);font-weight:500;}
+
+/* absolute + relative pair */
+.gc-ar-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:3px;overflow:hidden;margin-bottom:12px;}
+.gc-ar-cell{background:white;padding:11px 12px;}
+.gc-ar-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:4px;}
+.gc-ar-val{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;line-height:1.1;margin-bottom:2px;}
+.gc-ar-val.neg{color:var(--accent);}
+.gc-ar-val.pos{color:var(--sage);}
+.gc-ar-val.neu{color:var(--ink-mid);}
+.gc-ar-sub{font-size:10px;color:var(--ink-light);line-height:1.4;}
+
+/* variance context */
+.gc-var{padding:9px 12px;background:var(--cream);border-radius:2px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.gc-var-bar{display:flex;gap:2px;align-items:center;}
+.gc-var-bar span{display:inline-block;width:5px;height:14px;border-radius:1px;background:var(--rule);}
+.gc-var-bar span.act{background:var(--accent);}
+.gc-var-bar span.act-up{background:var(--sage);}
+.gc-var-bar span.act-w{background:var(--gold);}
+.gc-var-text{font-size:11px;color:var(--ink-mid);line-height:1.5;flex:1;}
+.gc-var-text strong{color:var(--ink);font-weight:500;}
+
+/* MECE position */
+.gc-mece-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--rule);}
+.gc-mece-row{display:flex;align-items:center;gap:0;margin-bottom:6px;border:1px solid var(--rule);border-radius:2px;overflow:hidden;}
+.gc-mece-seg{flex:1;padding:7px 10px;font-size:11px;color:var(--ink-light);background:white;text-align:center;border-right:1px solid var(--rule);transition:background 0.12s;}
+.gc-mece-seg:last-child{border-right:none;}
+.gc-mece-seg.focus{background:var(--accent-soft);color:var(--accent);font-weight:500;}
+.gc-mece-seg.focus.up{background:var(--sage-soft);color:var(--sage);}
+.gc-mece-seg.focus.neutral{background:var(--cream);color:var(--ink-mid);}
+.gc-mece-seg-lbl{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:2px;}
+.gc-mece-seg-val{font-size:12px;font-weight:500;}
+
+/* comp row */
+.gc-comp{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px;}
+.gc-comp-cell{background:var(--cream);padding:8px 10px;border-radius:2px;text-align:center;}
+.gc-comp-lbl{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);margin-bottom:3px;}
+.gc-comp-val{font-size:14px;font-weight:500;font-family:'Playfair Display',serif;}
+.gc-comp-val.neg{color:var(--accent);}
+.gc-comp-val.pos{color:var(--sage);}
+
+/* chart section */
+.gc-chart-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin:12px 0 7px;padding-bottom:4px;border-bottom:1px solid var(--rule);}
+
+/* analysis offer */
+.gc-ao{margin-top:14px;padding:11px 12px;background:var(--gold-soft);border:1px solid #e0cc80;border-radius:2px;}
+.gc-ao-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);margin-bottom:5px;}
+.gc-ao-txt{font-size:11.5px;color:#7a5c00;line-height:1.6;margin-bottom:8px;}
+.gc-ao-btn{padding:5px 11px;background:var(--gold);color:white;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;border-radius:2px;cursor:pointer;border:none;transition:opacity 0.12s;}
+.gc-ao-btn:hover{opacity:0.82;}
+
+/* ══ ANALYSIS VIEW ══ */
+.av{position:absolute;top:0;left:0;right:0;bottom:0;background:var(--paper);z-index:200;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);}
+.av.open{transform:translateX(0);}
+.av-top{background:var(--ink);padding:0 24px;height:50px;display:flex;align-items:center;gap:14px;flex-shrink:0;}
+.av-back{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#6a6560;cursor:pointer;padding:5px 10px;border:1px solid #2a2926;border-radius:2px;transition:all 0.12s;background:transparent;}
+.av-back:hover{color:var(--paper);border-color:#4a4640;}
+.av-mode{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#4a4640;}
+.av-qtitle{font-family:'DM Mono',monospace;font-size:10px;color:#9a9590;margin-left:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:400px;}
+
+.av-body{display:flex;flex:1;overflow:hidden;}
+
+/* enterprise anchor panel */
+.av-anchor{width:210px;border-right:1px solid var(--rule);overflow-y:auto;padding:18px 14px;flex-shrink:0;background:white;}
+.av-anc-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:12px;}
+.av-eq{padding:9px 11px;border-radius:2px;margin-bottom:6px;border:1px solid var(--rule);cursor:pointer;transition:all 0.12s;}
+.av-eq.active{border-color:var(--teal);background:var(--teal-soft);}
+.av-eq-num{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);margin-bottom:2px;}
+.av-eq-q{font-size:11.5px;color:var(--ink-mid);line-height:1.4;}
+.av-eq.active .av-eq-q{color:var(--teal);font-weight:500;}
+.av-sep{height:1px;background:var(--rule);margin:12px 0;}
+.av-plbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:8px;}
+.av-pillar{padding:7px 10px;border-radius:2px;margin-bottom:4px;font-size:11px;color:var(--ink-mid);background:var(--cream);border:1px solid transparent;}
+.av-pillar.active{background:var(--teal-soft);color:var(--teal);border-color:var(--teal-soft);font-weight:500;}
+
+/* main analysis panel */
+.av-main{flex:1;overflow-y:auto;padding:22px 26px 80px;}
+.av-q{font-family:'Playfair Display',serif;font-size:21px;font-weight:600;line-height:1.2;color:var(--ink);margin-bottom:4px;}
+.av-q-sub{font-size:12px;color:var(--ink-light);font-family:'DM Mono',monospace;letter-spacing:0.06em;margin-bottom:20px;}
+
+/* absolute context banner */
+.av-abs{background:var(--ink);color:var(--paper);padding:14px 18px;border-radius:3px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:18px;}
+.av-abs-item-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:#4a4640;margin-bottom:4px;}
+.av-abs-item-val{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--paper);}
+.av-abs-item-val.neg{color:#e89080;}
+.av-abs-item-val.pos{color:#80c89a;}
+.av-abs-item-sub{font-size:10px;color:#4a4640;margin-top:2px;}
+
+/* MECE decomposition */
+.av-mece-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;}
+.av-mece-grid{display:grid;gap:8px;margin-bottom:18px;}
+.av-mece-3{grid-template-columns:repeat(3,1fr);}
+.av-mece-2{grid-template-columns:repeat(2,1fr);}
+.av-mece-9{grid-template-columns:repeat(3,1fr);}
+.av-mece-cell{padding:13px 14px;background:white;border:1px solid var(--rule);border-radius:2px;border-top:3px solid var(--rule);}
+.av-mece-cell.signal{border-top-color:var(--accent);}
+.av-mece-cell.stable{border-top-color:var(--sage);}
+.av-mece-cell.flat{border-top-color:var(--rule);}
+.av-mece-cell.warn{border-top-color:var(--gold);}
+.av-mc-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);margin-bottom:5px;}
+.av-mc-rel{font-family:'Playfair Display',serif;font-size:19px;font-weight:600;margin-bottom:1px;}
+.av-mc-rel.neg{color:var(--accent);}
+.av-mc-rel.pos{color:var(--sage);}
+.av-mc-rel.neu{color:var(--ink-mid);}
+.av-mc-abs{font-size:11px;color:var(--ink-light);margin-bottom:2px;}
+.av-mc-share{font-family:'DM Mono',monospace;font-size:9px;color:var(--rule);}
+.av-mc-share.sig{color:var(--accent);}
+
+/* chart area */
+.av-chart-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin:16px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule);}
+
+/* governed interpretation */
+.av-interp{margin-top:16px;padding:13px 15px;background:white;border:1px solid var(--rule);border-left:3px solid var(--teal);border-radius:0 3px 3px 0;}
+.av-interp-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal);margin-bottom:6px;}
+.av-interp-txt{font-size:13px;color:var(--ink-mid);line-height:1.75;}
+.av-interp-txt strong{font-weight:500;color:var(--ink);}
+
+/* return action */
+.av-return{position:fixed;bottom:0;left:210px;right:0;background:var(--ink);padding:14px 26px;display:flex;align-items:center;gap:14px;z-index:10;}
+.av-return-txt{flex:1;font-size:12px;color:#6a6560;line-height:1.5;font-style:italic;}
+.av-return-btn{padding:8px 18px;background:var(--teal);color:white;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;border-radius:2px;cursor:pointer;border:none;transition:opacity 0.12s;white-space:nowrap;flex-shrink:0;}
+.av-return-btn:hover{opacity:0.82;}
+
+/* scrollbars */
+.thread::-webkit-scrollbar,.sc-body::-webkit-scrollbar,.av-main::-webkit-scrollbar,.av-anchor::-webkit-scrollbar,.brief-body::-webkit-scrollbar{width:3px;}
+.thread::-webkit-scrollbar-thumb,.sc-body::-webkit-scrollbar-thumb,.av-main::-webkit-scrollbar-thumb,.av-anchor::-webkit-scrollbar-thumb,.brief-body::-webkit-scrollbar-thumb{background:var(--rule);border-radius:2px;}
+
+/* ── MODE SHIFT ATOM ── */
+.mode-shift{font-size:13px;font-style:italic;color:var(--ink-light);margin-bottom:10px;display:none;padding-left:36px;}
+.mode-shift.show{display:block;}
+
+/* ── NAV MOOD VARIANTS ── */
+.nav-u{background:var(--gold-soft);color:#7a5c00;border:1px solid #e0cc80;border-left:3px dashed var(--gold);padding:11px 14px;border-radius:3px;font-size:13px;font-style:italic;line-height:1.6;cursor:pointer;transition:all 0.12s;}
+.nav-u:hover{background:#ffe9a0;}
+.nav-i{background:var(--cream);color:var(--ink-mid);border:1px solid var(--rule);border-left:3px solid var(--ink-light);padding:11px 14px;border-radius:3px;font-size:13px;font-style:italic;line-height:1.6;cursor:default;}
+
+/* ── SESSION RESTORE ATOM ── */
+.session-restore{position:sticky;top:0;z-index:20;padding:10px 28px;background:var(--cream);border-bottom:1px solid var(--rule);font-size:13px;font-style:italic;color:var(--ink-light);border-left:3px solid var(--ink-light);display:none;}
+.session-restore.show{display:block;}
+
+/* ── RETURN WELCOME VIEW ── */
+.return-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;padding:40px;position:absolute;inset:0;background:var(--paper);z-index:25;opacity:1;transition:opacity 0.4s ease-out;}
+.return-wrap.fade-out{opacity:0;pointer-events:none;}
+.return-greeting{font-family:'Playfair Display',serif;font-size:28px;font-weight:400;color:var(--ink);margin-bottom:8px;text-align:center;}
+.return-greeting em{font-style:italic;color:var(--ink-light);}
+.return-sub{font-size:13px;color:var(--ink-light);margin-bottom:24px;text-align:center;line-height:1.65;}
+.return-loading{display:flex;align-items:center;gap:10px;}
+.return-loading-text{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);}
+.return-loading-dots{display:flex;gap:4px;}
+.return-loading-dots span{width:4px;height:4px;border-radius:50%;background:var(--teal);animation:return-pulse 1.4s infinite;}
+.return-loading-dots span:nth-child(2){animation-delay:0.2s;}
+.return-loading-dots span:nth-child(3){animation-delay:0.4s;}
+@keyframes return-pulse{0%,80%,100%{opacity:0.3;transform:scale(0.8)}40%{opacity:1;transform:scale(1)}}
+
+/* ── SCROLL TO BOTTOM ARROW ── */
+.scroll-to-bottom{position:absolute;bottom:70px;left:50%;transform:translateX(-50%);width:36px;height:36px;border-radius:50%;background:white;border:1px solid var(--rule);box-shadow:0 2px 8px rgba(0,0,0,0.08);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:45;opacity:0;pointer-events:none;transition:opacity 0.25s,transform 0.25s;}
+.scroll-to-bottom.visible{opacity:1;pointer-events:auto;}
+.scroll-to-bottom:hover{transform:translateX(-50%) scale(1.05);border-color:var(--teal);box-shadow:0 4px 12px rgba(0,0,0,0.12);}
+.scroll-to-bottom svg{width:16px;height:16px;stroke:var(--ink-light);transition:stroke 0.15s;}
+.scroll-to-bottom:hover svg{stroke:var(--teal);}
+
+/* ── ARCHIVE PANEL ── */
+.archive-panel{width:340px;background:white;border-right:1px solid var(--rule);display:flex;flex-direction:column;transform:translateX(-100%);transition:transform 0.32s cubic-bezier(0.4,0,0.2,1);position:absolute;left:0;top:0;bottom:0;z-index:150;}
+.archive-panel.open{transform:translateX(0);}
+.arc-hdr{padding:14px 16px;border-bottom:1px solid var(--rule);background:var(--cream);display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-shrink:0;}
+.arc-hdr-l .arc-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:3px;}
+.arc-hdr-l .arc-ttl{font-size:13px;font-weight:500;color:var(--ink);}
+.arc-x{width:26px;height:26px;border-radius:50%;border:1px solid var(--rule);background:white;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--ink-light);}
+.arc-x:hover{background:var(--cream);}
+.arc-body{flex:1;overflow-y:auto;padding:12px;}
+.arc-entry{padding:11px 13px;border-radius:3px;margin-bottom:6px;display:flex;align-items:center;gap:10px;border:1px solid var(--rule);cursor:pointer;transition:all 0.12s;}
+.arc-entry.current{background:var(--teal-soft);border-color:var(--teal);cursor:default;}
+.arc-entry.past:hover{background:var(--cream);}
+.arc-entry.empty{opacity:0.5;cursor:default;}
+.arc-el{flex:1;}
+.arc-el-lbl{font-family:'DM Mono',monospace;font-size:10px;font-weight:500;margin-bottom:2px;}
+.arc-entry.current .arc-el-lbl{color:var(--teal);}
+.arc-entry.past .arc-el-lbl,.arc-entry.empty .arc-el-lbl{color:var(--ink-mid);}
+.arc-el-sum{font-size:11px;}
+.arc-entry.current .arc-el-sum{color:var(--teal);}
+.arc-entry.past .arc-el-sum{color:var(--ink-light);}
+.arc-entry.empty .arc-el-sum{color:var(--rule);}
+.arc-badge{font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:2px;white-space:nowrap;flex-shrink:0;}
+.arc-entry.current .arc-badge{background:white;color:var(--teal);}
+.arc-entry.past .arc-badge{color:var(--ink-light);}
+.arc-entry.empty .arc-badge{color:var(--rule);}
+
+/* ── ARCHIVE THREAD STATE ── */
+.thread.archived .response{opacity:0.85;}
+.arc-ro-banner{background:rgba(200,75,47,0.08);border-bottom:1px solid var(--accent-soft);padding:8px 28px;display:none;align-items:center;justify-content:space-between;flex-shrink:0;}
+.arc-ro-banner.show{display:flex;}
+.arc-ro-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);}
+.arc-ro-return{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border:1px solid var(--rule);border-radius:2px;cursor:pointer;color:var(--ink-light);background:transparent;}
+.arc-ro-return:hover{border-color:var(--teal);color:var(--teal);}
+
+/* ── ANALYST BRIEF OVERLAY ── */
+.brief-overlay{position:absolute;inset:0;background:var(--paper);z-index:250;display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);}
+.brief-overlay.open{transform:translateX(0);}
+.brief-top{background:var(--ink);padding:0 24px;height:50px;display:flex;align-items:center;gap:14px;flex-shrink:0;}
+.brief-back{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#6a6560;cursor:pointer;padding:5px 10px;border:1px solid #2a2926;border-radius:2px;background:transparent;}
+.brief-back:hover{color:var(--paper);border-color:#4a4640;}
+.brief-top-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#4a4640;}
+.brief-top-fw{font-family:'DM Mono',monospace;font-size:9px;color:#9a9590;margin-left:auto;}
+.brief-body{flex:1;overflow-y:auto;padding:28px;}
+.brief-inner{max-width:700px;margin:0 auto;background:white;border:1px solid var(--rule);border-radius:2px;overflow:hidden;}
+.brief-hdr{background:var(--ink);padding:20px 24px;}
+.brief-hdr-eyebrow{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#4a4640;margin-bottom:8px;}
+.brief-hdr-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--paper);font-weight:600;line-height:1.25;margin-bottom:10px;}
+.brief-hdr-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.brief-hdr-tag{font-family:'DM Mono',monospace;font-size:9px;padding:2px 8px;border-radius:2px;}
+.brief-section{padding:18px 22px;border-bottom:1px solid var(--rule);}
+.brief-section:last-child{border-bottom:none;}
+.brief-sec-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:12px;}
+.brief-work-item{font-size:13px;color:var(--ink-mid);padding:9px 12px;background:var(--cream);border-radius:2px;border-left:2px solid var(--teal);margin-bottom:6px;line-height:1.6;}
+.brief-def-block{background:var(--cream);padding:11px;border-radius:2px;margin-bottom:8px;}
+.brief-def-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal);margin-bottom:4px;}
+.brief-def-txt{font-size:12px;color:var(--ink-mid);line-height:1.65;}
+.brief-metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:0;}
+.brief-metric-cell{background:var(--cream);padding:10px;border-radius:2px;text-align:center;}
+.brief-metric-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);margin-bottom:4px;}
+.brief-metric-val{font-family:'Playfair Display',serif;font-size:18px;font-weight:600;}
+.brief-metric-val.neg{color:var(--accent);}
+.brief-metric-sub{font-size:10px;color:var(--ink-light);margin-top:2px;}
+.brief-hyp{font-size:13px;color:var(--ink-mid);padding:12px;background:var(--gold-soft);border:1px solid #e0cc80;border-radius:2px;line-height:1.7;}
+.brief-footer{padding:14px 22px;background:var(--cream);display:flex;justify-content:space-between;align-items:center;}
+.brief-footer-l{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);}
+
+/* ── TOPBAR ARCHIVE BTN ── */
+.tb-arc-btn{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:5px 10px;border-radius:3px;cursor:pointer;color:#6a6560;border:1px solid #2a2926;background:transparent;transition:all 0.2s;}
+.tb-arc-btn:hover,.tb-arc-btn.active{color:var(--paper);border-color:#4a4640;}
+.reply-bar.hidden{display:none!important;}
+
+/* ── TRACE INDICATOR ATOM ── */
+.trace-indicator{display:none;align-items:center;gap:5px;padding:5px 11px;border:1px solid var(--rule);border-radius:3px;background:white;cursor:pointer;transition:all 0.15s;flex-shrink:0;}
+.trace-indicator.visible{display:flex;}
+.trace-indicator:hover,.trace-indicator.panel-open{border-color:var(--teal);background:var(--teal-soft);}
+.trace-indicator:hover .ti-dot,.trace-indicator.panel-open .ti-dot{background:var(--teal);}
+.trace-indicator:hover .ti-label,.trace-indicator.panel-open .ti-label{color:var(--teal);}
+.ti-dot{width:6px;height:6px;border-radius:50%;background:var(--ink-light);transition:background 0.15s;flex-shrink:0;}
+.ti-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-mid);transition:color 0.15s;white-space:nowrap;}
+
+/* ── TRACE PANEL ── */
+.trace-panel{position:absolute;bottom:56px;left:0;right:0;z-index:200;display:flex;justify-content:center;pointer-events:none;}
+.trace-panel-inner{width:100%;max-width:700px;margin:0 28px;background:white;border:1px solid var(--rule);border-radius:4px 4px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,0.1);transform:translateY(100%);transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);pointer-events:auto;max-height:60vh;display:flex;flex-direction:column;}
+.trace-panel-inner.open{transform:translateY(0);}
+.tp-hdr{background:var(--ink);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0;border-radius:4px 4px 0 0;}
+.tp-hdr-l{flex:1;min-width:0;}
+.tp-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#4a4640;margin-bottom:3px;}
+.tp-title{font-size:13px;font-weight:500;color:var(--paper);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tp-x{width:24px;height:24px;border-radius:50%;border:1px solid #2a2926;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:#4a4640;transition:all 0.12s;flex-shrink:0;}
+.tp-x:hover{color:var(--paper);border-color:#4a4640;}
+.tp-body{flex:1;overflow-y:auto;}
+.tp-item{display:grid;grid-template-columns:52px 1fr auto;gap:10px;padding:10px 14px;border-bottom:1px solid var(--cream);align-items:start;}
+.tp-item.av-event{background:var(--teal-soft);}
+.tp-time{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);}
+.tp-item.av-event .tp-time{color:var(--teal);}
+.tp-name{font-size:12px;font-weight:500;color:var(--ink);margin-bottom:2px;}
+.tp-item.av-event .tp-name{color:var(--teal);}
+.tp-action{font-family:'DM Mono',monospace;font-size:8px;color:var(--ink-light);}
+.tp-item.av-event .tp-action{color:var(--teal);}
+.tp-conf{display:flex;align-items:center;gap:3px;font-family:'DM Mono',monospace;font-size:8px;white-space:nowrap;}
+.tp-conf-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.tp-conf.governed{color:var(--sage);}.tp-conf.governed .tp-conf-dot{background:var(--sage);}
+.tp-conf.estimated{color:var(--gold);}.tp-conf.estimated .tp-conf-dot{background:var(--gold);}
+.tp-footer{padding:11px 14px;border-top:1px solid var(--rule);background:var(--cream);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0;}
+.tp-footer-summary{font-size:11px;color:var(--ink-mid);}
+.tp-delegate-btn{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:7px 14px;background:var(--ink);color:var(--paper);border:none;border-radius:2px;cursor:pointer;transition:opacity 0.12s;white-space:nowrap;flex-shrink:0;}
+.tp-delegate-btn:hover{opacity:0.78;}
+
+/* ── DELEGATE FLOW (inside Trace Panel) ── */
+.tp-delegate-view{display:none;flex-direction:column;flex:1;overflow:hidden;}
+.tp-delegate-view.active{display:flex;}
+.tp-delegate-body{flex:1;overflow-y:auto;padding:14px;}
+.tp-back-btn{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 9px;border:1px solid #2a2926;border-radius:2px;cursor:pointer;color:#4a4640;background:transparent;transition:all 0.12s;white-space:nowrap;}
+.tp-back-btn:hover{color:var(--paper);border-color:#4a4640;}
+.dl-section-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:6px;}
+.dl-scope-input{width:100%;border:1px solid var(--rule);border-radius:2px;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--ink);background:var(--cream);resize:none;outline:none;line-height:1.5;}
+.dl-scope-input:focus{border-color:var(--teal);}
+.dl-checklist{display:flex;flex-direction:column;gap:4px;}
+.dl-check-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--ink-mid);}
+.dl-check-icon{color:var(--sage);font-size:11px;flex-shrink:0;}
+.dl-analyst-opt{padding:7px 9px;border-radius:2px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background 0.1s;}
+.dl-analyst-opt:hover{background:var(--cream);}
+.dl-analyst-opt.selected{background:var(--teal-soft);}
+.dl-analyst-name{font-size:12px;color:var(--ink);}
+.dl-analyst-opt.selected .dl-analyst-name{color:var(--teal);font-weight:500;}
+.dl-analyst-role{font-size:10px;color:var(--ink-light);}
+.dl-send-btn{width:100%;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:9px;background:var(--teal);color:white;border:none;border-radius:2px;cursor:pointer;transition:opacity 0.12s;}
+.dl-send-btn:hover{opacity:0.85;}
+.dl-send-btn:disabled{opacity:0.4;cursor:not-allowed;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="tb-brand"><div class="tb-dot"></div><div class="tb-name">Insight</div></div>
+  <button class="tb-arc-btn" id="arc-btn" onclick="toggleArchive()" title="Session archive">&#128197;</button>
+  <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3930;padding:4px 12px;border:1px solid #2a2926;border-radius:2px;font-weight:500;">FW10 · Mar 09</div>
+  <span id="ro-badge" style="display:none;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:2px;background:rgba(200,75,47,0.2);color:var(--accent);">Read Only</span>
+  <button id="return-fw-btn" style="display:none;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border:1px solid #2a2926;border-radius:2px;cursor:pointer;color:#9a9590;background:transparent;" onclick="exitArchiveThread()">← Return to FW10</button>
+  <div style="margin-left:auto;display:flex;gap:2px;background:rgba(255,255,255,0.04);padding:3px;border-radius:3px;border:1px solid rgba(255,255,255,0.06);">
+    <button class="mode-btn active" id="btn-cold" onclick="setMode('cold')" style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;border-radius:2px;cursor:pointer;color:#5a5550;border:none;background:transparent;">Cold</button>
+    <button class="mode-btn" id="btn-email" onclick="setMode('email')" style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;border-radius:2px;cursor:pointer;color:#5a5550;border:none;background:transparent;">Email</button>
+    <button class="mode-btn" id="btn-return" onclick="setMode('return')" style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;border-radius:2px;cursor:pointer;color:#5a5550;border:none;background:transparent;">Return</button>
+  </div>
+  <!-- DELEGATION & TRACE — secondary topbar access (primary access via reply bar) -->
+  <div style="display:flex;gap:2px;background:rgba(26,92,90,0.08);padding:3px;border-radius:3px;border:1px solid rgba(26,92,90,0.15);margin-left:12px;" title="Secondary access — primary Trace access is in the reply bar">
+    <button onclick="openBrief()" style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;border-radius:2px;cursor:pointer;color:#1a5c5a;border:none;background:transparent;transition:background 0.1s;" onmouseover="this.style.background='rgba(26,92,90,0.15)'" onmouseout="this.style.background='transparent'" title="View analyst brief (prototype shortcut)">Brief ↗</button>
+    <button onclick="openGovernedSession()" style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;border-radius:2px;cursor:pointer;color:#1a5c5a;border:none;background:transparent;transition:background 0.1s;" onmouseover="this.style.background='rgba(26,92,90,0.15)'" onmouseout="this.style.background='transparent'" title="View governed session / data lineage">Session ↗</button>
+  </div>
+  <div style="font-family:'DM Mono',monospace;font-size:9px;color:#3a3930;margin-left:8px;">Alex · VP</div>
+</div>
+
+<div class="app">
+
+  <!-- COLD OPEN VIEW -->
+  <div class="view" id="view-cold">
+    <div class="cold-wrap">
+      <div class="cold-greeting">Good morning, <em>Alex.</em></div>
+      <div class="cold-sub">Week 10 data is governed and ready. Where would you like to start?</div>
+      <div class="cold-badge">Monday · March 10, 2025 · Week 10 of 52</div>
+      <!-- Prior week context summary -->
+      <div style="font-size:12px;color:#6a6560;font-style:italic;margin:12px 0 16px 0;padding:10px 14px;background:rgba(0,0,0,0.02);border-left:2px solid #c8c4bc;border-radius:0 2px 2px 0;max-width:480px;">Last week you first observed front store softness for the first time in six weeks. This week builds on that context.</div>
+      <div class="sug-label">Suggested starting points for this week</div>
+      <div class="suggestions">
+        <div class="sug-item" onclick="coldStart(1)">
+          <span class="sug-n">01</span>
+          What happened to front store trips last week — and where did we grow or shrink?
+          <span class="sug-arr">→</span>
+        </div>
+        <div class="sug-item" onclick="coldStart(2)">
+          <span class="sug-n">02</span>
+          The lapsing loyalty pattern you saw last week — did it persist or resolve?
+          <span class="sug-arr">→</span>
+        </div>
+        <div class="sug-item" onclick="coldStart(3)">
+          <span class="sug-n">03</span>
+          How is the front-store-only vs Rx-attached tension evolving since last week?
+          <span class="sug-arr">→</span>
+        </div>
+      </div>
+      <div class="cold-input-wrap">
+        <input class="cold-input" id="cold-in" placeholder="Or ask your own question, or state a hypothesis to test…" onkeydown="if(event.key==='Enter')coldStart(0)">
+        <button class="cold-send" onclick="coldStart(0)">→</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONVO VIEW -->
+  <div class="view hidden" id="view-convo">
+    <div class="convo-shell">
+
+      <div class="thread" id="thread">
+        <div class="thread-inner">
+
+          <div class="typing" id="t1"><div class="tds"><div class="td"></div><div class="td"></div><div class="td"></div></div><div class="tlbl">Insight is thinking</div></div>
+
+          <!-- R1 -->
+          <div class="response" id="r1">
+            <div class="r-header">
+              <div class="r-avatar">I</div>
+              <div class="r-label">Monday Diagnostic · Week 10</div>
+              <div class="r-time">7:02am</div>
+            </div>
+            <div class="r-body">
+              <!-- PRIOR WEEK REFERENCE: spec says single sentence opening, visually lighter than title, integrated in body flow -->
+              <div style="font-size:13px;font-style:italic;color:var(--ink-light);margin-bottom:14px;">Last week you first observed front store softness for the first time in six weeks — this week it has deepened to three consecutive weeks and the urban concentration has become pronounced.</div>
+              <div class="r-title">Lapsing loyalty members in urban stores are driving the front store trip decline</div>
+              <div class="prose">
+                <p>Front store trips declined <span class="sm" onclick="openSC('m-trips')">−2.8% WoW<span class="rb"><span></span><span></span><span class="h"></span><span class="h"></span><span></span></span></span> against a typical weekly variance of ±0.4% — outside normal range for the third consecutive week. The decline is concentrated in <span class="se" onclick="openSC('e-lapsing')">lapsing loyalty members</span>, customers in the late-active lifecycle stage whose trip frequency has reduced over the past 30 days.</p>
+                <p>In-store and digital channels declined at comparable rates, ruling out a channel disruption. <span class="se" onclick="openSC('e-urban')">Urban stores</span> account for a disproportionate share of volume impact despite representing 38% of the footprint. <span class="pt p2">Pillar 2 · Retention</span> is the strategic lever implicated here.</p>
+                <p>This carries a <span class="tt tac">tactical</span> implication — lapsing customers are in a recoverable window — and a <span class="tt str">strategic</span> signal for the Q2 retention review given three-week persistence.</p>
+              </div>
+
+              <div style="margin-top:18px;padding-top:18px;border-top:1px dashed var(--rule);">
+                <div class="r-title"><span class="tension-mark" onclick="openSC('t-rxfs')">Front-store-only declining ↔ Rx-attached stable</span> — aggregate is masking severity</div>
+                <div class="prose">
+                  <p><span class="sm" onclick="openSC('m-rxtrips')">Rx-attached trips +0.3% WoW<span class="rb"><span></span><span class="h up"></span><span class="h up"></span><span></span><span></span></span></span> while <span class="sm" onclick="openSC('m-fsonly')">front-store-only trips −4.1% WoW<span class="rb"><span></span><span></span><span class="h"></span><span class="h"></span><span class="h"></span></span></span>. The Rx channel is holding the aggregate flat while front-store-only engagement erodes. <span class="se" onclick="openSC('e-pcw')">PCW shoppers</span> remain stable and are not contributing to the decline.</p>
+                  <p>This divergence implicates both <span class="pt p2">Pillar 2 · Retention</span> and <span class="pt p3">Pillar 3 · Frequency</span> — front-store-only customer engagement is the structural concern.</p>
+                </div>
+              </div>
+
+              <div class="nav-blk">
+                <div class="nav-lbl">Where to go next</div>
+                <div class="nav-item nav-p" onclick="trigR2()">"The regional concentration is worth seeing — urban stores are carrying a disproportionate share and the store-level distribution has a meaningful tail. Want me to break that down?"</div>
+                <div class="nav-item nav-s" onclick="trigR3()">"There's also a quarterly framing here — three consecutive weeks of lapsing loyalty decline is a retention strategy signal for your Thursday planning review."</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bc" id="bc1"><div class="bc-top" onclick="toggleBC('bc1')"><div class="bc-dot"></div><div class="bc-sum" id="bc1s">0 items investigated</div><div class="bc-tog">▾</div></div><div class="bc-rows" id="bc1r"></div></div>
+
+          <div class="typing" id="t2"></div>
+          <div class="umsg" id="um2"><div class="ububble">Show me the regional breakdown for the lapsing decline</div></div>
+
+          <!-- R2 -->
+          <div class="response" id="r2" style="display:none;">
+            <div class="r-header">
+              <div class="r-avatar">I</div>
+              <div class="r-label">Regional Attribution · Front Store Trips</div>
+              <div class="r-time">7:09am</div>
+            </div>
+            <div class="r-body">
+              <!-- MODE SHIFT ATOM: directional → analytical. Spec: before title, after header -->
+              <div class="mode-shift" id="ms-r2">"Let me go deeper on this — something in that number is worth interrogating."</div>
+              <div class="r-title">Urban Northeast and Midwest carry 68% of the lapsing trip decline — suburban and rural stores are flat</div>
+              <div class="modal-offer"><strong>Based on your investigation:</strong> I can see you've been looking at lapsing members and urban stores — the regional breakdown confirms what those signals were pointing toward.</div>
+              <div class="prose">
+                <p>The urban concentration is more pronounced than the aggregate suggested. Urban Northeast accounts for <span class="sm" onclick="openSC('m-ne')">−38% of total trip decline<span class="rb"><span></span><span></span><span class="h"></span><span class="h"></span><span></span></span></span> from 21% of the footprint. Midwest Urban contributes <span class="sm" onclick="openSC('m-mw')">−30%<span class="rb"><span></span><span></span><span class="h"></span><span class="h"></span><span></span></span></span> from 17%. Suburban and rural stores are flat — this is a <span class="se" onclick="openSC('e-urban')">high-density urban</span> story, not a national trend.</p>
+                <p>The store-level distribution has a meaningful tail: <span class="sm" onclick="openAV('waterfall')">top 40 stores account for 71% of the total decline<span class="rb"><span></span><span></span><span></span><span class="h"></span><span class="h"></span></span></span>. Concentration this high means targeted intervention is viable. <span class="pt p2">Pillar 2 · Retention</span> actions can be scoped to a manageable store set.</p>
+              </div>
+              <div class="nav-blk">
+                <div class="nav-lbl">Where to go next</div>
+                <div class="nav-item nav-p" onclick="openAV('waterfall')">"The store waterfall is specific enough to delegate directly — top 40 stores with the full MECE regional decomposition and absolute trip counts. Want me to open that in analysis view?"</div>
+                <!-- UNCERTAIN NAV VARIANT: signal present but one week isn't persistence -->
+                <div class="nav-u">"The store-level tail is suggestive — but I'd want to see this pattern hold for one more week before calling it structural. Want me to flag the top 40 list for next Monday's comparison?"</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bc" id="bc2"><div class="bc-top" onclick="toggleBC('bc2')"><div class="bc-dot"></div><div class="bc-sum" id="bc2s">0 items investigated</div><div class="bc-tog">▾</div></div><div class="bc-rows" id="bc2r"></div></div>
+
+          <div class="typing" id="t3"></div>
+          <div class="umsg" id="um3"><div class="ububble">Frame the quarterly implication — I have planning Thursday</div></div>
+
+          <!-- R3 -->
+          <div class="response" id="r3" style="display:none;">
+            <div class="r-header">
+              <div class="r-avatar">I</div>
+              <div class="r-label">Quarterly Signal · Retention Strategy</div>
+              <div class="r-time">7:15am</div>
+            </div>
+            <div class="r-body">
+              <!-- MODE SHIFT ATOM: analytical → outcome-focused. Spec: before title, after header -->
+              <div class="mode-shift" id="ms-r3">"Given you're heading into planning — let me frame this for the room."</div>
+              <div class="r-title">Three consecutive weeks of urban lapsing decline is a Pillar 2 adjustment signal for Q2 retention strategy</div>
+              <div class="modal-offer"><strong>Ahead of Thursday:</strong> Based on what you've investigated — lapsing segment, urban concentration, and the Rx divergence tension — here is how this week frames as a quarterly planning input.</div>
+              <div class="prose">
+                <p><span class="se" onclick="openSC('e-lapsing')">Lapsing loyalty members</span> in <span class="se" onclick="openSC('e-urban')">high-density urban stores</span> are reducing trip frequency at a rate that — if persistent through Q2 — represents material erosion of the active customer base. The <span class="st" onclick="openSC('t-rxfs')">Rx-attached stability ↔ front-store-only decline</span> tension means the aggregate metric is masking true severity for the planning conversation.</p>
+                <p>For Thursday: current <span class="pt p2">Pillar 2</span> programs may be weighted toward Rx-attached customers at the expense of front-store-only engagement. The data does not establish this causally — but it is a directional hypothesis the retention strategy review should address explicitly.</p>
+                <p>The <span class="tt tac">tactical</span> reactivation brief for the top 40 urban stores can run in parallel with the <span class="tt str">strategic</span> review — they are not dependent on each other.</p>
+              </div>
+              <div class="nav-blk">
+                <div class="nav-lbl">Where to go next</div>
+                <div class="nav-item nav-p" onclick="openAV('cohort')">"I can give you a version of this framed for the planning room — leading with the Pillar 2 implication and absolute customer counts, without the attribution detail. Want me to open that in analysis view?"</div>
+                <div class="nav-item nav-s">"The Rx attach rate trend has its own story this week that connects to the tension we named — if you want that thread before Thursday I can pull it."</div>
+                <!-- ASSIGNMENT STATUS (Delegate action now lives in Trace Panel via reply bar) -->
+                <div style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--rule);display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                  <span id="assignment-badge" style="display:none;font-family:'DM Mono',monospace;font-size:9px;padding:4px 10px;border-radius:2px;background:var(--gold-soft);color:var(--gold);letter-spacing:0.08em;">Assigned to <span id="assignee-name"></span> · <span id="assign-time"></span></span>
+                  <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);letter-spacing:0.06em;" id="delegate-hint">Use Trace in the reply bar to delegate this finding →</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="height:40px;"></div>
+        </div>
+      </div>
+
+      <!-- SIDECAR -->
+      <div class="sidecar" id="sidecar">
+        <div class="sc-hdr">
+          <div class="sc-hdr-l">
+            <div class="sc-type-lbl" id="sc-type">—</div>
+            <div class="sc-title-txt" id="sc-title">—</div>
+          </div>
+          <div class="sc-x" onclick="closeSC()">✕</div>
+        </div>
+        <div class="sc-body" id="sc-body"></div>
+      </div>
+
+      <!-- SCROLL TO BOTTOM ARROW -->
+      <button class="scroll-to-bottom" id="scroll-to-bottom" onclick="scrollToBottomClick()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+
+      <!-- TRACE PANEL (slides up from reply bar) -->
+      <div class="trace-panel" id="trace-panel">
+        <div class="trace-panel-inner" id="trace-panel-inner">
+          <!-- Panel header -->
+          <div class="tp-hdr">
+            <div class="tp-hdr-l">
+              <div class="tp-lbl" id="tp-mode-lbl">Session Trace · FW10</div>
+              <div class="tp-title" id="tp-title">Lapsing loyalty — urban store decline</div>
+            </div>
+            <button id="tp-back-btn" class="tp-back-btn" onclick="traceBack()" style="display:none;">← Trace</button>
+            <button class="tp-x" onclick="closeTrace()">✕</button>
+          </div>
+
+          <!-- Trace items view -->
+          <div id="tp-trace-view" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+            <div class="tp-body" id="tp-body">
+              <!-- items injected by JS -->
+            </div>
+            <div class="tp-footer">
+              <div class="tp-footer-summary" id="tp-footer-summary">0 items</div>
+              <button class="tp-delegate-btn" onclick="openDelegateFlow()">Delegate →</button>
+            </div>
+          </div>
+
+          <!-- Delegate flow view (replaces trace items) -->
+          <div class="tp-delegate-view" id="tp-delegate-view">
+            <div class="tp-delegate-body">
+              <!-- Scope -->
+              <div style="margin-bottom:14px;">
+                <div class="dl-section-lbl">Scope of work</div>
+                <textarea class="dl-scope-input" id="dl-scope" rows="2">Build reactivation brief for top 40 urban stores by decline volume</textarea>
+              </div>
+              <!-- What analyst receives -->
+              <div style="margin-bottom:14px;">
+                <div class="dl-section-lbl">Analyst will receive</div>
+                <div class="dl-checklist">
+                  <div class="dl-check-item"><span class="dl-check-icon">✓</span>Governed definitions (lapsing loyalty, front-store-only trips)</div>
+                  <div class="dl-check-item"><span class="dl-check-icon">✓</span>MECE decomposition · top 40 store IDs · absolute trip counts</div>
+                  <div class="dl-check-item"><span class="dl-check-icon">✓</span>Confidence levels + data lineage per metric</div>
+                  <div class="dl-check-item"><span class="dl-check-icon">✓</span>Investigation trace · shareable link · no product login required</div>
+                </div>
+              </div>
+              <!-- Analyst selector -->
+              <div style="margin-bottom:14px;">
+                <div class="dl-section-lbl">Assign to</div>
+                <div style="background:white;border:1px solid var(--rule);border-radius:2px;overflow:hidden;">
+                  <input type="text" placeholder="Search analysts…" style="width:100%;padding:7px 10px;border:none;border-bottom:1px solid var(--rule);font-size:12px;color:var(--ink);outline:none;font-family:'DM Sans',sans-serif;">
+                  <div style="padding:4px;">
+                    <div class="dl-analyst-opt" id="dl-opt-sarah" onclick="selectAnalyst('sarah','Sarah Chen')">
+                      <span class="dl-analyst-name">Sarah Chen</span><span class="dl-analyst-role">Senior Analyst</span>
+                    </div>
+                    <div class="dl-analyst-opt" id="dl-opt-marcus" onclick="selectAnalyst('marcus','Marcus Johnson')">
+                      <span class="dl-analyst-name">Marcus Johnson</span><span class="dl-analyst-role">Data Scientist</span>
+                    </div>
+                    <div class="dl-analyst-opt" id="dl-opt-emily" onclick="selectAnalyst('emily','Emily Rodriguez')">
+                      <span class="dl-analyst-name">Emily Rodriguez</span><span class="dl-analyst-role">Analytics Lead</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="padding:11px 14px;border-top:1px solid var(--rule);background:var(--cream);">
+              <button class="dl-send-btn" id="dl-send-btn" onclick="sendBrief()" disabled>Send Brief →</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- REPLY BAR -->
+      <div class="reply-bar" id="reply-bar">
+        <div class="reply-inner">
+          <div class="trace-indicator" id="trace-indicator" onclick="toggleTrace()" title="Open session trace">
+            <div class="ti-dot" id="ti-dot"></div>
+            <div class="ti-label" id="ti-label">Trace · 0 items</div>
+          </div>
+          <input class="reply-input" placeholder="Ask a follow-on or state a hypothesis to test…">
+          <div class="reply-hint">Prototype v3</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ANALYSIS VIEW -->
+  <div class="av" id="av">
+    <div class="av-top">
+      <button class="av-back" onclick="closeAV()">← Return to conversation</button>
+      <span class="av-mode">Analysis View</span>
+      <span class="av-qtitle" id="av-qtitle">—</span>
+    </div>
+    <div class="av-body">
+      <div class="av-anchor">
+        <div class="av-anc-lbl">Enterprise Context</div>
+        <div class="av-eq active" id="av-eq1">
+          <div class="av-eq-num">Q1</div>
+          <div class="av-eq-q">What happened in front store retail vs comparative periods?</div>
+        </div>
+        <div class="av-eq" id="av-eq2">
+          <div class="av-eq-num">Q2</div>
+          <div class="av-eq-q">Which customer types are driving trip changes?</div>
+        </div>
+        <div class="av-eq" id="av-eq3">
+          <div class="av-eq-num">Q3</div>
+          <div class="av-eq-q">Where is trip change happening — region, density, store?</div>
+        </div>
+        <div class="av-sep"></div>
+        <div class="av-plbl">Pillar Implications</div>
+        <div class="av-pillar" id="avp1">P1 · Grow Active Customers</div>
+        <div class="av-pillar active" id="avp2">P2 · Improve Retention ←</div>
+        <div class="av-pillar" id="avp3">P3 · Increase Frequency</div>
+        <div class="av-pillar" id="avp4">P4 · Increase Value</div>
+      </div>
+      <div class="av-main" id="av-main"></div>
+    </div>
+    <div class="av-return">
+      <div class="av-return-txt" id="av-return-txt">"Bring this finding into the conversation."</div>
+      <button class="av-return-btn" onclick="returnFromAV()">Bring this into the conversation →</button>
+    </div>
+  </div>
+
+  <!-- SESSION RESTORE ATOM -->
+  <div class="session-restore" id="session-restore">"You're back in FW10 — you left off looking at the regional breakdown for the lapsing decline."</div>
+
+  <!-- RETURN WELCOME OVERLAY -->
+  <div class="return-wrap" id="return-welcome" style="display:none;">
+    <div class="return-greeting">Welcome back, <em>Alex.</em></div>
+    <div class="return-sub">Restoring your session from where you left off...</div>
+    <div class="return-loading">
+      <span class="return-loading-text">insights</span>
+      <div class="return-loading-dots"><span></span><span></span><span></span></div>
+      <span class="return-loading-text">loading</span>
+    </div>
+  </div>
+
+  <!-- ARCHIVE PANEL -->
+  <div class="archive-panel" id="archive-panel">
+    <div class="arc-hdr">
+      <div class="arc-hdr-l">
+        <div class="arc-lbl">Session Archive</div>
+        <div class="arc-ttl">Fiscal Year 2025</div>
+      </div>
+      <div class="arc-x" onclick="toggleArchive()">✕</div>
+    </div>
+    <div class="arc-body">
+      <div class="arc-entry current">
+        <div class="arc-el">
+          <div class="arc-el-lbl">FW10 · Mar 09</div>
+          <div class="arc-el-sum">Lapsing loyalty decline · urban stores</div>
+        </div>
+        <span class="arc-badge">Current</span>
+      </div>
+      <div class="arc-entry past" onclick="openArchiveThread()">
+        <div class="arc-el">
+          <div class="arc-el-lbl">FW09 · Mar 02</div>
+          <div class="arc-el-sum">Front store trip softness first observed</div>
+        </div>
+        <span class="arc-badge">View →</span>
+      </div>
+      <div class="arc-entry past" onclick="toggleArchive()">
+        <div class="arc-el">
+          <div class="arc-el-lbl">FW08 · Feb 23</div>
+          <div class="arc-el-sum">Rx attach stable · PCW growth in suburban</div>
+        </div>
+        <span class="arc-badge">View →</span>
+      </div>
+      <div class="arc-entry past" onclick="toggleArchive()">
+        <div class="arc-el">
+          <div class="arc-el-lbl">FW07 · Feb 16</div>
+          <div class="arc-el-sum">Pillar 4 basket value expansion · digital</div>
+        </div>
+        <span class="arc-badge">View →</span>
+      </div>
+      <div class="arc-entry empty">
+        <div class="arc-el">
+          <div class="arc-el-lbl">FW06 · Feb 09</div>
+          <div class="arc-el-sum">No session this week</div>
+        </div>
+        <span class="arc-badge">—</span>
+      </div>
+      <div class="arc-entry past" onclick="toggleArchive()">
+        <div class="arc-el">
+          <div class="arc-el-lbl">FW05 · Feb 02</div>
+          <div class="arc-el-sum">Urban trip recovery · lapsing cohort stable</div>
+        </div>
+        <span class="arc-badge">View →</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARCHIVE THREAD OVERLAY (FW09 read-only) -->
+  <div class="av" id="archive-thread" style="background:var(--paper);">
+    <div class="av-top">
+      <button class="av-back" onclick="exitArchiveThread()">← Return to FW10</button>
+      <span class="av-mode">FW09 · Mar 02</span>
+      <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:2px;background:rgba(200,75,47,0.2);color:var(--accent);margin-left:auto;">Read Only</span>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:28px;opacity:0.85;">
+      <div style="max-width:700px;margin:0 auto;">
+        <!-- FW09 archived response -->
+        <div style="background:white;border:1px solid var(--rule);border-radius:2px;overflow:hidden;margin-bottom:10px;">
+          <div style="background:var(--cream);padding:10px 16px;border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:10px;">
+            <div style="width:24px;height:24px;border-radius:50%;background:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:10px;color:var(--paper);font-style:italic;">I</div>
+            <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);">Monday Diagnostic · Week 09</span>
+            <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--rule);margin-left:auto;">7:04am</span>
+          </div>
+          <div style="padding:18px 20px;">
+            <div style="font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:var(--ink);margin-bottom:12px;line-height:1.25;">Front store trips showing early softness — below trend for the first time in six weeks</div>
+            <div style="font-size:13px;color:var(--ink-mid);line-height:1.85;margin-bottom:14px;">
+              <p>Front store trips declined <span style="font-weight:500;">−1.1% WoW<span style="display:inline-flex;align-items:center;gap:1.5px;vertical-align:middle;margin-left:3px;"><span style="display:inline-block;width:3px;height:9px;border-radius:1px;background:var(--rule);"></span><span style="display:inline-block;width:3px;height:9px;border-radius:1px;background:var(--rule);"></span><span style="display:inline-block;width:3px;height:9px;border-radius:1px;background:var(--rule);"></span><span style="display:inline-block;width:3px;height:9px;border-radius:1px;background:#c84b2f;"></span><span style="display:inline-block;width:3px;height:9px;border-radius:1px;background:var(--rule);"></span></span></span> — the first decline after six consecutive weeks of flat-to-positive performance. At −1.1% this is approaching the boundary of normal variance (±0.4%) but has not yet breached it. Single-week signal — not yet structural.</p>
+              <p>Early concentration in <span style="color:var(--teal);font-weight:500;border-bottom:1.5px solid var(--teal);">lapsing loyalty members</span> in urban Northeast stores. Pattern is emerging but not persistent. Flagging for Week 10 monitoring. <span style="display:inline-block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border-radius:2px;background:var(--teal-soft);color:var(--teal);">Pillar 2 · Retention</span></p>
+            </div>
+            <div style="padding-top:14px;border-top:1px solid var(--rule);">
+              <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:6px;">Navigation from this session</div>
+              <div style="padding:10px 13px;border-radius:2px;font-size:13px;font-style:italic;color:var(--teal);background:var(--teal-soft);border:1px solid #b0d4d2;line-height:1.6;margin-bottom:5px;">"Watch the lapsing loyalty segment in Week 10 — if the pattern deepens and urban concentration holds, this becomes structural."</div>
+              <div style="padding:10px 13px;border-radius:2px;font-size:13px;font-style:italic;color:#7a5c00;background:var(--gold-soft);border:1px solid #e0cc80;line-height:1.6;">"The trip decile distribution is worth checking next week — a shift in the upper deciles would confirm the lapsing signal."</div>
+            </div>
+          </div>
+        </div>
+        <!-- FW09 breadcrumb trail -->
+        <div style="margin:8px 0 0 36px;border:1px solid var(--rule);border-radius:3px;overflow:hidden;background:white;">
+          <div style="padding:8px 14px;display:flex;align-items:center;gap:8px;background:var(--cream);">
+            <div style="width:5px;height:5px;border-radius:50%;background:var(--ink-light);"></div>
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);">2 items investigated · Front Store Trips WoW · Lapsing Loyalty Members</div>
+          </div>
+        </div>
+        <div style="margin-top:20px;padding:12px 16px;background:var(--cream);border-radius:2px;font-size:12px;color:var(--ink-light);font-style:italic;text-align:center;">
+          Signal taps are available for context — no new breadcrumb events will be generated in archive view.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYST BRIEF OVERLAY -->
+  <div class="av" id="brief-overlay" style="background:var(--paper);">
+    <div class="av-top">
+      <button class="av-back" onclick="closeBrief()">← Close</button>
+      <span class="av-mode">Analyst Brief</span>
+      <span style="font-family:'DM Mono',monospace;font-size:9px;color:#9a9590;margin-left:auto;">FW10 · Mar 09 · Delegated by Alex · 7:16am</span>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:28px;">
+      <div style="max-width:700px;margin:0 auto;background:white;border:1px solid var(--rule);border-radius:2px;overflow:hidden;">
+        <!-- brief header -->
+        <div style="background:var(--ink);padding:20px 24px;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#4a4640;margin-bottom:8px;">Analyst Brief · Delegated by Alex · FW10 · Mar 09</div>
+          <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--paper);font-weight:600;line-height:1.25;margin-bottom:10px;">Three consecutive weeks of urban lapsing decline is a Pillar 2 adjustment signal for Q2 retention strategy</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <span style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 8px;border-radius:2px;background:var(--teal-soft);color:var(--teal);">Pillar 2 · Retention</span>
+            <span style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 8px;border-radius:2px;background:var(--accent-soft);color:var(--accent);">Tactical · In-week</span>
+            <span style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 8px;border-radius:2px;background:var(--gold-soft);color:var(--gold);">Strategic · Quarterly</span>
+          </div>
+        </div>
+        <!-- scope of work -->
+        <div style="padding:18px 22px;border-bottom:1px solid var(--rule);">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:12px;">Scope of work assigned</div>
+          <div style="font-size:13px;color:var(--ink-mid);padding:9px 12px;background:var(--cream);border-radius:2px;border-left:2px solid var(--teal);margin-bottom:6px;line-height:1.6;">Build reactivation brief for top 40 urban stores by decline volume — store IDs and addressable customer counts in the concentration data below</div>
+          <div style="font-size:13px;color:var(--ink-mid);padding:9px 12px;background:var(--cream);border-radius:2px;border-left:2px solid var(--teal);line-height:1.6;">Validate the front-store-only vs Rx-attached cohort split in the data warehouse using the governed definitions below</div>
+        </div>
+        <!-- governed definitions -->
+        <div style="padding:18px 22px;border-bottom:1px solid var(--rule);">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:12px;">Governed definitions</div>
+          <div style="background:var(--cream);padding:11px;border-radius:2px;margin-bottom:8px;">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal);margin-bottom:4px;">Lapsing Loyalty Members</div>
+            <div style="font-size:12px;color:var(--ink-mid);line-height:1.65;">Loyalty members who completed ≥3 trips in the prior 90 days but whose trip frequency has declined ≥30% in the most recent 30-day window vs their personal baseline. Classified as Late-Active in lifecycle model. Mutually exclusive with Active, New, Churned. <strong style="font-weight:500;">Confidence: Governed.</strong></div>
+          </div>
+          <div style="background:var(--cream);padding:11px;border-radius:2px;">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--teal);margin-bottom:4px;">Front-Store-Only Trips</div>
+            <div style="font-size:12px;color:var(--ink-mid);line-height:1.65;">Customers with no pharmacy fill in the visit basket, no PCW category purchase. Pure front store transaction. Governed basket-tagging classification. Mutually exclusive with Rx-Attached and PCW. <strong style="font-weight:500;">Confidence: Governed.</strong></div>
+          </div>
+        </div>
+        <!-- key metrics -->
+        <div style="padding:18px 22px;border-bottom:1px solid var(--rule);">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:12px;">Key metrics — governed values</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+            <div style="background:var(--cream);padding:10px;border-radius:2px;text-align:center;">
+              <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);text-transform:uppercase;margin-bottom:4px;">Total WoW Decline</div>
+              <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--accent);">−118K</div>
+              <div style="font-size:10px;color:var(--ink-light);">trips · −$3.1M revenue equiv.</div>
+            </div>
+            <div style="background:var(--cream);padding:10px;border-radius:2px;text-align:center;">
+              <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);text-transform:uppercase;margin-bottom:4px;">Urban Concentration</div>
+              <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--accent);">68%</div>
+              <div style="font-size:10px;color:var(--ink-light);">of decline · 38% of footprint</div>
+            </div>
+            <div style="background:var(--cream);padding:10px;border-radius:2px;text-align:center;">
+              <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);text-transform:uppercase;margin-bottom:4px;">Top 40 Stores</div>
+              <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--accent);">71%</div>
+              <div style="font-size:10px;color:var(--ink-light);">of decline · −$2.2M addressable</div>
+            </div>
+          </div>
+        </div>
+        <!-- open hypothesis -->
+        <div style="padding:18px 22px;border-bottom:1px solid var(--rule);">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;">Open question — not causally established</div>
+          <div style="font-size:13px;color:var(--ink-mid);padding:12px;background:var(--gold-soft);border:1px solid #e0cc80;border-radius:2px;line-height:1.7;">Current Pillar 2 programs may be weighted toward Rx-attached customers at the expense of front-store-only engagement. <strong style="font-weight:500;">The data does not establish this causally.</strong> This is the open hypothesis your analysis should address.</div>
+        </div>
+        <!-- what Alex investigated -->
+        <div style="padding:18px 22px;border-bottom:1px solid var(--rule);">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--ink-light);margin-bottom:10px;">What Alex investigated before delegating</div>
+          <div style="font-size:12px;color:var(--ink-mid);line-height:1.7;">Front Store Trips WoW · Lapsing Loyalty Members segment profile · Front-store-only ↔ Rx-attached divergence tension · Urban store profile · Regional waterfall (analysis view, 6 minutes)</div>
+        </div>
+        <!-- governed session link -->
+        <div style="padding:18px 22px;border-bottom:1px solid var(--rule);">
+          <button onclick="openGovernedSession()" style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:9px 16px;background:var(--teal);color:white;border:none;border-radius:2px;cursor:pointer;transition:opacity 0.12s;" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">Open Governed Analysis Session →</button>
+          <div style="font-size:11px;color:var(--ink-light);margin-top:8px;line-height:1.6;">View full data lineage, tool outputs, and MECE decompositions</div>
+        </div>
+        <!-- footer -->
+        <div style="padding:14px 22px;background:var(--cream);display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);">Data source: Governed metric store · Last reconciled: Mar 10 06:42am · Confidence: Governed</div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);">FW10 · Mar 09</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GOVERNED ANALYSIS SESSION OVERLAY -->
+  <div class="av" id="governed-session-overlay" style="background:var(--paper);">
+    <div class="av-top">
+      <button class="av-back" onclick="closeGovernedSession()">← Close</button>
+      <span class="av-mode">Governed Analysis Session</span>
+      <span style="font-family:'DM Mono',monospace;font-size:9px;color:#9a9590;margin-left:auto;">FW10 · Mar 09 · Immutable Link</span>
+      <button onclick="navigator.clipboard.writeText(window.location.href)" style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border:1px solid var(--rule);border-radius:2px;cursor:pointer;color:var(--ink-light);background:transparent;margin-left:8px;">Copy Link</button>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:28px;">
+      <div style="max-width:800px;margin:0 auto;">
+        <!-- Header -->
+        <div style="background:var(--ink);padding:20px 24px;border-radius:2px 2px 0 0;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#4a4640;margin-bottom:8px;">Governed Analysis Session</div>
+          <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--paper);font-weight:600;line-height:1.25;margin-bottom:8px;">Lapsing loyalty members in urban stores are driving the front store trip decline</div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:#6a6560;">Generated: FW10 · Mon 7:16am · Read-only · Timestamped</div>
+        </div>
+
+        <!-- Data Lineage -->
+        <div style="background:white;border:1px solid var(--rule);border-top:none;padding:20px 24px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;cursor:pointer;" onclick="document.getElementById('lineage-content').style.display=document.getElementById('lineage-content').style.display==='none'?'block':'none'">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal);">▼ Data Lineage</div>
+          </div>
+          <div id="lineage-content">
+            <div style="background:var(--cream);padding:14px;border-radius:2px;">
+              <div style="display:flex;flex-direction:column;gap:4px;font-family:'DM Mono',monospace;font-size:10px;">
+                <div style="padding:8px 10px;background:white;border:1px solid var(--rule);border-radius:2px;color:var(--teal);">fact_customer_weekly</div>
+                <div style="text-align:center;color:var(--ink-light);font-size:9px;">↓ JOIN ON customer_id, store_id</div>
+                <div style="padding:8px 10px;background:white;border:1px solid var(--rule);border-radius:2px;color:var(--teal);">dim_segment</div>
+                <div style="text-align:center;color:var(--ink-light);font-size:9px;">↓ JOIN ON store_id</div>
+                <div style="padding:8px 10px;background:white;border:1px solid var(--rule);border-radius:2px;color:var(--teal);">dim_store_geography</div>
+                <div style="text-align:center;color:var(--ink-light);font-size:9px;">↓ WHERE fiscal_week = 'FW10' AND lifecycle_stage = 'lapsing'</div>
+                <div style="padding:8px 10px;background:var(--teal-soft);border:1px solid var(--teal);border-radius:2px;color:var(--teal);font-weight:500;">lapsing_loyalty_urban_trips</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tool Outputs -->
+        <div style="background:white;border:1px solid var(--rule);border-top:none;padding:20px 24px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;cursor:pointer;" onclick="document.getElementById('tools-content').style.display=document.getElementById('tools-content').style.display==='none'?'block':'none'">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal);">▼ Tool Outputs</div>
+          </div>
+          <div id="tools-content">
+            <div style="background:var(--cream);padding:14px;border-radius:2px;font-family:'DM Mono',monospace;font-size:11px;color:var(--ink-mid);overflow-x:auto;">
+              <div style="margin-bottom:10px;color:var(--ink-light);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;">Query</div>
+              <pre style="margin:0;white-space:pre-wrap;line-height:1.6;">SELECT
+  region,
+  urban_density,
+  lifecycle_stage,
+  SUM(trip_count) as trips,
+  SUM(trip_count) - LAG(SUM(trip_count)) OVER (ORDER BY fiscal_week) as wow_change
+FROM fact_customer_weekly fcw
+JOIN dim_segment ds ON fcw.customer_id = ds.customer_id
+JOIN dim_store_geography dsg ON fcw.store_id = dsg.store_id
+WHERE fiscal_week IN ('FW09', 'FW10')
+  AND lifecycle_stage = 'lapsing'
+GROUP BY region, urban_density, lifecycle_stage
+ORDER BY wow_change ASC;</pre>
+              <div style="margin-top:14px;margin-bottom:6px;color:var(--ink-light);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;">Parameters</div>
+              <div>{ fiscal_week: 'FW10', segment: 'lapsing', filter: 'urban_only' }</div>
+              <div style="margin-top:14px;color:var(--ink-light);font-size:9px;">Rows returned: 847 · Execution time: 1.2s</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MECE Decomposition -->
+        <div style="background:white;border:1px solid var(--rule);border-top:none;padding:20px 24px;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal);margin-bottom:14px;">▼ MECE Decomposition — Regional</div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+              <tr style="background:var(--cream);">
+                <th style="padding:10px 12px;text-align:left;font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);text-transform:uppercase;">Region</th>
+                <th style="padding:10px 12px;text-align:right;font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);text-transform:uppercase;">WoW Change</th>
+                <th style="padding:10px 12px;text-align:right;font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);text-transform:uppercase;">Absolute Δ</th>
+                <th style="padding:10px 12px;text-align:right;font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);text-transform:uppercase;">Share of Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom:1px solid var(--rule);">
+                <td style="padding:10px 12px;">NE Urban</td>
+                <td style="padding:10px 12px;text-align:right;color:var(--accent);font-weight:500;">−38%</td>
+                <td style="padding:10px 12px;text-align:right;color:var(--accent);">−45K trips</td>
+                <td style="padding:10px 12px;text-align:right;">38%</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--rule);">
+                <td style="padding:10px 12px;">MW Urban</td>
+                <td style="padding:10px 12px;text-align:right;color:var(--accent);font-weight:500;">−30%</td>
+                <td style="padding:10px 12px;text-align:right;color:var(--accent);">−35K trips</td>
+                <td style="padding:10px 12px;text-align:right;">30%</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--rule);">
+                <td style="padding:10px 12px;">SE Urban</td>
+                <td style="padding:10px 12px;text-align:right;color:var(--ink-mid);">−8%</td>
+                <td style="padding:10px 12px;text-align:right;color:var(--ink-mid);">−10K trips</td>
+                <td style="padding:10px 12px;text-align:right;">8%</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--rule);">
+                <td style="padding:10px 12px;">SW Urban</td>
+                <td style="padding:10px 12px;text-align:right;color:var(--ink-mid);">−4%</td>
+                <td style="padding:10px 12px;text-align:right;color:var(--ink-mid);">−5K trips</td>
+                <td style="padding:10px 12px;text-align:right;">4%</td>
+              </tr>
+              <tr style="border-bottom:1px solid var(--rule);background:var(--cream);">
+                <td style="padding:10px 12px;color:var(--ink-light);">5 other regions (combined)</td>
+                <td style="padding:10px 12px;text-align:right;color:var(--ink-light);">−2.3%</td>
+                <td style="padding:10px 12px;text-align:right;color:var(--ink-light);">−23K trips</td>
+                <td style="padding:10px 12px;text-align:right;color:var(--ink-light);">20%</td>
+              </tr>
+              <tr style="font-weight:500;">
+                <td style="padding:10px 12px;">Total</td>
+                <td style="padding:10px 12px;text-align:right;color:var(--accent);">−2.8%</td>
+                <td style="padding:10px 12px;text-align:right;color:var(--accent);">−118K trips</td>
+                <td style="padding:10px 12px;text-align:right;">100%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Confidence & Definitions -->
+        <div style="background:white;border:1px solid var(--rule);border-top:none;padding:20px 24px;border-radius:0 0 2px 2px;">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--teal);margin-bottom:14px;">▼ Confidence & Definitions</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+            <div style="padding:12px;background:var(--sage-soft);border-radius:2px;">
+              <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--sage);margin-bottom:4px;">Trip Count</div>
+              <div style="font-size:11px;color:var(--ink-mid);">High confidence</div>
+              <div style="font-size:10px;color:var(--ink-light);">Direct measurement</div>
+            </div>
+            <div style="padding:12px;background:var(--sage-soft);border-radius:2px;">
+              <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--sage);margin-bottom:4px;">WoW Change</div>
+              <div style="font-size:11px;color:var(--ink-mid);">High confidence</div>
+              <div style="font-size:10px;color:var(--ink-light);">Direct comparison</div>
+            </div>
+            <div style="padding:12px;background:var(--gold-soft);border-radius:2px;">
+              <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);margin-bottom:4px;">Attribution</div>
+              <div style="font-size:11px;color:var(--ink-mid);">Medium confidence</div>
+              <div style="font-size:10px;color:var(--ink-light);">Modeled assignment</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ──
+let scOpen=false, avOpen=false, activeBC='bc1';
+let bcData={bc1:[],bc2:[]};
+let bcIdx=0;
+const bcTimes=['7:03','7:04','7:05','7:06','7:08','7:09','7:11','7:12','7:13'];
+let currentAVMode='waterfall';
+
+// ── GOVERNED METRIC DEFINITIONS ──
+const METRICS = {
+  'front-store-trips': {
+    population: 'All enterprise retail front store locations (excl. pharmacy-only). Active loyalty + non-loyalty customers. Monday–Sunday measurement window.',
+    calculation: 'Count of unique customer–store–day visit events tagged as front store trip. Governed: basket must include ≥1 front store SKU.',
+    normalRange: '±0.4%',
+    normalRangeDesc: 'Typical weekly variance over trailing 52 weeks'
+  },
+  'rx-attached': {
+    population: 'Customers with ≥1 pharmacy fill in the same basket or same-day visit as a front store purchase.',
+    calculation: 'Rx-attached trip count / total front store trips. Governed attach definition: fill + front store purchase within same store, same calendar day.',
+    normalRange: '±0.6%',
+    normalRangeDesc: 'Typical weekly variance over trailing 52 weeks'
+  }
+};
+
+// ── SIDECAR CONTENT ──
+const SC = {
+
+  'm-trips': {
+    type:'Metric Signal', title:'Front Store Trips — WoW Change',
+    render() {
+      return `
+        <span class="gc-badge gc-metric">Metric · Weekly Change</span>
+        <div class="gc-def"><strong>Governed scope:</strong> All enterprise retail front store locations. Active + non-loyalty customers. Monday–Sunday window. Governed definition: ≥1 front store SKU in basket. 892 stores nationally.</div>
+        <div class="gc-ar-grid">
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Relative Change</div>
+            <div class="gc-ar-val neg">−2.8%</div>
+            <div class="gc-ar-sub">WoW · vs prior week same window</div>
+          </div>
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Absolute Volume</div>
+            <div class="gc-ar-val neg" style="font-size:16px;">−118K</div>
+            <div class="gc-ar-sub">trips this week vs last · ~$3.1M revenue equiv. at $26.20 avg basket</div>
+          </div>
+        </div>
+        <div class="gc-var">
+          <div class="gc-var-bar"><span></span><span></span><span class="act"></span><span class="act"></span><span></span></div>
+          <div class="gc-var-text"><strong>7× outside normal variance.</strong> Normal range ±0.4% WoW. This week −2.8% — statistically anomalous. Third consecutive week outside range.</div>
+        </div>
+        <div class="gc-mece-lbl">MECE Position — Shopper Types</div>
+        <div style="margin-bottom:10px;">
+          <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);margin-bottom:5px;">Signal segment</div>
+          <div style="padding:9px 10px;background:var(--accent-soft);border:1px solid var(--rule);border-top:2px solid var(--accent);border-radius:2px;text-align:center;margin-bottom:5px;">
+            <div style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--accent);margin-bottom:3px;">Front-Store-Only ←</div>
+            <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;color:var(--accent);">−4.1%</div>
+            <div style="font-size:9px;color:var(--accent);font-family:'DM Mono',monospace;margin-top:2px;">83% of total decline · −98K trips</div>
+          </div>
+          <div id="mece-tog-trips" onclick="document.getElementById('mece-quiet-trips').style.display=document.getElementById('mece-quiet-trips').style.display==='none'?'block':'none';this.querySelector('span').textContent=document.getElementById('mece-quiet-trips').style.display==='none'?'▼ Show all':'▲ Hide'" style="padding:6px 10px;background:var(--cream);border-radius:2px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:11px;color:var(--ink-light);">
+            <span>2 other segments · flat or stable · combined +0.4%</span>
+            <span style="font-family:'DM Mono',monospace;font-size:9px;">▼ Show all</span>
+          </div>
+          <div id="mece-quiet-trips" style="display:none;margin-top:4px;">
+            <div style="display:flex;border:1px solid var(--rule);border-radius:2px;overflow:hidden;">
+              <div style="flex:1;padding:7px 8px;text-align:center;border-right:1px solid var(--rule);"><div style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--ink-light);margin-bottom:2px;">Rx-Attached</div><div style="font-size:12px;font-weight:500;color:var(--sage);">+0.3%</div></div>
+              <div style="flex:1;padding:7px 8px;text-align:center;"><div style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--ink-light);margin-bottom:2px;">PCW</div><div style="font-size:12px;font-weight:500;color:var(--ink-mid);">+0.1%</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="gc-comp">
+          <div class="gc-comp-cell"><div class="gc-comp-lbl">WoW</div><div class="gc-comp-val neg">−2.8%</div></div>
+          <div class="gc-comp-cell"><div class="gc-comp-lbl">MoM</div><div class="gc-comp-val neg">−1.9%</div></div>
+          <div class="gc-comp-cell"><div class="gc-comp-lbl">YoY</div><div class="gc-comp-val neg">−0.7%</div></div>
+        </div>
+        <div class="gc-chart-lbl">12-Week Trend</div>
+        <div id="sc-chart"></div>
+        <div class="gc-ao">
+          <div class="gc-ao-lbl">Analysis View Available</div>
+          <div class="gc-ao-txt">Full MECE decomposition across all shopper types, regions, and channels with absolute trip counts and revenue equivalents.</div>
+          <button class="gc-ao-btn" onclick="openAV('shopper')">Open in Analysis View →</button>
+        </div>`;
+    },
+    chart() {
+      const w=['W-11','W-10','W-9','W-8','W-7','W-6','W-5','W-4','W-3','W-2','W-1','W0'];
+      const v=[0.3,0.1,0.5,-0.2,0.4,0.2,-0.1,-0.6,-1.2,-1.9,-2.3,-2.8];
+      Plotly.newPlot('sc-chart',[
+        {x:w,y:v,type:'scatter',mode:'lines+markers',line:{color:'#c84b2f',width:2},marker:{color:v.map(x=>x<-0.8?'#c84b2f':'#d4cfc5'),size:5},fill:'tozeroy',fillcolor:'rgba(200,75,47,0.06)',hovertemplate:'%{x}: %{y:.1f}%<extra></extra>'},
+        {x:w,y:Array(12).fill(0.4),type:'scatter',mode:'lines',line:{color:'#d4cfc5',width:1,dash:'dot'},showlegend:false,hoverinfo:'skip'},
+        {x:w,y:Array(12).fill(-0.4),type:'scatter',mode:'lines',line:{color:'#d4cfc5',width:1,dash:'dot'},fill:'tonexty',fillcolor:'rgba(212,207,197,0.12)',showlegend:false,hoverinfo:'skip'}
+      ],{margin:{t:4,r:10,b:28,l:34},paper_bgcolor:'transparent',plot_bgcolor:'transparent',
+        xaxis:{tickfont:{size:8,family:'DM Mono',color:'#8a8480'},tickangle:-30,gridcolor:'rgba(0,0,0,0.04)'},
+        yaxis:{tickfont:{size:8,family:'DM Mono',color:'#8a8480'},ticksuffix:'%',gridcolor:'rgba(0,0,0,0.04)'},
+        height:150,showlegend:false},{displayModeBar:false,responsive:true});
+    }
+  },
+
+  'm-rxtrips': {
+    type:'Metric Signal', title:'Rx-Attached Trips — WoW Change',
+    render() {
+      return `
+        <span class="gc-badge gc-metric">Metric · Weekly Change</span>
+        <div class="gc-def"><strong>Governed scope:</strong> Customers with ≥1 pharmacy fill + front store purchase in same store, same calendar day. Governed attach definition is consistent across all governed reports.</div>
+        <div class="gc-ar-grid">
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Relative Change</div>
+            <div class="gc-ar-val pos">+0.3%</div>
+            <div class="gc-ar-sub">WoW · within normal range</div>
+          </div>
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Absolute Volume</div>
+            <div class="gc-ar-val pos" style="font-size:16px;">+7.4K</div>
+            <div class="gc-ar-sub">trips · ~$290K revenue equiv. at $39.20 avg basket (higher than FS-only)</div>
+          </div>
+        </div>
+        <div class="gc-var">
+          <div class="gc-var-bar"><span></span><span class="act-up"></span><span class="act-up"></span><span></span><span></span></div>
+          <div class="gc-var-text"><strong>Within normal variance.</strong> Normal range ±0.6% WoW. +0.3% is stable — not a growth signal, but not deteriorating. YoY +2.1% reflects sustained Rx program engagement.</div>
+        </div>
+        <div class="gc-mece-lbl">MECE Position — Shopper Type Decomposition</div>
+        <div class="gc-mece-row">
+          <div class="gc-mece-seg focus"><div class="gc-mece-seg-lbl">Front Store Only</div><div class="gc-mece-seg-val">−4.1%</div></div>
+          <div class="gc-mece-seg focus up"><div class="gc-mece-seg-lbl">Rx-Attached ←</div><div class="gc-mece-seg-val">+0.3%</div></div>
+          <div class="gc-mece-seg"><div class="gc-mece-seg-lbl">PCW</div><div class="gc-mece-seg-val">+0.1%</div></div>
+        </div>
+        <div class="gc-comp">
+          <div class="gc-comp-cell"><div class="gc-comp-lbl">WoW</div><div class="gc-comp-val pos">+0.3%</div></div>
+          <div class="gc-comp-cell"><div class="gc-comp-lbl">MoM</div><div class="gc-comp-val pos">+0.8%</div></div>
+          <div class="gc-comp-cell"><div class="gc-comp-lbl">YoY</div><div class="gc-comp-val pos">+2.1%</div></div>
+        </div>
+        <div class="gc-chart-lbl">12-Week Trend</div>
+        <div id="sc-chart"></div>`;
+    },
+    chart() {
+      const w=['W-11','W-10','W-9','W-8','W-7','W-6','W-5','W-4','W-3','W-2','W-1','W0'];
+      const v=[0.8,1.1,0.6,0.9,0.4,0.7,0.5,0.3,0.6,0.8,0.4,0.3];
+      Plotly.newPlot('sc-chart',[{x:w,y:v,type:'scatter',mode:'lines+markers',line:{color:'#5b8a6e',width:2},marker:{color:'#5b8a6e',size:5},fill:'tozeroy',fillcolor:'rgba(91,138,110,0.07)',hovertemplate:'%{x}: %{y:.1f}%<extra></extra>'}],
+      {margin:{t:4,r:10,b:28,l:34},paper_bgcolor:'transparent',plot_bgcolor:'transparent',
+        xaxis:{tickfont:{size:8,family:'DM Mono',color:'#8a8480'},tickangle:-30,gridcolor:'rgba(0,0,0,0.04)'},
+        yaxis:{tickfont:{size:8,family:'DM Mono',color:'#8a8480'},ticksuffix:'%',gridcolor:'rgba(0,0,0,0.04)'},
+        height:150,showlegend:false},{displayModeBar:false,responsive:true});
+    }
+  },
+
+  'm-fsonly': {
+    type:'Metric Signal', title:'Front-Store-Only Trips — WoW Change',
+    render() {
+      return `
+        <span class="gc-badge gc-metric">Metric · Weekly Change</span>
+        <div class="gc-def"><strong>Governed scope:</strong> Customers with no pharmacy fill in the visit basket, no PCW category purchase. Pure front store transaction. 34% of total trip volume. Governed classification: mutually exclusive with Rx-Attached and PCW.</div>
+        <div class="gc-ar-grid">
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Relative Change</div>
+            <div class="gc-ar-val neg">−4.1%</div>
+            <div class="gc-ar-sub">WoW · 8× outside normal variance</div>
+          </div>
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Absolute Volume</div>
+            <div class="gc-ar-val neg" style="font-size:16px;">−98K</div>
+            <div class="gc-ar-sub">trips · ~$2.1M revenue equiv. at $21.40 avg basket</div>
+          </div>
+        </div>
+        <div class="gc-var">
+          <div class="gc-var-bar"><span></span><span></span><span class="act"></span><span class="act"></span><span class="act"></span></div>
+          <div class="gc-var-text"><strong>8× outside normal variance.</strong> Normal range ±0.5% WoW. −4.1% is the most severe single-segment decline this week. Masked in aggregate by Rx-attached stability.</div>
+        </div>
+        <div class="gc-mece-lbl">MECE Position — Shopper Type Decomposition</div>
+        <div class="gc-mece-row">
+          <div class="gc-mece-seg focus"><div class="gc-mece-seg-lbl">Front Store Only ←</div><div class="gc-mece-seg-val">−4.1%</div></div>
+          <div class="gc-mece-seg focus neutral"><div class="gc-mece-seg-lbl">Rx-Attached</div><div class="gc-mece-seg-val">+0.3%</div></div>
+          <div class="gc-mece-seg"><div class="gc-mece-seg-lbl">PCW</div><div class="gc-mece-seg-val">+0.1%</div></div>
+        </div>
+        <div class="gc-comp">
+          <div class="gc-comp-cell"><div class="gc-comp-lbl">WoW</div><div class="gc-comp-val neg">−4.1%</div></div>
+          <div class="gc-comp-cell"><div class="gc-comp-lbl">MoM</div><div class="gc-comp-val neg">−3.2%</div></div>
+          <div class="gc-comp-cell"><div class="gc-comp-lbl">YoY</div><div class="gc-comp-val neg">−1.8%</div></div>
+        </div>
+        <div class="gc-chart-lbl">12-Week Trend</div>
+        <div id="sc-chart"></div>`;
+    },
+    chart() {
+      const w=['W-11','W-10','W-9','W-8','W-7','W-6','W-5','W-4','W-3','W-2','W-1','W0'];
+      const v=[0.2,-0.1,0.3,-0.4,-0.8,-1.1,-1.6,-2.2,-2.8,-3.2,-3.7,-4.1];
+      Plotly.newPlot('sc-chart',[{x:w,y:v,type:'scatter',mode:'lines+markers',line:{color:'#c84b2f',width:2},marker:{color:v.map(x=>x<-1?'#c84b2f':'#d4cfc5'),size:5},fill:'tozeroy',fillcolor:'rgba(200,75,47,0.09)',hovertemplate:'%{x}: %{y:.1f}%<extra></extra>'}],
+      {margin:{t:4,r:10,b:28,l:34},paper_bgcolor:'transparent',plot_bgcolor:'transparent',
+        xaxis:{tickfont:{size:8,family:'DM Mono',color:'#8a8480'},tickangle:-30,gridcolor:'rgba(0,0,0,0.04)'},
+        yaxis:{tickfont:{size:8,family:'DM Mono',color:'#8a8480'},ticksuffix:'%',gridcolor:'rgba(0,0,0,0.04)'},
+        height:150,showlegend:false},{displayModeBar:false,responsive:true});
+    }
+  },
+
+  'm-ne': {
+    type:'Metric Signal', title:'Urban Northeast — Share of Decline',
+    render() {
+      return `
+        <span class="gc-badge gc-metric">Metric · Regional Attribution</span>
+        <div class="gc-def"><strong>Governed scope:</strong> 9 enterprise regions. Urban Northeast = CT, MA, NY, NJ, PA urban-classified stores (pop. density ≥10K/sq mi). 188 stores. Governed classification updated annually from U.S. Census tract data.</div>
+        <div class="gc-ar-grid">
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Share of Decline</div>
+            <div class="gc-ar-val neg">−38%</div>
+            <div class="gc-ar-sub">of total national WoW trip decline</div>
+          </div>
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Absolute Decline</div>
+            <div class="gc-ar-val neg" style="font-size:16px;">−44.8K</div>
+            <div class="gc-ar-sub">trips · from 21% of national footprint (188/892 stores)</div>
+          </div>
+        </div>
+        <div class="gc-var">
+          <div class="gc-var-bar"><span></span><span></span><span class="act"></span><span class="act"></span><span></span></div>
+          <div class="gc-var-text"><strong>1.8× disproportionate.</strong> 21% of footprint carrying 38% of decline. Expected share if uniform: ~21%. Actual: 38%. Lapsing loyalty members are the primary driver within this geography.</div>
+        </div>
+        <div class="gc-mece-lbl">MECE Position — 9 Enterprise Regions</div>
+        <div style="margin-bottom:12px;">
+          <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);margin-bottom:5px;">Signal regions</div>
+          <div style="display:flex;gap:6px;margin-bottom:5px;">
+            <div style="flex:1;padding:9px 8px;background:var(--accent-soft);border:1px solid var(--rule);border-top:2px solid var(--accent);border-radius:2px;text-align:center;">
+              <div style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--accent);margin-bottom:3px;">NE Urban ←</div>
+              <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--accent);">−38%</div>
+              <div style="font-size:9px;color:var(--accent);font-family:'DM Mono',monospace;margin-top:2px;">38% of Δ</div>
+            </div>
+            <div style="flex:1;padding:9px 8px;background:var(--accent-soft);border:1px solid var(--rule);border-top:2px solid var(--accent);border-radius:2px;text-align:center;">
+              <div style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--accent);margin-bottom:3px;">MW Urban ←</div>
+              <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--accent);">−30%</div>
+              <div style="font-size:9px;color:var(--accent);font-family:'DM Mono',monospace;margin-top:2px;">30% of Δ</div>
+            </div>
+          </div>
+          <div id="mece-tog-ne" onclick="var q=document.getElementById('mece-quiet-ne');q.style.display=q.style.display==='none'?'grid':'none';this.querySelector('span').textContent=q.style.display==='none'?'▼ Show all 9 regions':'▲ Hide'" style="padding:6px 10px;background:var(--cream);border-radius:2px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:11px;color:var(--ink-light);">
+            <span>7 other regions · flat or marginal · combined −32%</span>
+            <span style="font-family:'DM Mono',monospace;font-size:9px;">▼ Show all 9 regions</span>
+          </div>
+          <div id="mece-quiet-ne" style="display:none;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:4px;">
+            <div style="padding:5px 6px;border:1px solid var(--rule);border-radius:2px;background:white;text-align:center;"><div style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--ink-light);margin-bottom:2px;">SE Urban</div><div style="font-size:11px;font-weight:500;color:var(--ink-mid);">−8%</div></div>
+            <div style="padding:5px 6px;border:1px solid var(--rule);border-radius:2px;background:white;text-align:center;"><div style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--ink-light);margin-bottom:2px;">SW Urban</div><div style="font-size:11px;font-weight:500;color:var(--ink-mid);">−4%</div></div>
+            <div style="padding:5px 6px;border:1px solid var(--rule);border-radius:2px;background:white;text-align:center;"><div style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--ink-light);margin-bottom:2px;">W Urban</div><div style="font-size:11px;font-weight:500;color:var(--ink-mid);">−3%</div></div>
+            <div style="padding:5px 6px;border:1px solid var(--rule);border-radius:2px;background:white;text-align:center;"><div style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--ink-light);margin-bottom:2px;">NE Sub</div><div style="font-size:11px;font-weight:500;color:var(--ink-mid);">0%</div></div>
+            <div style="padding:5px 6px;border:1px solid var(--rule);border-radius:2px;background:white;text-align:center;"><div style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--ink-light);margin-bottom:2px;">MW Sub</div><div style="font-size:11px;font-weight:500;color:var(--sage);">+1%</div></div>
+            <div style="padding:5px 6px;border:1px solid var(--rule);border-radius:2px;background:white;text-align:center;"><div style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--ink-light);margin-bottom:2px;">SE Sub</div><div style="font-size:11px;font-weight:500;color:var(--sage);">+2%</div></div>
+            <div style="padding:5px 6px;border:1px solid var(--rule);border-radius:2px;background:white;text-align:center;"><div style="font-family:'DM Mono',monospace;font-size:8px;text-transform:uppercase;color:var(--ink-light);margin-bottom:2px;">Rural</div><div style="font-size:11px;font-weight:500;color:var(--sage);">+1%</div></div>
+          </div>
+        </div>`;
+    },
+    chart: null
+  },
+
+  'm-mw': {
+    type:'Metric Signal', title:'Urban Midwest — Share of Decline',
+    render() {
+      return `
+        <span class="gc-badge gc-metric">Metric · Regional Attribution</span>
+        <div class="gc-def"><strong>Governed scope:</strong> Urban Midwest = IL, OH, MI, MN, WI, IN urban-classified stores. 152 stores. 17% of national footprint.</div>
+        <div class="gc-ar-grid">
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Share of Decline</div>
+            <div class="gc-ar-val neg">−30%</div>
+            <div class="gc-ar-sub">of total national WoW trip decline</div>
+          </div>
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Absolute Decline</div>
+            <div class="gc-ar-val neg" style="font-size:16px;">−35.4K</div>
+            <div class="gc-ar-sub">trips · from 17% of national footprint (152/892 stores)</div>
+          </div>
+        </div>
+        <div class="gc-var">
+          <div class="gc-var-bar"><span></span><span></span><span class="act"></span><span class="act"></span><span></span></div>
+          <div class="gc-var-text"><strong>1.8× disproportionate.</strong> Mirrors Northeast pattern. Urban density and lapsing loyalty concentration are consistent across both regions — not a region-specific anomaly.</div>
+        </div>`;
+    },
+    chart: null
+  },
+
+  'e-lapsing': {
+    type:'Segment Profile', title:'Lapsing Loyalty Members',
+    render() {
+      return `
+        <span class="gc-badge gc-entity">Entity · Lifecycle Segment</span>
+        <div class="gc-def"><strong>Governed definition:</strong> Loyalty members who completed ≥3 trips in the prior 90 days but whose trip frequency has declined ≥30% in the most recent 30-day window vs their personal baseline. Classified as late-active in the lifecycle model. Mutually exclusive with Active, New, and Churned segments.</div>
+        <div class="gc-ar-grid">
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Segment Size</div>
+            <div class="gc-ar-val neu" style="font-size:16px;">14.2%</div>
+            <div class="gc-ar-sub">of active loyalty base · 2.1M customers</div>
+          </div>
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Absolute Count</div>
+            <div class="gc-ar-val neu" style="font-size:16px;">2.1M</div>
+            <div class="gc-ar-sub">customers currently in lapsing state</div>
+          </div>
+        </div>
+        <div class="gc-ar-grid">
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Trip Freq. WoW</div>
+            <div class="gc-ar-val neg">−3.4%</div>
+            <div class="gc-ar-sub">vs prior week frequency</div>
+          </div>
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Recovery Window</div>
+            <div class="gc-ar-val neu" style="font-size:14px;">~3 weeks</div>
+            <div class="gc-ar-sub">before churn classification triggers</div>
+          </div>
+        </div>
+        <div class="gc-var">
+          <div class="gc-var-bar"><span></span><span class="act-w"></span><span class="act-w"></span><span></span><span></span></div>
+          <div class="gc-var-text"><strong>In recoverable window.</strong> Lapsing → Churned transition occurs at 60 days of inactivity. Current cohort avg: 31 days. Targeted reactivation is viable within this window.</div>
+        </div>
+        <div class="gc-mece-lbl">MECE Position — Customer Lifecycle Stages</div>
+        <div class="gc-mece-row">
+          ${[['New','8%',''],['Active','42%',''],['Deep','22%',''],['Lapsing ←','14%','focus'],['Churned','9%',''],['Non-member','5%','']].map(([l,v,c])=>`<div class="gc-mece-seg ${c}"><div class="gc-mece-seg-lbl">${l}</div><div class="gc-mece-seg-val">${v}</div></div>`).join('')}
+        </div>
+        <div class="gc-chart-lbl">Lifecycle Distribution</div>
+        <div id="sc-chart"></div>`;
+    },
+    chart() {
+      const stages=['New','Active','Deepening','Late-Active','Churned','Non-member'];
+      const vals=[8,42,22,14,9,5];
+      const cols=['#deeee6','#1a5c5a','#5b8a6e','#c84b2f','#f0e0db','#ede9e1'];
+      Plotly.newPlot('sc-chart',[{x:stages,y:vals,type:'bar',marker:{color:cols},hovertemplate:'%{x}: %{y}%<extra></extra>'}],
+      {margin:{t:4,r:10,b:48,l:34},paper_bgcolor:'transparent',plot_bgcolor:'transparent',
+        xaxis:{tickfont:{size:8,family:'DM Mono',color:'#8a8480'},tickangle:-25,gridcolor:'rgba(0,0,0,0.04)'},
+        yaxis:{tickfont:{size:8,family:'DM Mono',color:'#8a8480'},ticksuffix:'%',gridcolor:'rgba(0,0,0,0.04)'},
+        height:150,showlegend:false,
+        shapes:[{type:'rect',x0:2.5,x1:3.5,y0:0,y1:18,fillcolor:'rgba(200,75,47,0.07)',line:{width:0}}]},
+      {displayModeBar:false,responsive:true});
+    }
+  },
+
+  'e-urban': {
+    type:'Segment Profile', title:'Urban Stores',
+    render() {
+      return `
+        <span class="gc-badge gc-entity">Entity · Urban Density Classification</span>
+        <div class="gc-def"><strong>Governed definition:</strong> Stores in trade areas with population density ≥10,000/sq mi per U.S. Census tract. Classification updated annually. Mutually exclusive with Suburban (2,500–10K) and Rural (&lt;2,500). 339 of 892 enterprise stores.</div>
+        <div class="gc-ar-grid">
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Store Count</div>
+            <div class="gc-ar-val neu" style="font-size:16px;">339</div>
+            <div class="gc-ar-sub">of 892 total stores (38% of footprint)</div>
+          </div>
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Trip Share</div>
+            <div class="gc-ar-val neu" style="font-size:16px;">44%</div>
+            <div class="gc-ar-sub">of total national trip volume</div>
+          </div>
+        </div>
+        <div class="gc-ar-grid">
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Decline Share</div>
+            <div class="gc-ar-val neg">68%</div>
+            <div class="gc-ar-sub">of total WoW national decline</div>
+          </div>
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Absolute Decline</div>
+            <div class="gc-ar-val neg" style="font-size:16px;">−80.2K</div>
+            <div class="gc-ar-sub">trips · ~$2.1M revenue equiv.</div>
+          </div>
+        </div>
+        <div class="gc-var">
+          <div class="gc-var-bar"><span></span><span></span><span class="act"></span><span class="act"></span><span></span></div>
+          <div class="gc-var-text"><strong>1.7× disproportionate.</strong> 38% of footprint carrying 68% of decline. Suburban (35% footprint) is flat. Rural (27%) is flat. The lapsing loyalty concentration in urban stores is the driver.</div>
+        </div>
+        <div class="gc-mece-lbl">MECE Position — Urban Density Classification</div>
+        <div class="gc-mece-row">
+          <div class="gc-mece-seg focus"><div class="gc-mece-seg-lbl">Urban ←</div><div class="gc-mece-seg-val">−2.8% · 68% of Δ</div></div>
+          <div class="gc-mece-seg"><div class="gc-mece-seg-lbl">Suburban</div><div class="gc-mece-seg-val">+0.1% · flat</div></div>
+          <div class="gc-mece-seg"><div class="gc-mece-seg-lbl">Rural</div><div class="gc-mece-seg-val">+0.2% · flat</div></div>
+        </div>`;
+    },
+    chart: null
+  },
+
+  'e-pcw': {
+    type:'Segment Profile', title:'PCW Shoppers',
+    render() {
+      return `
+        <span class="gc-badge gc-entity">Entity · Shopper Type</span>
+        <div class="gc-def"><strong>Governed definition:</strong> Pharmacy Care Wellness customers — loyalty members who purchase from OTC wellness and pharmacy-adjacent categories without a pharmacy fill in the same visit. Governed basket-tagging classification. Mutually exclusive with Rx-Attached and Front-Store-Only.</div>
+        <div class="gc-ar-grid">
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">WoW Trips</div>
+            <div class="gc-ar-val pos">+0.1%</div>
+            <div class="gc-ar-sub">effectively flat · within normal variance</div>
+          </div>
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Absolute Volume</div>
+            <div class="gc-ar-val neu" style="font-size:16px;">+2.4K</div>
+            <div class="gc-ar-sub">trips · not contributing to decline</div>
+          </div>
+        </div>
+        <div class="gc-ar-grid">
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Share of Base</div>
+            <div class="gc-ar-val neu" style="font-size:16px;">18%</div>
+            <div class="gc-ar-sub">of active loyalty customers · 2.7M</div>
+          </div>
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Avg Basket</div>
+            <div class="gc-ar-val neu" style="font-size:16px;">$34.80</div>
+            <div class="gc-ar-sub">vs $26.20 front-store-only avg</div>
+          </div>
+        </div>
+        <div class="gc-mece-lbl">MECE Position — Shopper Type</div>
+        <div class="gc-mece-row">
+          <div class="gc-mece-seg focus"><div class="gc-mece-seg-lbl">Front Only</div><div class="gc-mece-seg-val">−4.1%</div></div>
+          <div class="gc-mece-seg focus neutral"><div class="gc-mece-seg-lbl">Rx-Attached</div><div class="gc-mece-seg-val">+0.3%</div></div>
+          <div class="gc-mece-seg focus up"><div class="gc-mece-seg-lbl">PCW ←</div><div class="gc-mece-seg-val">+0.1%</div></div>
+        </div>`;
+    },
+    chart: null
+  },
+
+  't-rxfs': {
+    type:'Tension View', title:'Front-Store-Only ↔ Rx-Attached Divergence',
+    render() {
+      return `
+        <span class="gc-badge gc-tension">Tension · Diverging Segments</span>
+        <div class="gc-def"><strong>What makes this a tension:</strong> Two mutually exclusive shopper segments within the same total trips metric, moving in opposite directions. The stronger segment is masking the weaker in the aggregate. The relationship is the finding — neither metric alone tells the story.</div>
+        <div class="gc-ar-grid">
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Rx-Attached WoW</div>
+            <div class="gc-ar-val pos">+0.3%</div>
+            <div class="gc-ar-sub">+7.4K trips · $290K revenue equiv.</div>
+          </div>
+          <div class="gc-ar-cell">
+            <div class="gc-ar-lbl">Front-Only WoW</div>
+            <div class="gc-ar-val neg">−4.1%</div>
+            <div class="gc-ar-sub">−98K trips · $2.1M revenue equiv.</div>
+          </div>
+        </div>
+        <div class="gc-var">
+          <div class="gc-var-bar"><span></span><span></span><span class="act"></span><span class="act"></span><span></span></div>
+          <div class="gc-var-text"><strong>Net: −$1.81M revenue impact this week.</strong> The Rx-attached recovery offsets $290K of the $2.1M front-store-only decline. The aggregate −2.8% obscures a −4.1% structural signal.</div>
+        </div>
+        <div class="gc-mece-lbl">MECE — All Shopper Types (complete picture)</div>
+        <div class="gc-mece-row">
+          <div class="gc-mece-seg focus"><div class="gc-mece-seg-lbl">Front Only</div><div class="gc-mece-seg-val">−4.1%</div></div>
+          <div class="gc-mece-seg focus up"><div class="gc-mece-seg-lbl">Rx-Attached</div><div class="gc-mece-seg-val">+0.3%</div></div>
+          <div class="gc-mece-seg"><div class="gc-mece-seg-lbl">PCW</div><div class="gc-mece-seg-val">+0.1%</div></div>
+        </div>
+        <div class="gc-comp">
+          <div class="gc-comp-cell"><div class="gc-comp-lbl">Aggregate WoW</div><div class="gc-comp-val neg">−2.8%</div></div>
+          <div class="gc-comp-cell"><div class="gc-comp-lbl">Without Rx-offset</div><div class="gc-comp-val neg">−3.4%</div></div>
+          <div class="gc-comp-cell"><div class="gc-comp-lbl">Net Revenue Δ</div><div class="gc-comp-val neg">−$1.81M</div></div>
+        </div>
+        <div class="gc-chart-lbl">12-Week Divergence</div>
+        <div id="sc-chart"></div>
+        <div class="gc-ao">
+          <div class="gc-ao-lbl">Analysis View Available</div>
+          <div class="gc-ao-txt">Full cohort comparison across all shopper types with absolute volumes, revenue equivalents, and MECE decomposition by region and lifecycle.</div>
+          <button class="gc-ao-btn" onclick="openAV('cohort')">Open Cohort Analysis →</button>
+        </div>`;
+    },
+    chart() {
+      const w=['W-11','W-10','W-9','W-8','W-7','W-6','W-5','W-4','W-3','W-2','W-1','W0'];
+      const rx=[0.8,1.0,0.7,0.9,0.5,0.8,0.6,0.4,0.7,0.8,0.4,0.3];
+      const fs=[0.3,0.1,0.4,-0.3,-0.7,-1.0,-1.5,-2.1,-2.7,-3.1,-3.6,-4.1];
+      Plotly.newPlot('sc-chart',[
+        {x:w,y:rx,name:'Rx-Attached',type:'scatter',mode:'lines+markers',line:{color:'#5b8a6e',width:2},marker:{color:'#5b8a6e',size:4},hovertemplate:'Rx: %{y:.1f}%<extra></extra>'},
+        {x:w,y:fs,name:'Front-Only',type:'scatter',mode:'lines+markers',line:{color:'#c84b2f',width:2},marker:{color:'#c84b2f',size:4},hovertemplate:'FS-Only: %{y:.1f}%<extra></extra>'}
+      ],{margin:{t:4,r:10,b:40,l:34},paper_bgcolor:'transparent',plot_bgcolor:'transparent',
+        xaxis:{tickfont:{size:8,family:'DM Mono',color:'#8a8480'},tickangle:-30,gridcolor:'rgba(0,0,0,0.04)'},
+        yaxis:{tickfont:{size:8,family:'DM Mono',color:'#8a8480'},ticksuffix:'%',gridcolor:'rgba(0,0,0,0.04)',zeroline:true,zerolinecolor:'#d4cfc5',zerolinewidth:1},
+        height:160,showlegend:true,legend:{font:{size:8,family:'DM Mono'},orientation:'h',y:-0.35}},
+      {displayModeBar:false,responsive:true});
+    }
+  }
+};
+
+// ── ANALYSIS VIEW CONTENT ──
+const AV_CONTENT = {
+
+  waterfall: {
+    qtitle:'Store Waterfall — Trip Decline Concentration',
+    q1active:true, q3active:true,
+    p2active:true,
+    question:'Where is the front store trip decline concentrated at the store level?',
+    qsub:'Entry mode: directed · From sidecar: top 40 store concentration signal',
+    absData:[
+      {lbl:'Total WoW Decline',val:'−118K',sub:'trips nationally'},
+      {lbl:'Revenue Equivalent',val:'−$3.1M',sub:'at $26.20 avg basket',neg:true},
+      {lbl:'Top 40 Store Share',val:'71%',sub:'of total decline · 40 of 892 stores'},
+      {lbl:'Addressable',val:'~$2.2M',sub:'top 40 stores · intervention viable',neg:true}
+    ],
+    meceLabel:'MECE — 9 Enterprise Regions (complete · sums to 100% of decline)',
+    meceClass:'av-mece-9',
+    meceCells:[
+      {lbl:'NE Urban',rel:'−38%',abs:'−44.8K trips',share:'38% of Δ',cls:'signal'},
+      {lbl:'MW Urban',rel:'−30%',abs:'−35.4K trips',share:'30% of Δ',cls:'signal'},
+      {lbl:'SE Urban',rel:'−8%',abs:'−9.4K trips',share:'8% of Δ',cls:'warn'},
+      {lbl:'SW Urban',rel:'−4%',abs:'−4.7K trips',share:'4% of Δ',cls:''},
+      {lbl:'W Urban',rel:'−3%',abs:'−3.5K trips',share:'3% of Δ',cls:''},
+      {lbl:'NE Sub/Rural',rel:'0%',abs:'flat',share:'0% of Δ',cls:'flat'},
+      {lbl:'MW Sub/Rural',rel:'+1%',abs:'+2.4K trips',share:'',cls:'stable'},
+      {lbl:'SE Sub/Rural',rel:'+2%',abs:'+4.8K trips',share:'',cls:'stable'},
+      {lbl:'W Sub/Rural',rel:'+1%',abs:'+2.4K trips',share:'',cls:'stable'}
+    ],
+    chartLabel:'Store Waterfall — Decline Volume by Store Rank (Top 40 Highlighted)',
+    chartFn:'waterfall',
+    interp:`<strong>The decline is not a national trend — it is a 40-store problem.</strong> Urban Northeast and Midwest stores account for 68% of the national decline from 38% of the footprint. The top 40 stores by decline volume represent 71% of the total impact and are entirely within urban high-density classifications. Targeted reactivation brief for these 40 stores is viable and distinct from a national program. <strong>Pillar 2 action can be scoped immediately without waiting for national strategy.</strong> Suburban and rural stores are flat — do not include them in the intervention.`,
+    returnMsg:'"Top 40 urban stores confirmed as the intervention target — 71% of decline from 40 stores, −$2.2M addressable revenue. Scoping the reactivation brief to these stores is viable this week."'
+  },
+
+  cohort: {
+    qtitle:'Shopper Type Cohort — Retention Strategy Frame',
+    q1active:true, q2active:true,
+    p2active:true, p3active:true,
+    question:'How are shopper type cohorts performing — and what does this mean for Q2 retention strategy?',
+    qsub:'Entry mode: outcome-focused · Thursday planning frame',
+    absData:[
+      {lbl:'Total Active Base',val:'14.8M',sub:'loyalty members nationally'},
+      {lbl:'Lapsing Customers',val:'2.1M',sub:'14.2% of base · in recovery window'},
+      {lbl:'Revenue at Risk',val:'−$18.4M',sub:'if lapsing → churned in Q2',neg:true},
+      {lbl:'Front-Only Decline',val:'−$2.1M',sub:'weekly · annualizes to −$109M if sustained',neg:true}
+    ],
+    meceLabel:'MECE — Shopper Types (complete · all loyalty trips accounted for)',
+    meceClass:'av-mece-3',
+    meceCells:[
+      {lbl:'Front Store Only',rel:'−4.1% WoW',abs:'−98K trips · −$2.1M',share:'34% of trip vol',cls:'signal'},
+      {lbl:'Rx-Attached',rel:'+0.3% WoW',abs:'+7.4K trips · +$290K',share:'48% of trip vol',cls:'stable'},
+      {lbl:'PCW Shoppers',rel:'+0.1% WoW',abs:'+2.4K trips · flat',share:'18% of trip vol',cls:'flat'}
+    ],
+    chartLabel:'12-Week Cohort Divergence — All Shopper Types',
+    chartFn:'cohort',
+    interp:`<strong>For Thursday:</strong> The front-store-only cohort represents 34% of trip volume but is deteriorating at 8× normal variance. The Rx-attached cohort (48% of trips) is stable and masking the severity in the aggregate. Current Pillar 2 retention programs appear to be protecting the Rx-attached base — but the front-store-only base is eroding without countermeasure. <strong>The directional hypothesis for the planning review:</strong> Pillar 2 investment may be disproportionately weighted toward Rx-attached customers. The front-store-only lapsing cohort (2.1M customers, ~$18.4M Q2 revenue at risk if they churn) is the underserved retention opportunity. This is not established causally — but it is the hypothesis the review should test explicitly.`,
+    returnMsg:'"Cohort analysis confirms: front-store-only lapsing members are the underserved Pillar 2 retention opportunity. 2.1M customers, ~$18.4M Q2 revenue at risk. Directional hypothesis for Thursday: retention programs are Rx-weighted at the expense of front-store-only engagement."'
+  },
+
+  shopper: {
+    qtitle:'Front Store Trips — Full MECE Decomposition',
+    q1active:true, q2active:true,
+    p2active:true,
+    question:'What is the complete shopper type decomposition of the front store trip decline?',
+    qsub:'Entry mode: analytical · From sidecar: front store trips metric',
+    absData:[
+      {lbl:'Total Trip Volume',val:'4.22M',sub:'trips this week nationally'},
+      {lbl:'WoW Absolute Δ',val:'−118K',sub:'trips · all shopper types combined',neg:true},
+      {lbl:'Revenue Equivalent',val:'−$3.1M',sub:'weighted avg basket $26.20',neg:true},
+      {lbl:'Loyalty Share',val:'78%',sub:'of total trips are loyalty members'}
+    ],
+    meceLabel:'MECE — Shopper Type × Loyalty Status (complete decomposition)',
+    meceClass:'av-mece-3',
+    meceCells:[
+      {lbl:'FS-Only Loyalty',rel:'−4.1% WoW',abs:'−98K trips · $2.1M impact',share:'28% of total trips',cls:'signal'},
+      {lbl:'Rx-Attached Loyalty',rel:'+0.3% WoW',abs:'+7.4K trips · stable',share:'42% of total trips',cls:'stable'},
+      {lbl:'PCW Loyalty',rel:'+0.1% WoW',abs:'flat',share:'15% of total trips',cls:'flat'},
+      {lbl:'FS-Only Non-Member',rel:'−1.8% WoW',abs:'−8.2K trips',share:'8% of total trips',cls:'warn'},
+      {lbl:'Rx Non-Member',rel:'+0.1% WoW',abs:'flat',share:'5% of total trips',cls:'flat'},
+      {lbl:'PCW Non-Member',rel:'0% WoW',abs:'flat',share:'2% of total trips',cls:'flat'}
+    ],
+    chartLabel:'Shopper Type Contribution to Total Trip Change — This Week',
+    chartFn:'shopper',
+    interp:`<strong>The loyalty front-store-only segment is the singular driver of this week's decline.</strong> All other segments are flat or stable. Non-loyalty front-store-only contributes a secondary signal (−8.2K trips) but is within broader context of loyalty program strength. The MECE decomposition confirms: 83% of the total trip decline originates in loyalty front-store-only customers — specifically those in the lapsing lifecycle stage within urban store density. The governed answer: this is a loyalty retention problem concentrated in the front-store-only cohort.`,
+    returnMsg:'"Full decomposition confirms: 83% of the trip decline is loyalty front-store-only customers in the lapsing lifecycle stage. All other segments flat or stable. This is a bounded, addressable problem."'
+  }
+};
+
+// ── SIDECAR ──
+function openSC(key) {
+  const c = SC[key]; if(!c) return;
+  document.getElementById('sc-type').textContent = c.type;
+  document.getElementById('sc-title').textContent = c.title;
+  const body = document.getElementById('sc-body');
+  body.innerHTML = c.render();
+  if(c.chart) setTimeout(()=>c.chart(), 60);
+  document.getElementById('sidecar').classList.add('open');
+  document.getElementById('reply-bar').classList.add('sc-open');
+  scOpen = true;
+  addBC(key, c.type, c.title);
+}
+
+function closeSC() {
+  document.getElementById('sidecar').classList.remove('open');
+  document.getElementById('reply-bar').classList.remove('sc-open');
+  scOpen = false;
+}
+
+// ── ANALYSIS VIEW ──
+function openAV(mode) {
+  currentAVMode = mode;
+  const c = AV_CONTENT[mode]; if(!c) return;
+  document.getElementById('av-qtitle').textContent = c.qtitle;
+
+  // anchor state
+  ['av-eq1','av-eq2','av-eq3'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  if(c.q1active) document.getElementById('av-eq1').classList.add('active');
+  if(c.q2active) document.getElementById('av-eq2').classList.add('active');
+  if(c.q3active) document.getElementById('av-eq3').classList.add('active');
+  ['avp1','avp2','avp3','avp4'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  if(c.p2active) document.getElementById('avp2').classList.add('active');
+  if(c.p3active) document.getElementById('avp3').classList.add('active');
+
+  // abs banner
+  const absBanner = c.absData.map(d=>`
+    <div>
+      <div class="av-abs-item-lbl">${d.lbl}</div>
+      <div class="av-abs-item-val${d.neg?' neg':''}">${d.val}</div>
+      <div class="av-abs-item-sub">${d.sub}</div>
+    </div>`).join('');
+
+  // MECE cells
+  const meceCells = c.meceCells.map(cell=>`
+    <div class="av-mece-cell ${cell.cls||''}">
+      <div class="av-mc-lbl">${cell.lbl}</div>
+      <div class="av-mc-rel ${cell.cls==='signal'?'neg':cell.cls==='stable'?'pos':'neu'}">${cell.rel}</div>
+      <div class="av-mc-abs">${cell.abs}</div>
+      ${cell.share?`<div class="av-mc-share ${cell.cls==='signal'?'sig':''}">${cell.share}</div>`:''}
+    </div>`).join('');
+
+  document.getElementById('av-main').innerHTML = `
+    <div class="av-q">${c.question}</div>
+    <div class="av-q-sub">${c.qsub}</div>
+    <div class="av-abs">${absBanner}</div>
+    <div class="av-mece-lbl">${c.meceLabel}</div>
+    <div class="av-mece-grid ${c.meceClass}">${meceCells}</div>
+    <div class="av-chart-lbl">${c.chartLabel}</div>
+    <div id="av-chart" style="margin-bottom:16px;"></div>
+    <div class="av-interp">
+      <div class="av-interp-lbl">Governed Interpretation</div>
+      <div class="av-interp-txt">${c.interp}</div>
+    </div>
+  `;
+
+  document.getElementById('av-return-txt').textContent = c.returnMsg;
+  document.getElementById('av').classList.add('open');
+  avOpen = true;
+
+  setTimeout(()=>renderAVChart(mode), 80);
+  addBC(mode,'Analysis View',c.qtitle);
+}
+
+function renderAVChart(mode) {
+  if(mode==='waterfall') {
+    const stores=Array.from({length:20},(_,i)=>`S${i+1}`);
+    const vals=[28,21,14,12,10,8,7,6,5,5,4,4,3,3,2,2,2,2,1,1].map(v=>-v*350);
+    Plotly.newPlot('av-chart',[{x:stores,y:vals,type:'bar',marker:{color:vals.map((_,i)=>i<10?'#c84b2f':i<10?'#d4846a':'#d4cfc5')},hovertemplate:'%{x}: %{y:,.0f} trips<extra></extra>'}],
+    {margin:{t:4,r:16,b:32,l:56},paper_bgcolor:'transparent',plot_bgcolor:'transparent',
+      xaxis:{tickfont:{size:9,family:'DM Mono',color:'#8a8480'},title:{text:'Store rank by decline volume',font:{size:9,family:'DM Mono',color:'#8a8480'}}},
+      yaxis:{tickfont:{size:9,family:'DM Mono',color:'#8a8480'},title:{text:'Trip decline (absolute)',font:{size:9,family:'DM Mono',color:'#8a8480'}},gridcolor:'rgba(0,0,0,0.04)'},
+      height:220,showlegend:false,
+      shapes:[{type:'rect',x0:-0.5,x1:9.5,y0:-10500,y1:0,fillcolor:'rgba(200,75,47,0.06)',line:{width:0}}]},
+    {displayModeBar:false,responsive:true});
+  } else if(mode==='cohort'||mode==='shopper') {
+    const w=['W-11','W-10','W-9','W-8','W-7','W-6','W-5','W-4','W-3','W-2','W-1','W0'];
+    const fs=[0.3,0.1,0.4,-0.3,-0.7,-1.0,-1.5,-2.1,-2.7,-3.1,-3.6,-4.1];
+    const rx=[0.8,1.0,0.7,0.9,0.5,0.8,0.6,0.4,0.7,0.8,0.4,0.3];
+    const pcw=[0.2,0.4,0.1,0.3,0.2,0.3,0.1,0.2,0.3,0.1,0.2,0.1];
+    Plotly.newPlot('av-chart',[
+      {x:w,y:fs,name:'Front-Store-Only',type:'scatter',mode:'lines+markers',line:{color:'#c84b2f',width:2.5},marker:{color:'#c84b2f',size:5},hovertemplate:'FS-Only: %{y:.1f}%<extra></extra>'},
+      {x:w,y:rx,name:'Rx-Attached',type:'scatter',mode:'lines+markers',line:{color:'#5b8a6e',width:2},marker:{color:'#5b8a6e',size:4},hovertemplate:'Rx: %{y:.1f}%<extra></extra>'},
+      {x:w,y:pcw,name:'PCW',type:'scatter',mode:'lines+markers',line:{color:'#b8860b',width:1.5,dash:'dot'},marker:{color:'#b8860b',size:4},hovertemplate:'PCW: %{y:.1f}%<extra></extra>'}
+    ],{margin:{t:4,r:16,b:48,l:40},paper_bgcolor:'transparent',plot_bgcolor:'transparent',
+      xaxis:{tickfont:{size:9,family:'DM Mono',color:'#8a8480'},tickangle:-30,gridcolor:'rgba(0,0,0,0.04)'},
+      yaxis:{tickfont:{size:9,family:'DM Mono',color:'#8a8480'},ticksuffix:'%',gridcolor:'rgba(0,0,0,0.04)',zeroline:true,zerolinecolor:'#d4cfc5',zerolinewidth:1},
+      height:240,showlegend:true,legend:{font:{size:9,family:'DM Mono'},orientation:'h',y:-0.28}},
+    {displayModeBar:false,responsive:true});
+  }
+}
+
+function closeAV() {
+  document.getElementById('av').classList.remove('open');
+  avOpen = false;
+}
+
+// TODO#3 — RETURN FLOW CEREMONY (four-beat sequence)
+function returnFromAV() {
+  const c = AV_CONTENT[currentAVMode];
+
+  // Beat 1: close overlay (slide animation ~350ms)
+  closeAV();
+
+  // Beat 2: START at 200ms — after overlay has begun but not completed (spec requirement)
+  setTimeout(() => {
+    const ti = document.getElementById('thread-inner');
+    const bubble = document.createElement('div');
+    bubble.className = 'umsg';
+    bubble.style.display = 'flex';
+    const inner = document.createElement('div');
+    inner.className = 'ububble';
+    inner.textContent = '';
+    bubble.appendChild(inner);
+    ti.insertBefore(bubble, ti.lastElementChild);
+    scrollThread();
+
+    const msg = c.returnMsg.replace(/"/g,'');
+    let i = 0;
+    // Spec: ~40ms per char, cap at 2s total
+    const charDelay = Math.min(40, 2000 / msg.length);
+    const typeInterval = setInterval(() => {
+      if (i < msg.length) {
+        inner.textContent += msg[i++];
+        if (i % 8 === 0) scrollThread();
+      } else {
+        clearInterval(typeInterval);
+        // Beat 3: typing indicator appears (spec: 600ms minimum)
+        setTimeout(() => {
+          const t = document.getElementById('t3');
+          if (t) t.classList.add('on');
+          // Beat 4: reintegration modal offer response (spec: "You spent time in the [view]...")
+          setTimeout(() => {
+            if (t) t.classList.remove('on');
+            // Insert reintegration response
+            const reinteg = document.createElement('div');
+            reinteg.className = 'response';
+            reinteg.innerHTML = `
+              <div class="r-header">
+                <div class="r-avatar">I</div>
+                <div class="r-label">Reintegration · ${c.qtitle}</div>
+                <div class="r-time">7:18am</div>
+              </div>
+              <div class="r-body">
+                <div class="modal-offer"><strong>You spent time in the ${c.qtitle.split('—')[0].trim()} view</strong> — want me to bring what you found into the conversation?</div>
+                <div class="r-title">${c.returnMsg.replace(/"/g,'')}</div>
+                <div class="nav-blk">
+                  <div class="nav-lbl">Where to go next</div>
+                  <div class="nav-item nav-p">"I can frame this for the planning room — leading with the Pillar 2 implication and the absolute customer counts. Forwardable as-is."</div>
+                  <div class="nav-item nav-s">"The Rx attach rate trend connects to what you found — I can pull that thread before Thursday."</div>
+                </div>
+              </div>`;
+            ti.insertBefore(reinteg, ti.lastElementChild);
+            setTimeout(() => reinteg.classList.add('vis'), 50);
+            scrollThread();
+          }, 1400);
+        }, 600);
+      }
+    }, charDelay);
+  }, 200); // Beat 2 starts at 200ms per spec
+}
+
+// ── ANALYST BRIEF ──
+function openBrief() {
+  closeGovernedSession();
+  document.getElementById('brief-overlay').classList.add('open');
+}
+
+// ── TRACE PANEL ──
+let traceItems = [];
+let selectedAnalyst = null;
+
+function addTraceItem(name, eventType, confidence) {
+  const times = ['7:03am','7:05am','7:07am','7:09am','7:11am','7:13am','7:15am'];
+  const time = times[Math.min(traceItems.length, times.length - 1)];
+  const isAV = eventType.includes('Analysis');
+  traceItems.push({ time, name, eventType, confidence: confidence || 'governed', isAV });
+  updateTraceIndicator();
+  renderTraceItems();
+}
+
+function updateTraceIndicator() {
+  const indicator = document.getElementById('trace-indicator');
+  const label = document.getElementById('ti-label');
+  const dot = document.getElementById('ti-dot');
+  const n = traceItems.length;
+  if (n > 0) {
+    indicator.classList.add('visible');
+    label.textContent = `Trace · ${n} item${n !== 1 ? 's' : ''}`;
+    dot.style.background = 'var(--teal)';
+  }
+}
+
+function renderTraceItems() {
+  const body = document.getElementById('tp-body');
+  const summary = document.getElementById('tp-footer-summary');
+  body.innerHTML = traceItems.map(item => `
+    <div class="tp-item${item.isAV ? ' av-event' : ''}">
+      <div class="tp-time">${item.time}</div>
+      <div>
+        <div class="tp-name">${item.name}</div>
+        <div class="tp-action">${item.eventType}</div>
+      </div>
+      <div class="tp-conf ${item.confidence}">
+        <div class="tp-conf-dot"></div>
+        ${item.confidence === 'governed' ? 'Gov.' : 'Est.'}
+      </div>
+    </div>
+  `).join('');
+  const allGoverned = traceItems.every(i => i.confidence === 'governed');
+  summary.textContent = `${traceItems.length} item${traceItems.length !== 1 ? 's' : ''} · ${allGoverned ? 'all governed' : 'some estimated'}`;
+}
+
+function toggleTrace() {
+  const inner = document.getElementById('trace-panel-inner');
+  const indicator = document.getElementById('trace-indicator');
+  if (inner.classList.contains('open')) {
+    closeTrace();
+  } else {
+    inner.classList.add('open');
+    indicator.classList.add('panel-open');
+    document.getElementById('trace-panel').style.pointerEvents = 'auto';
+    // Ensure trace view is showing, not delegate view
+    showTraceView();
+  }
+}
+
+function closeTrace() {
+  document.getElementById('trace-panel-inner').classList.remove('open');
+  document.getElementById('trace-indicator').classList.remove('panel-open');
+  document.getElementById('trace-panel').style.pointerEvents = 'none';
+  setTimeout(showTraceView, 300);
+}
+
+function showTraceView() {
+  document.getElementById('tp-trace-view').style.display = 'flex';
+  document.getElementById('tp-delegate-view').classList.remove('active');
+  document.getElementById('tp-back-btn').style.display = 'none';
+  document.getElementById('tp-mode-lbl').textContent = 'Session Trace · FW10';
+}
+
+function openDelegateFlow() {
+  if (traceItems.length === 0) return;
+  document.getElementById('tp-trace-view').style.display = 'none';
+  document.getElementById('tp-delegate-view').classList.add('active');
+  document.getElementById('tp-back-btn').style.display = 'inline-flex';
+  document.getElementById('tp-mode-lbl').textContent = 'Delegate Finding';
+  selectedAnalyst = null;
+  document.querySelectorAll('.dl-analyst-opt').forEach(o => o.classList.remove('selected'));
+  document.getElementById('dl-send-btn').disabled = true;
+}
+
+function traceBack() { showTraceView(); }
+
+function selectAnalyst(id, name) {
+  selectedAnalyst = name;
+  document.querySelectorAll('.dl-analyst-opt').forEach(o => o.classList.remove('selected'));
+  document.getElementById('dl-opt-' + id).classList.add('selected');
+  document.getElementById('dl-send-btn').disabled = false;
+}
+
+function sendBrief() {
+  if (!selectedAnalyst) return;
+  // Show assignment badge in thread
+  const badge = document.getElementById('assignment-badge');
+  const hint = document.getElementById('delegate-hint');
+  document.getElementById('assignee-name').textContent = selectedAnalyst;
+  document.getElementById('assign-time').textContent = '7:16am';
+  badge.style.display = 'inline-block';
+  if (hint) hint.style.display = 'none';
+  // Update trace indicator
+  document.getElementById('ti-label').textContent = `Delegated · ${selectedAnalyst.split(' ')[0]}`;
+  // Close panel and open brief as confirmation
+  closeTrace();
+  setTimeout(() => openBrief(), 350);
+}
+
+// ── ASSIGNMENT (legacy — kept for compatibility) ──
+
+// ── GOVERNED SESSION ──
+function openGovernedSession() {
+  closeBrief(); // Close Delegation if open
+  document.getElementById('governed-session-overlay').classList.add('open');
+}
+function closeGovernedSession() {
+  document.getElementById('governed-session-overlay').classList.remove('open');
+}
+function closeBrief() {
+  document.getElementById('brief-overlay').classList.remove('open');
+}
+
+// ── ARCHIVE PANEL ──
+let archiveOpen = false;
+function toggleArchive() {
+  archiveOpen = !archiveOpen;
+  document.getElementById('archive-panel').classList.toggle('open', archiveOpen);
+  document.getElementById('arc-btn').classList.toggle('active', archiveOpen);
+}
+
+// ── ARCHIVE THREAD (FW09 read-only) ──
+function openArchiveThread() {
+  toggleArchive(); // close the panel first
+  document.getElementById('archive-thread').classList.add('open');
+  document.getElementById('ro-badge').style.display = 'block';
+  document.getElementById('return-fw-btn').style.display = 'block';
+  // hide reply bar
+  document.getElementById('reply-bar').classList.add('hidden');
+}
+function exitArchiveThread() {
+  document.getElementById('archive-thread').classList.remove('open');
+  document.getElementById('ro-badge').style.display = 'none';
+  document.getElementById('return-fw-btn').style.display = 'none';
+  document.getElementById('reply-bar').classList.remove('hidden');
+}
+
+// ── SESSION RESTORE ATOM ──
+function showSessionRestore() {
+  const sr = document.getElementById('session-restore');
+  sr.classList.add('show');
+  setTimeout(() => sr.classList.remove('show'), 4000);
+}
+
+// ── SCROLL TO BOTTOM ──
+function scrollToBottomClick() {
+  const thread = document.getElementById('thread');
+  thread.scrollTo({ top: thread.scrollHeight, behavior: 'smooth' });
+}
+
+function updateScrollToBottomVisibility() {
+  const thread = document.getElementById('thread');
+  const scrollBtn = document.getElementById('scroll-to-bottom');
+  if (!scrollBtn || !thread) return;
+
+  // Show arrow if not scrolled to bottom (within 100px threshold)
+  const isNearBottom = thread.scrollHeight - thread.scrollTop - thread.clientHeight < 100;
+  scrollBtn.classList.toggle('visible', !isNearBottom && thread.scrollHeight > thread.clientHeight);
+}
+
+// Attach scroll listener on load
+document.addEventListener('DOMContentLoaded', function() {
+  const thread = document.getElementById('thread');
+  if (thread) {
+    thread.addEventListener('scroll', updateScrollToBottomVisibility);
+  }
+});
+
+// ── BREADCRUMB ──
+function addBC(key, type, title) {
+  const bcId = document.getElementById('r2').style.display!=='none' ? 'bc2' : 'bc1';
+  const data = bcData[bcId];
+  const time = bcTimes[Math.min(bcIdx++, bcTimes.length-1)];
+  const action = type.includes('Analysis') ? `Analysis view opened · ${title}` :
+                 type.includes('Tension') ? `Tension tap · divergence view · sidecar updated` :
+                 type.includes('Segment') ? `Entity tap · segment profile · sidecar updated` :
+                 `Metric tap · baseline context · sidecar updated`;
+  data.push({time, name:title.split('—')[0].trim(), action});
+  const bc = document.getElementById(bcId);
+  bc.style.display='block';
+  document.getElementById(bcId+'s').textContent=`${data.length} item${data.length>1?'s':''} investigated · ${data.map(d=>d.name).join(' · ')}`;
+  document.getElementById(bcId+'r').innerHTML=data.map(d=>`<div class="bc-row"><div class="bc-t">${d.time}</div><div class="bc-n">${d.name}</div><div class="bc-a">${d.action}</div></div>`).join('');
+  // Mirror to Trace — every breadcrumb event writes to the session Trace object
+  const confidence = type.includes('Tension') ? 'estimated' : 'governed';
+  const isAV = type.includes('Analysis');
+  addTraceItem(title.split('—')[0].trim(), action, confidence);
+}
+
+function toggleBC(id) { document.getElementById(id).classList.toggle('open'); }
+
+// ── RESPONSE FLOW ──
+function trigR2() {
+  const um = document.getElementById('um2');
+  um.style.display='flex'; um.style.opacity=0;
+  setTimeout(()=>{um.style.transition='opacity 0.3s';um.style.opacity=1;},50);
+  const t = document.getElementById('t2'); t.classList.add('on');
+  setTimeout(()=>{
+    t.classList.remove('on');
+    const r = document.getElementById('r2'); r.style.display='block';
+    setTimeout(()=>{
+      r.classList.add('vis');
+      // Show mode shift atom after response appears
+      setTimeout(()=>document.getElementById('ms-r2').classList.add('show'), 200);
+    },50);
+    activeBC='bc2'; bcIdx=4;
+    scrollThread();
+  },1600);
+}
+
+function trigR3() {
+  const um = document.getElementById('um3');
+  um.style.display='flex'; um.style.opacity=0;
+  setTimeout(()=>{um.style.transition='opacity 0.3s';um.style.opacity=1;},50);
+  const t = document.getElementById('t3'); t.classList.add('on');
+  setTimeout(()=>{
+    t.classList.remove('on');
+    const r = document.getElementById('r3'); r.style.display='block';
+    setTimeout(()=>{
+      r.classList.add('vis');
+      // Show mode shift atom after response appears
+      setTimeout(()=>document.getElementById('ms-r3').classList.add('show'), 200);
+    },50);
+    scrollThread();
+  },1600);
+}
+
+function scrollThread() {
+  setTimeout(()=>{
+    const t=document.getElementById('thread');
+    t.scrollTo({top:t.scrollHeight,behavior:'smooth'});
+    // Hide scroll-to-bottom since we just scrolled
+    setTimeout(() => updateScrollToBottomVisibility(), 300);
+  },200);
+}
+
+// ── ENTRY MODES ──
+function setMode(mode) {
+  ['btn-cold','btn-email','btn-return'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('active', el.id === 'btn-'+mode);
+  });
+  if(mode==='cold'){
+    document.getElementById('view-cold').classList.remove('hidden');
+    document.getElementById('view-convo').classList.add('hidden');
+    resetState();
+  } else if(mode==='email'){
+    document.getElementById('view-cold').classList.add('hidden');
+    document.getElementById('view-convo').classList.remove('hidden');
+    emailEntry();
+  } else if(mode==='return'){
+    // mid-week return — ceremonial welcome then restore thread
+    document.getElementById('view-cold').classList.add('hidden');
+    document.getElementById('view-convo').classList.remove('hidden');
+
+    // Show ceremonial return welcome overlay
+    const returnWelcome = document.getElementById('return-welcome');
+    returnWelcome.style.display = 'flex';
+    returnWelcome.classList.remove('fade-out');
+
+    // After delay, fade out welcome and show content
+    setTimeout(() => {
+      returnWelcome.classList.add('fade-out');
+      // Load the conversation content
+      emailEntry();
+      // After fade animation completes, hide completely
+      setTimeout(() => {
+        returnWelcome.style.display = 'none';
+        returnWelcome.classList.remove('fade-out');
+        // Show scroll-to-bottom arrow if content exists
+        updateScrollToBottomVisibility();
+      }, 400);
+    }, 1800);
+  }
+}
+
+function resetState() {
+  ['r1','r2','r3'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.style.display=(id==='r1')?'':'none';
+    el.classList.remove('vis');
+  });
+  ['ms-r2','ms-r3'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.remove('show');
+  });
+  ['um2','um3'].forEach(id=>document.getElementById(id).style.display='none');
+  ['bc1','bc2'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.style.display='none';el.classList.remove('open');
+    bcData[id]=[]; document.getElementById(id+'s').textContent='0 items investigated';
+    document.getElementById(id+'r').innerHTML='';
+  });
+  ['t1','t2','t3'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('on');});
+  closeSC(); closeAV(); closeBrief(); closeGovernedSession(); closeTrace(); bcIdx=0; activeBC='bc1';
+  // Reset trace
+  traceItems = [];
+  selectedAnalyst = null;
+  document.getElementById('trace-indicator').classList.remove('visible','panel-open');
+  document.getElementById('ti-label').textContent = 'Trace · 0 items';
+  document.getElementById('ti-dot').style.background = 'var(--ink-light)';
+  document.getElementById('tp-body').innerHTML = '';
+  showTraceView();
+}
+
+function emailEntry() {
+  resetState();
+  const t=document.getElementById('t1'); t.classList.add('on');
+  setTimeout(()=>{
+    t.classList.remove('on');
+    const r=document.getElementById('r1');
+    r.style.display=''; setTimeout(()=>r.classList.add('vis'),50);
+  },900);
+}
+
+function coldStart(n) {
+  document.getElementById('view-cold').classList.add('hidden');
+  document.getElementById('view-convo').classList.remove('hidden');
+  resetState();
+  const t=document.getElementById('t1'); t.classList.add('on');
+  setTimeout(()=>{
+    t.classList.remove('on');
+    const r=document.getElementById('r1');
+    r.style.display=''; setTimeout(()=>r.classList.add('vis'),50);
+    scrollThread();
+  },1400);
+}
+
+// ── INIT ──
+window.addEventListener('load',()=>{
+  // cold open is default — no auto-load
+});
+</script>
+</body>
+</html>
