@@ -144,10 +144,37 @@ body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;f
 /* REPLY BAR */
 .reply-bar{position:absolute;bottom:0;left:0;right:0;background:var(--paper);border-top:1px solid var(--rule);padding:12px 28px;z-index:50;transition:right 0.32s cubic-bezier(0.4,0,0.2,1);}
 .reply-bar.sc-open{right:var(--sc-w);}
-.reply-inner{max-width:700px;margin:0 auto;display:flex;align-items:center;gap:10px;background:white;border:1px solid var(--rule);border-radius:6px;padding:9px 14px;}
+.reply-inner{max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:10px;}
+.reply-input-row{display:flex;align-items:center;gap:10px;background:white;border:1px solid var(--rule);border-radius:6px;padding:9px 14px;}
 .reply-input{flex:1;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:transparent;caret-color:var(--teal);}
 .reply-input::placeholder{color:var(--ink-light);}
 .reply-hint{font-family:'DM Mono',monospace;font-size:9px;color:var(--rule);letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap;}
+.reply-send{width:28px;height:28px;border-radius:4px;background:var(--ink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--paper);font-size:12px;transition:opacity 0.12s;flex-shrink:0;}
+.reply-send:hover{opacity:0.75;}
+
+/* ── TRACE ACTION BAR (inline, replaces modal) ── */
+.trace-action-bar{display:none;flex-direction:column;gap:8px;}
+.trace-action-bar.visible{display:flex;}
+.trace-toggle-btn{display:flex;align-items:center;gap:5px;padding:5px 11px;border:1px solid var(--rule);border-radius:3px;background:white;cursor:pointer;transition:all 0.15s;align-self:flex-start;font-family:inherit;}
+.trace-toggle-btn:hover,.trace-toggle-btn.expanded{border-color:var(--teal);background:var(--teal-soft);}
+.trace-toggle-btn:hover .ti-dot,.trace-toggle-btn.expanded .ti-dot{background:var(--teal);}
+.trace-toggle-btn:hover .ti-label,.trace-toggle-btn.expanded .ti-label{color:var(--teal);}
+.ti-dot{width:6px;height:6px;border-radius:50%;background:var(--ink-light);transition:background 0.15s;flex-shrink:0;}
+.ti-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-mid);transition:color 0.15s;white-space:nowrap;}
+.ti-chevron{font-size:9px;color:var(--ink-light);margin-left:4px;transition:transform 0.15s;}
+.trace-toggle-btn.expanded .ti-chevron{transform:rotate(180deg);color:var(--teal);}
+
+/* Inline trace list */
+.trace-inline-list{display:none;flex-direction:column;background:white;border:1px solid var(--rule);border-radius:4px;overflow:hidden;max-height:320px;}
+.trace-inline-list.visible{display:flex;}
+.trace-inline-header{background:var(--ink);padding:10px 14px;border-radius:4px 4px 0 0;flex-shrink:0;}
+.til-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#4a4640;display:block;margin-bottom:2px;}
+.til-subtitle{font-size:12px;font-weight:500;color:var(--paper);line-height:1.3;display:block;}
+.trace-inline-body{flex:1;overflow-y:auto;max-height:200px;}
+.trace-inline-actions{padding:10px 14px;border-top:1px solid var(--rule);background:var(--cream);display:flex;justify-content:flex-end;flex-shrink:0;}
+.trace-delegate-btn{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:7px 14px;background:var(--ink);color:var(--paper);border:none;border-radius:2px;cursor:pointer;transition:opacity 0.12s;}
+.trace-delegate-btn:hover{opacity:0.78;}
+.trace-delegate-btn:disabled{opacity:0.4;cursor:not-allowed;}
 
 /* ══ SIDECAR ══ */
 .sidecar{width:var(--sc-w);background:white;border-left:1px solid var(--rule);display:flex;flex-direction:column;transform:translateX(100%);transition:transform 0.32s cubic-bezier(0.4,0,0.2,1);position:absolute;right:0;top:0;bottom:0;z-index:100;}
@@ -400,26 +427,7 @@ body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;f
 .tb-arc-btn:hover,.tb-arc-btn.active{color:var(--paper);border-color:#4a4640;}
 .reply-bar.hidden{display:none!important;}
 
-/* ── TRACE INDICATOR ATOM ── */
-.trace-indicator{display:none;align-items:center;gap:5px;padding:5px 11px;border:1px solid var(--rule);border-radius:3px;background:white;cursor:pointer;transition:all 0.15s;flex-shrink:0;}
-.trace-indicator.visible{display:flex;}
-.trace-indicator:hover,.trace-indicator.panel-open{border-color:var(--teal);background:var(--teal-soft);}
-.trace-indicator:hover .ti-dot,.trace-indicator.panel-open .ti-dot{background:var(--teal);}
-.trace-indicator:hover .ti-label,.trace-indicator.panel-open .ti-label{color:var(--teal);}
-.ti-dot{width:6px;height:6px;border-radius:50%;background:var(--ink-light);transition:background 0.15s;flex-shrink:0;}
-.ti-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-mid);transition:color 0.15s;white-space:nowrap;}
-
-/* ── TRACE PANEL ── */
-.trace-panel{position:absolute;bottom:56px;left:0;right:0;z-index:200;display:flex;justify-content:center;pointer-events:none;}
-.trace-panel-inner{width:100%;max-width:700px;margin:0 28px;background:white;border:1px solid var(--rule);border-radius:4px 4px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,0.1);transform:translateY(100%);transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);pointer-events:auto;max-height:60vh;display:flex;flex-direction:column;}
-.trace-panel-inner.open{transform:translateY(0);}
-.tp-hdr{background:var(--ink);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0;border-radius:4px 4px 0 0;}
-.tp-hdr-l{flex:1;min-width:0;}
-.tp-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#4a4640;margin-bottom:3px;}
-.tp-title{font-size:13px;font-weight:500;color:var(--paper);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.tp-x{width:24px;height:24px;border-radius:50%;border:1px solid #2a2926;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:#4a4640;transition:all 0.12s;flex-shrink:0;}
-.tp-x:hover{color:var(--paper);border-color:#4a4640;}
-.tp-body{flex:1;overflow-y:auto;}
+/* ── TRACE ITEM STYLES (reused by inline trace list) ── */
 .tp-item{display:grid;grid-template-columns:52px 1fr auto;gap:10px;padding:10px 14px;border-bottom:1px solid var(--cream);align-items:start;}
 .tp-item.av-event{background:var(--teal-soft);}
 .tp-time{font-family:'DM Mono',monospace;font-size:9px;color:var(--ink-light);}
@@ -432,17 +440,6 @@ body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;f
 .tp-conf-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
 .tp-conf.governed{color:var(--sage);}.tp-conf.governed .tp-conf-dot{background:var(--sage);}
 .tp-conf.estimated{color:var(--gold);}.tp-conf.estimated .tp-conf-dot{background:var(--gold);}
-.tp-footer{padding:11px 14px;border-top:1px solid var(--rule);background:var(--cream);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0;}
-.tp-footer-summary{font-size:11px;color:var(--ink-mid);}
-.tp-delegate-btn{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:7px 14px;background:var(--ink);color:var(--paper);border:none;border-radius:2px;cursor:pointer;transition:opacity 0.12s;white-space:nowrap;flex-shrink:0;}
-.tp-delegate-btn:hover{opacity:0.78;}
-
-/* ── DELEGATE FLOW (inside Trace Panel) ── */
-.tp-delegate-view{display:none;flex-direction:column;flex:1;overflow:hidden;}
-.tp-delegate-view.active{display:flex;}
-.tp-delegate-body{flex:1;overflow-y:auto;padding:14px;}
-.tp-back-btn{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 9px;border:1px solid #2a2926;border-radius:2px;cursor:pointer;color:#4a4640;background:transparent;transition:all 0.12s;white-space:nowrap;}
-.tp-back-btn:hover{color:var(--paper);border-color:#4a4640;}
 .dl-section-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light);margin-bottom:6px;}
 .dl-scope-input{width:100%;border:1px solid var(--rule);border-radius:2px;padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--ink);background:var(--cream);resize:none;outline:none;line-height:1.5;}
 .dl-scope-input:focus{border-color:var(--teal);}
@@ -646,84 +643,38 @@ body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;f
         </svg>
       </button>
 
-      <!-- TRACE PANEL (slides up from reply bar) -->
-      <div class="trace-panel" id="trace-panel">
-        <div class="trace-panel-inner" id="trace-panel-inner">
-          <!-- Panel header -->
-          <div class="tp-hdr">
-            <div class="tp-hdr-l">
-              <div class="tp-lbl" id="tp-mode-lbl">Session Trace · FW10</div>
-              <div class="tp-title" id="tp-title">Lapsing loyalty — urban store decline</div>
-            </div>
-            <button id="tp-back-btn" class="tp-back-btn" onclick="traceBack()" style="display:none;">← Trace</button>
-            <button class="tp-x" onclick="closeTrace()">✕</button>
-          </div>
-
-          <!-- Trace items view -->
-          <div id="tp-trace-view" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
-            <div class="tp-body" id="tp-body">
-              <!-- items injected by JS -->
-            </div>
-            <div class="tp-footer">
-              <div class="tp-footer-summary" id="tp-footer-summary">0 items</div>
-              <button class="tp-delegate-btn" onclick="openDelegateFlow()">Delegate →</button>
-            </div>
-          </div>
-
-          <!-- Delegate flow view (replaces trace items) -->
-          <div class="tp-delegate-view" id="tp-delegate-view">
-            <div class="tp-delegate-body">
-              <!-- Scope -->
-              <div style="margin-bottom:14px;">
-                <div class="dl-section-lbl">Scope of work</div>
-                <textarea class="dl-scope-input" id="dl-scope" rows="2">Build reactivation brief for top 40 urban stores by decline volume</textarea>
-              </div>
-              <!-- What analyst receives -->
-              <div style="margin-bottom:14px;">
-                <div class="dl-section-lbl">Analyst will receive</div>
-                <div class="dl-checklist">
-                  <div class="dl-check-item"><span class="dl-check-icon">✓</span>Governed definitions (lapsing loyalty, front-store-only trips)</div>
-                  <div class="dl-check-item"><span class="dl-check-icon">✓</span>MECE decomposition · top 40 store IDs · absolute trip counts</div>
-                  <div class="dl-check-item"><span class="dl-check-icon">✓</span>Confidence levels + data lineage per metric</div>
-                  <div class="dl-check-item"><span class="dl-check-icon">✓</span>Investigation trace · shareable link · no product login required</div>
-                </div>
-              </div>
-              <!-- Analyst selector -->
-              <div style="margin-bottom:14px;">
-                <div class="dl-section-lbl">Assign to</div>
-                <div style="background:white;border:1px solid var(--rule);border-radius:2px;overflow:hidden;">
-                  <input type="text" placeholder="Search analysts…" style="width:100%;padding:7px 10px;border:none;border-bottom:1px solid var(--rule);font-size:12px;color:var(--ink);outline:none;font-family:'DM Sans',sans-serif;">
-                  <div style="padding:4px;">
-                    <div class="dl-analyst-opt" id="dl-opt-sarah" onclick="selectAnalyst('sarah','Sarah Chen')">
-                      <span class="dl-analyst-name">Sarah Chen</span><span class="dl-analyst-role">Senior Analyst</span>
-                    </div>
-                    <div class="dl-analyst-opt" id="dl-opt-marcus" onclick="selectAnalyst('marcus','Marcus Johnson')">
-                      <span class="dl-analyst-name">Marcus Johnson</span><span class="dl-analyst-role">Data Scientist</span>
-                    </div>
-                    <div class="dl-analyst-opt" id="dl-opt-emily" onclick="selectAnalyst('emily','Emily Rodriguez')">
-                      <span class="dl-analyst-name">Emily Rodriguez</span><span class="dl-analyst-role">Analytics Lead</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div style="padding:11px 14px;border-top:1px solid var(--rule);background:var(--cream);">
-              <button class="dl-send-btn" id="dl-send-btn" onclick="sendBrief()" disabled>Send Brief →</button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- REPLY BAR -->
+      <!-- REPLY BAR with inline Trace Action Bar -->
       <div class="reply-bar" id="reply-bar">
         <div class="reply-inner">
-          <div class="trace-indicator" id="trace-indicator" onclick="toggleTrace()" title="Open session trace">
-            <div class="ti-dot" id="ti-dot"></div>
-            <div class="ti-label" id="ti-label">Trace · 0 items</div>
+          <!-- Trace Action Bar (inline, replaces modal pattern) -->
+          <div class="trace-action-bar" id="trace-action-bar">
+            <button class="trace-toggle-btn" id="trace-toggle-btn" onclick="toggleTraceBar()">
+              <span class="ti-dot" id="ti-dot"></span>
+              <span class="ti-label" id="ti-label">Trace · 0 items</span>
+              <span class="ti-chevron" id="ti-chevron">▾</span>
+            </button>
+
+            <!-- Expanded inline list -->
+            <div class="trace-inline-list" id="trace-inline-list">
+              <div class="trace-inline-header">
+                <span class="til-title" id="til-title">Session Trace · FW10</span>
+                <span class="til-subtitle" id="til-subtitle">Lapsing loyalty — urban store decline</span>
+              </div>
+              <div class="trace-inline-body" id="trace-inline-body">
+                <!-- items injected by JS -->
+              </div>
+              <div class="trace-inline-actions">
+                <button class="trace-delegate-btn" id="trace-delegate-btn" onclick="openDelegatePanel()" disabled>Delegate →</button>
+              </div>
+            </div>
           </div>
-          <input class="reply-input" placeholder="Ask a follow-on or state a hypothesis to test…">
-          <div class="reply-hint">Prototype v3</div>
+
+          <!-- Input row -->
+          <div class="reply-input-row">
+            <input class="reply-input" placeholder="Ask a follow-on or state a hypothesis to test…" onkeydown="if(event.key==='Enter')submitReply()">
+            <button class="reply-send" onclick="submitReply()">→</button>
+            <div class="reply-hint">Prototype v3</div>
+          </div>
         </div>
       </div>
 
@@ -1838,7 +1789,7 @@ function openBrief() {
   document.getElementById('brief-overlay').classList.add('open');
 }
 
-// ── TRACE PANEL ──
+// ── TRACE ACTION BAR (inline, replaces modal) ──
 let traceItems = [];
 let selectedAnalyst = null;
 
@@ -1848,24 +1799,33 @@ function addTraceItem(name, eventType, confidence) {
   const isAV = eventType.includes('Analysis');
   traceItems.push({ time, name, eventType, confidence: confidence || 'governed', isAV });
   updateTraceIndicator();
-  renderTraceItems();
+  renderInlineTraceItems();
 }
 
 function updateTraceIndicator() {
-  const indicator = document.getElementById('trace-indicator');
+  const actionBar = document.getElementById('trace-action-bar');
   const label = document.getElementById('ti-label');
   const dot = document.getElementById('ti-dot');
+  const delegateBtn = document.getElementById('trace-delegate-btn');
   const n = traceItems.length;
   if (n > 0) {
-    indicator.classList.add('visible');
+    actionBar.classList.add('visible');
     label.textContent = `Trace · ${n} item${n !== 1 ? 's' : ''}`;
     dot.style.background = 'var(--teal)';
+    if (delegateBtn) delegateBtn.disabled = false;
+  } else {
+    actionBar.classList.remove('visible');
+    if (delegateBtn) delegateBtn.disabled = true;
   }
 }
 
-function renderTraceItems() {
-  const body = document.getElementById('tp-body');
-  const summary = document.getElementById('tp-footer-summary');
+function renderInlineTraceItems() {
+  const body = document.getElementById('trace-inline-body');
+  if (!body) return;
+  if (traceItems.length === 0) {
+    body.innerHTML = '<div style="padding:14px;color:var(--ink-light);font-size:11px;text-align:center;">No trace items yet</div>';
+    return;
+  }
   body.innerHTML = traceItems.map(item => `
     <div class="tp-item${item.isAV ? ' av-event' : ''}">
       <div class="tp-time">${item.time}</div>
@@ -1879,50 +1839,98 @@ function renderTraceItems() {
       </div>
     </div>
   `).join('');
-  const allGoverned = traceItems.every(i => i.confidence === 'governed');
-  summary.textContent = `${traceItems.length} item${traceItems.length !== 1 ? 's' : ''} · ${allGoverned ? 'all governed' : 'some estimated'}`;
 }
 
-function toggleTrace() {
-  const inner = document.getElementById('trace-panel-inner');
-  const indicator = document.getElementById('trace-indicator');
-  if (inner.classList.contains('open')) {
-    closeTrace();
+function toggleTraceBar() {
+  const list = document.getElementById('trace-inline-list');
+  if (!list) return;
+  if (list.classList.contains('visible')) {
+    collapseTraceBar();
   } else {
-    inner.classList.add('open');
-    indicator.classList.add('panel-open');
-    document.getElementById('trace-panel').style.pointerEvents = 'auto';
-    // Ensure trace view is showing, not delegate view
-    showTraceView();
+    expandTraceBar();
   }
 }
 
-function closeTrace() {
-  document.getElementById('trace-panel-inner').classList.remove('open');
-  document.getElementById('trace-indicator').classList.remove('panel-open');
-  document.getElementById('trace-panel').style.pointerEvents = 'none';
-  setTimeout(showTraceView, 300);
+function expandTraceBar() {
+  const btn = document.getElementById('trace-toggle-btn');
+  const list = document.getElementById('trace-inline-list');
+  if (btn) btn.classList.add('expanded');
+  if (list) list.classList.add('visible');
+  renderInlineTraceItems();
 }
 
-function showTraceView() {
-  document.getElementById('tp-trace-view').style.display = 'flex';
-  document.getElementById('tp-delegate-view').classList.remove('active');
-  document.getElementById('tp-back-btn').style.display = 'none';
-  document.getElementById('tp-mode-lbl').textContent = 'Session Trace · FW10';
+function collapseTraceBar() {
+  const btn = document.getElementById('trace-toggle-btn');
+  const list = document.getElementById('trace-inline-list');
+  if (btn) btn.classList.remove('expanded');
+  if (list) list.classList.remove('visible');
 }
 
-function openDelegateFlow() {
+// Legacy function names for compatibility
+function toggleTrace() { toggleTraceBar(); }
+function closeTrace() { collapseTraceBar(); }
+function renderTraceItems() { renderInlineTraceItems(); }
+
+function openDelegatePanel() {
   if (traceItems.length === 0) return;
-  document.getElementById('tp-trace-view').style.display = 'none';
-  document.getElementById('tp-delegate-view').classList.add('active');
-  document.getElementById('tp-back-btn').style.display = 'inline-flex';
-  document.getElementById('tp-mode-lbl').textContent = 'Delegate Finding';
-  selectedAnalyst = null;
-  document.querySelectorAll('.dl-analyst-opt').forEach(o => o.classList.remove('selected'));
-  document.getElementById('dl-send-btn').disabled = true;
+  // Collapse trace bar
+  collapseTraceBar();
+  // Open sidecar with delegate content
+  const sidecar = document.getElementById('sidecar');
+  document.getElementById('sc-type').textContent = 'Delegate Finding';
+  document.getElementById('sc-title').textContent = 'Build reactivation brief';
+  document.getElementById('sc-body').innerHTML = getDelegateFormHTML();
+  sidecar.classList.add('open');
+  document.getElementById('reply-bar').classList.add('sc-open');
 }
 
-function traceBack() { showTraceView(); }
+function getDelegateFormHTML() {
+  return `
+    <div style="padding:0;">
+      <!-- Scope -->
+      <div style="margin-bottom:14px;">
+        <div class="dl-section-lbl">Scope of work</div>
+        <textarea class="dl-scope-input" id="dl-scope" rows="2">Build reactivation brief for top 40 urban stores by decline volume</textarea>
+      </div>
+      <!-- What analyst receives -->
+      <div style="margin-bottom:14px;">
+        <div class="dl-section-lbl">Analyst will receive</div>
+        <div class="dl-checklist">
+          <div class="dl-check-item"><span class="dl-check-icon">✓</span>Governed definitions (lapsing loyalty, front-store-only trips)</div>
+          <div class="dl-check-item"><span class="dl-check-icon">✓</span>MECE decomposition · top 40 store IDs · absolute trip counts</div>
+          <div class="dl-check-item"><span class="dl-check-icon">✓</span>Confidence levels + data lineage per metric</div>
+          <div class="dl-check-item"><span class="dl-check-icon">✓</span>Investigation trace · shareable link · no product login required</div>
+        </div>
+      </div>
+      <!-- Analyst selector -->
+      <div style="margin-bottom:14px;">
+        <div class="dl-section-lbl">Assign to</div>
+        <div style="background:white;border:1px solid var(--rule);border-radius:2px;overflow:hidden;">
+          <input type="text" placeholder="Search analysts…" style="width:100%;padding:7px 10px;border:none;border-bottom:1px solid var(--rule);font-size:12px;color:var(--ink);outline:none;font-family:'DM Sans',sans-serif;">
+          <div style="padding:4px;">
+            <div class="dl-analyst-opt" id="dl-opt-sarah" onclick="selectAnalyst('sarah','Sarah Chen')">
+              <span class="dl-analyst-name">Sarah Chen</span><span class="dl-analyst-role">Senior Analyst</span>
+            </div>
+            <div class="dl-analyst-opt" id="dl-opt-marcus" onclick="selectAnalyst('marcus','Marcus Johnson')">
+              <span class="dl-analyst-name">Marcus Johnson</span><span class="dl-analyst-role">Data Scientist</span>
+            </div>
+            <div class="dl-analyst-opt" id="dl-opt-emily" onclick="selectAnalyst('emily','Emily Rodriguez')">
+              <span class="dl-analyst-name">Emily Rodriguez</span><span class="dl-analyst-role">Analytics Lead</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:11px 0;border-top:1px solid var(--rule);background:var(--cream);margin:0 -16px -16px -16px;padding:11px 16px;">
+        <button class="dl-send-btn" id="dl-send-btn" onclick="sendBrief()" disabled>Send Brief →</button>
+      </div>
+    </div>
+  `;
+}
+
+// Legacy function for compatibility
+function openDelegateFlow() { openDelegatePanel(); }
+function traceBack() { closeSC(); }
+function showTraceView() { /* no-op for compatibility */ }
 
 function selectAnalyst(id, name) {
   selectedAnalyst = name;
@@ -1942,8 +1950,8 @@ function sendBrief() {
   if (hint) hint.style.display = 'none';
   // Update trace indicator
   document.getElementById('ti-label').textContent = `Delegated · ${selectedAnalyst.split(' ')[0]}`;
-  // Close panel and open brief as confirmation
-  closeTrace();
+  // Close sidecar and open brief as confirmation
+  closeSC();
   setTimeout(() => openBrief(), 350);
 }
 
@@ -2145,11 +2153,18 @@ function resetState() {
   // Reset trace
   traceItems = [];
   selectedAnalyst = null;
-  document.getElementById('trace-indicator').classList.remove('visible','panel-open');
+  const actionBar = document.getElementById('trace-action-bar');
+  if (actionBar) actionBar.classList.remove('visible');
+  const toggleBtn = document.getElementById('trace-toggle-btn');
+  if (toggleBtn) toggleBtn.classList.remove('expanded');
+  const inlineList = document.getElementById('trace-inline-list');
+  if (inlineList) inlineList.classList.remove('visible');
   document.getElementById('ti-label').textContent = 'Trace · 0 items';
   document.getElementById('ti-dot').style.background = 'var(--ink-light)';
-  document.getElementById('tp-body').innerHTML = '';
-  showTraceView();
+  const traceBody = document.getElementById('trace-inline-body');
+  if (traceBody) traceBody.innerHTML = '';
+  const delegateBtn = document.getElementById('trace-delegate-btn');
+  if (delegateBtn) delegateBtn.disabled = true;
 }
 
 function emailEntry() {
@@ -2172,7 +2187,23 @@ function coldStart(n) {
     const r=document.getElementById('r1');
     r.style.display=''; setTimeout(()=>r.classList.add('vis'),50);
     scrollThread();
+    // Add initial trace items for data accessed to generate response
+    addInitialTraceItems();
   },1400);
+}
+
+function addInitialTraceItems() {
+  // Simulate the data trace that generated the initial insight response
+  addTraceItem('Front Store Trips', 'Metric · FW10', 'governed');
+  addTraceItem('Member Segments', 'Entity · Loyalty cohorts', 'governed');
+}
+
+function submitReply() {
+  const input = document.querySelector('.reply-input');
+  if (input && input.value.trim()) {
+    // Demo: clear input (real implementation would process the message)
+    input.value = '';
+  }
 }
 
 // ── INIT ──

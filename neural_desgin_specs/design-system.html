@@ -709,7 +709,6 @@ code { font-family:'DM Mono',monospace;font-size:var(--text-xs);background:var(-
       </div>
     </div>
   </div>
-</div>
 
   <!-- TRACE INDICATOR ATOM (v1.2) -->
   <div class="section-label">1.7 · Trace Indicator</div>
@@ -1122,7 +1121,6 @@ code { font-family:'DM Mono',monospace;font-size:var(--text-xs);background:var(-
       </div>
     </div>
   </div>
-</div>
 
   <!-- TRACE ITEM ROW MOLECULE (v1.2) -->
   <div class="section-label">2.10 · Trace Item Row</div>
@@ -1491,11 +1489,11 @@ code { font-family:'DM Mono',monospace;font-size:var(--text-xs);background:var(-
       </div>
     </div>
   </div>
-</div>
 
-  <!-- TRACE PANEL ORGANISM (v1.2) -->
-  <div class="section-label">3.7 · Trace Panel</div>
-  <p class="section-desc">The accumulated governed session object. Slides up from the reply bar when Alex taps the Trace Indicator atom. Contains every investigative event in the current session as mol-trace-item-rows, ordered chronologically. The Delegate Flow organism lives inside this panel — Alex cannot access Delegate without first opening Trace. This is intentional: delegation requires review of what is being handed off.</p>
+  <!-- TRACE PANEL ORGANISM (v1.2) - DEPRECATED -->
+  <div class="section-label">3.7 · Trace Panel <span style="font-family:'DM Mono',monospace;font-size:9px;background:var(--color-gold-soft);color:var(--color-gold);padding:2px 6px;border-radius:2px;margin-left:8px;">DEPRECATED v1.3</span></div>
+  <p class="section-desc"><strong>Superseded by org-trace-action-bar (3.12).</strong> The slide-up modal pattern covered the chat input, undermining the conversational UI. The new inline pattern keeps the input always visible. This section is retained for reference only.</p>
+  <p class="section-desc" style="color:var(--color-ink-light);font-style:italic;">Original description: The accumulated governed session object. Slides up from the reply bar when Alex taps the Trace Indicator atom. Contains every investigative event in the current session as mol-trace-item-rows, ordered chronologically. The Delegate Flow organism lives inside this panel — Alex cannot access Delegate without first opening Trace. This is intentional: delegation requires review of what is being handed off.</p>
 
   <div class="spec-block mb-8">
     <div class="spec-block-header"><span class="spec-name">Trace Panel Organism</span><span class="spec-token">org-trace-panel</span></div>
@@ -1604,6 +1602,152 @@ code { font-family:'DM Mono',monospace;font-size:var(--text-xs);background:var(-
         <div class="spec-row"><span class="spec-prop">Post-send state</span><span class="spec-val">Trace Indicator in reply bar updates to show "Delegated · [name]". Assignment tag "Assigned" state appears beneath R3 nav block in thread.</span></div>
         <div class="spec-row"><span class="spec-prop">Back</span><span class="spec-val">"← Trace" returns to Trace Panel without losing scope text or analyst selection.</span></div>
         <div class="semantic-note"><span>Semantic contract:</span> The product owns the handoff. Alex's role is scope + assignment. The brief — with governed definitions, MECE data, store IDs, confidence levels, and lineage — is assembled from Trace automatically. The three manual steps Alex previously took (read, screenshot, email) are replaced by a single confirm action.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP NAVIGATION BAR ORGANISM -->
+  <div class="section-label">3.9 · Top Navigation Bar</div>
+  <p class="section-desc">The fixed header containing session identity, archive access, and read-only state indicator. Always visible during active sessions. Anchors the session context at the top of the viewport.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Top Navigation Bar Organism</span><span class="spec-token">org-top-nav</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+      <div style="padding:var(--space-5);border-right:1px solid var(--color-rule);background:var(--color-paper);">
+        <div style="background:var(--color-ink);padding:10px 16px;display:flex;align-items:center;gap:12px;border-radius:var(--radius-sm);">
+          <div style="width:28px;height:28px;border-radius:4px;border:1px solid #2a2926;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;">📅</div>
+          <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3930;padding:4px 12px;border:1px solid #2a2926;border-radius:2px;font-weight:500;">FW10 · Mar 09</div>
+          <div style="flex:1;"></div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:2px;background:rgba(200,75,47,0.2);color:var(--color-accent);">Read Only</div>
+        </div>
+      </div>
+      <div class="spec-detail" style="padding:var(--space-5);">
+        <div class="spec-row"><span class="spec-prop">Position</span><span class="spec-val">position: absolute · top: 0 · left: 0 · right: 0 · height: ~48px · z-index: 100</span></div>
+        <div class="spec-row"><span class="spec-prop">Background</span><span class="spec-val">var(--color-ink) · dark header creates clear spatial boundary</span></div>
+        <div class="spec-row"><span class="spec-prop">Archive button</span><span class="spec-val">Left position · calendar icon · toggles org-archive-panel · hover brightens to --color-paper</span></div>
+        <div class="spec-row"><span class="spec-prop">Session badge</span><span class="spec-val">DM Mono 10px · "FW[N] · Mon DD" format · border: 1px solid #2a2926 · display only</span></div>
+        <div class="spec-row"><span class="spec-prop">Read-only badge</span><span class="spec-val">Conditional · appears when viewing archived session · --color-accent text on accent-soft bg</span></div>
+        <div class="spec-row"><span class="spec-prop">Coexistence</span><span class="spec-val">Top nav remains fixed while archive panel or sidecar open. Thread scrolls beneath.</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> The top nav establishes session identity and temporal context. The fiscal week badge is the primary orientation anchor — Alex always knows "when" they are in the data story.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REPLY BAR ORGANISM -->
+  <div class="section-label">3.10 · Reply Bar</div>
+  <p class="section-desc">The primary conversational input during active sessions. Fixed to the bottom of the viewport. Contains the Trace Action Bar (when trace items exist), the chat input field, and version hint. Adjusts position when sidecar opens.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Reply Bar Organism</span><span class="spec-token">org-reply-bar</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+      <div style="padding:var(--space-5);border-right:1px solid var(--color-rule);background:var(--color-paper);">
+        <div style="background:var(--color-paper);border-top:1px solid var(--color-rule);padding:12px 20px;">
+          <div style="max-width:500px;margin:0 auto;display:flex;flex-direction:column;gap:10px;">
+            <!-- Trace action bar (collapsed) -->
+            <div style="display:flex;align-items:center;gap:5px;padding:5px 11px;border:1px solid var(--color-rule);border-radius:3px;background:white;cursor:pointer;align-self:flex-start;">
+              <span style="width:6px;height:6px;border-radius:50%;background:var(--color-teal);"></span>
+              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-mid);">Trace · 3 items</span>
+              <span style="font-size:9px;color:var(--color-ink-light);margin-left:4px;">▾</span>
+            </div>
+            <!-- Input row -->
+            <div style="display:flex;align-items:center;gap:10px;background:white;border:1px solid var(--color-rule);border-radius:6px;padding:9px 14px;">
+              <input type="text" placeholder="Ask a follow-on or state a hypothesis to test…" style="flex:1;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--color-ink);background:transparent;">
+              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-rule);letter-spacing:0.08em;text-transform:uppercase;">v3</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spec-detail" style="padding:var(--space-5);">
+        <div class="spec-row"><span class="spec-prop">Position</span><span class="spec-val">position: absolute · bottom: 0 · left: 0 · right: 0 · z-index: 50</span></div>
+        <div class="spec-row"><span class="spec-prop">Background</span><span class="spec-val">var(--color-paper) · border-top: 1px solid var(--color-rule)</span></div>
+        <div class="spec-row"><span class="spec-prop">Inner container</span><span class="spec-val">max-width: 700px · centered · flex-direction: column · gap: 10px</span></div>
+        <div class="spec-row"><span class="spec-prop">Trace action bar</span><span class="spec-val">Appears above input when trace items exist. Button expands inline list (see org-trace-action-bar).</span></div>
+        <div class="spec-row"><span class="spec-prop">Input field</span><span class="spec-val">flex: 1 · DM Sans 13px · placeholder: "Ask a follow-on or state a hypothesis to test…"</span></div>
+        <div class="spec-row"><span class="spec-prop">Hint text</span><span class="spec-val">DM Mono 9px · right-aligned · version indicator</span></div>
+        <div class="spec-row"><span class="spec-prop">Sidecar state</span><span class="spec-val">.sc-open: right: var(--sc-w) · transition: --transition-slide · reply bar shifts left when sidecar opens</span></div>
+        <div class="spec-row"><span class="spec-prop">Hidden state</span><span class="spec-val">.hidden: display: none · used during cold open view before conversation starts</span></div>
+        <div class="semantic-note"><span>Semantic contract:</span> The reply bar is the conversational anchor. It never disappears during an active session. The trace action bar lives here because delegation is a conversational act — not a separate workflow.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLD OPEN INPUT ORGANISM -->
+  <div class="section-label">3.11 · Cold Open Input</div>
+  <p class="section-desc">The initial session input before conversation starts. Unlike the Reply Bar, this is positioned inline within the cold open welcome view, not fixed to viewport. Includes an explicit send button and appears below the suggestions block.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Cold Open Input Organism</span><span class="spec-token">org-cold-input</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+      <div style="padding:var(--space-5);border-right:1px solid var(--color-rule);background:var(--color-paper);">
+        <div style="max-width:400px;margin:0 auto;">
+          <div style="display:flex;align-items:center;gap:10px;background:white;border:1px solid var(--color-rule);border-radius:6px;padding:10px 16px;">
+            <input type="text" placeholder="Or ask your own question, or state a hypothesis to test…" style="flex:1;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--color-ink);background:transparent;">
+            <button style="width:28px;height:28px;border-radius:4px;background:var(--color-ink);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--color-paper);font-size:12px;">→</button>
+          </div>
+        </div>
+      </div>
+      <div class="spec-detail" style="padding:var(--space-5);">
+        <div class="spec-row"><span class="spec-prop">Position</span><span class="spec-val">Inline within cold-wrap container · NOT fixed to viewport · centered in cold open view</span></div>
+        <div class="spec-row"><span class="spec-prop">Max-width</span><span class="spec-val">600px · narrower than reply bar for visual focus</span></div>
+        <div class="spec-row"><span class="spec-prop">Input field</span><span class="spec-val">flex: 1 · DM Sans 13px · placeholder: "Or ask your own question, or state a hypothesis to test…"</span></div>
+        <div class="spec-row"><span class="spec-prop">Send button</span><span class="spec-val">Explicit arrow (→) · 28x28px · --color-ink bg · triggers coldStart()</span></div>
+        <div class="spec-row"><span class="spec-prop">Context</span><span class="spec-val">Appears below suggestions block · preceded by prior week context summary</span></div>
+        <div class="spec-row"><span class="spec-prop">Transition</span><span class="spec-val">On submit: view switches to convo shell · typing indicator appears · first response animates in</span></div>
+        <div class="semantic-note"><span>Difference from Reply Bar:</span> Cold input has an explicit send button (arrow), no trace indicator, and is positioned inline (not fixed). It only appears at session start before conversation begins.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRACE ACTION BAR ORGANISM (v1.3 - replaces modal pattern) -->
+  <div class="section-label">3.12 · Trace Action Bar</div>
+  <p class="section-desc">Inline trace management within the Reply Bar. Replaces the slide-up modal pattern from v1.2 to ensure the chat input is never obscured. The trace list expands upward within the reply bar, pushing content rather than overlaying it. Delegate opens in sidecar, not inline.</p>
+
+  <div class="spec-block mb-8">
+    <div class="spec-block-header"><span class="spec-name">Trace Action Bar Organism</span><span class="spec-token">org-trace-action-bar</span></div>
+    <div style="display:grid;grid-template-columns:320px 1fr;gap:0;">
+      <div style="padding:var(--space-5);border-right:1px solid var(--color-rule);background:var(--color-paper);">
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <!-- Toggle button -->
+          <div style="display:flex;align-items:center;gap:5px;padding:5px 11px;border:1px solid var(--color-teal);border-radius:3px;background:var(--color-teal-soft);cursor:pointer;align-self:flex-start;">
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--color-teal);"></span>
+            <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-teal);">Trace · 3 items</span>
+            <span style="font-size:9px;color:var(--color-teal);margin-left:4px;transform:rotate(180deg);display:inline-block;">▾</span>
+          </div>
+          <!-- Expanded list -->
+          <div style="background:white;border:1px solid var(--color-rule);border-radius:4px;overflow:hidden;">
+            <div style="background:var(--color-ink);padding:10px 14px;">
+              <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:#4a4640;margin-bottom:2px;">Session Trace · FW10</div>
+              <div style="font-size:12px;font-weight:500;color:var(--color-paper);">Lapsing loyalty — urban store decline</div>
+            </div>
+            <div style="max-height:140px;overflow-y:auto;">
+              <div style="display:grid;grid-template-columns:48px 1fr auto;gap:8px;padding:8px 12px;border-bottom:1px solid var(--color-cream);align-items:start;">
+                <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">7:03am</div>
+                <div><div style="font-size:10px;font-weight:500;color:var(--color-ink);">Front Store Trips</div><div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--color-ink-light);">Metric tap</div></div>
+                <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--color-sage);">Gov.</div>
+              </div>
+              <div style="display:grid;grid-template-columns:48px 1fr auto;gap:8px;padding:8px 12px;border-bottom:1px solid var(--color-cream);align-items:start;">
+                <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--color-ink-light);">7:06am</div>
+                <div><div style="font-size:10px;font-weight:500;color:var(--color-ink);">Lapsing Members</div><div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--color-ink-light);">Entity tap</div></div>
+                <div style="font-family:'DM Mono',monospace;font-size:8px;color:var(--color-sage);">Gov.</div>
+              </div>
+            </div>
+            <div style="padding:10px 14px;border-top:1px solid var(--color-rule);background:var(--color-cream);display:flex;justify-content:flex-end;">
+              <button style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;padding:7px 14px;background:var(--color-ink);color:var(--color-paper);border:none;border-radius:var(--radius-sm);cursor:pointer;">Delegate →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="spec-detail" style="padding:var(--space-5);">
+        <div class="spec-row"><span class="spec-prop">Position</span><span class="spec-val">Inline within reply-bar · NOT a modal overlay · expands upward, pushing input down</span></div>
+        <div class="spec-row"><span class="spec-prop">Toggle button</span><span class="spec-val">Dot indicator + "Trace · N items" label + chevron (▾). Hover/expanded: --color-teal border + --color-teal-soft bg.</span></div>
+        <div class="spec-row"><span class="spec-prop">Collapsed state</span><span class="spec-val">Only toggle button visible · aligns left within reply-inner</span></div>
+        <div class="spec-row"><span class="spec-prop">Expanded state</span><span class="spec-val">List appears below button · chevron rotates 180° · max-height: 280px · overflow-y: auto</span></div>
+        <div class="spec-row"><span class="spec-prop">Header</span><span class="spec-val">--color-ink bg · "Session Trace · FW[N]" + finding title · NO close button (toggle handles collapse)</span></div>
+        <div class="spec-row"><span class="spec-prop">Body</span><span class="spec-val">Scrollable trace items · reuses existing mol-trace-item-row styles · max-height: 180px</span></div>
+        <div class="spec-row"><span class="spec-prop">Actions footer</span><span class="spec-val">--color-cream bg · Delegate button right-aligned · NO item count (visible in list)</span></div>
+        <div class="spec-row"><span class="spec-prop">Delegate flow</span><span class="spec-val">Opens in SIDECAR (org-sidecar) · does NOT replace inline content · keeps conversational UI accessible</span></div>
+        <div class="spec-row"><span class="spec-prop">Visibility</span><span class="spec-val">Always visible in active sessions · initial trace item(s) added when first response is generated from batch-processed insights · every response involves data access</span></div>
+        <div class="semantic-note"><span>v1.3 change:</span> The modal pattern from v1.2 covered the chat input, undermining the conversational UI. This inline pattern keeps the input always visible. Delegate opens in sidecar to maintain spatial consistency with other detail views.</div>
       </div>
     </div>
   </div>
@@ -1795,7 +1939,6 @@ code { font-family:'DM Mono',monospace;font-size:var(--text-xs);background:var(-
       </div>
     </div>
   </div>
-</div>
 
   <!-- ANALYST BRIEF TEMPLATE (v1.2) -->
   <div class="section-label">4.5 · Analyst Brief Template</div>
