@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSE Phase 1 — Define</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,300&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #FAFAF8;
+    --surface: #FFFFFF;
+    --surface-alt: #F4F3EF;
+    --border: #E5E3DC;
+    --border-strong: #D0CEC6;
+    --text: #1A1A18;
+    --text-secondary: #6B6960;
+    --text-tertiary: #9C9A90;
+    --accent: #2D5A3D;
+    --accent-light: #E8F0EB;
+    --accent-mid: #4A8B62;
+    --warm: #B8860B;
+    --warm-light: #FDF6E3;
+    --coral: #C75C3A;
+    --coral-light: #FEF0EB;
+    --blue: #3A6B8C;
+    --blue-light: #EBF2F7;
+    --purple: #6B5B8A;
+    --purple-light: #F0ECF5;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,0.08), 0 4px 8px rgba(0,0,0,0.04);
+    --font-body: 'DM Sans', sans-serif;
+    --font-display: 'Fraunces', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  html, body {
+    height: 100vh;
+    overflow: hidden;
+    background: var(--bg);
+    font-family: var(--font-body);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── APP SHELL ─── */
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .header-mark {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .header-title {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 17px;
+    letter-spacing: -0.02em;
+  }
+  .header-title span { color: var(--text-tertiary); font-weight: 300; }
+  .header-phase {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+
+  /* ─── NAV TABS ─── */
+  .nav {
+    display: flex;
+    gap: 2px;
+    padding: 0 28px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .nav-tab {
+    padding: 11px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    font-family: var(--font-body);
+    position: relative;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+  }
+  .nav-tab .tab-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    margin-right: 6px;
+    background: var(--surface-alt);
+    color: var(--text-secondary);
+    vertical-align: middle;
+  }
+  .nav-tab.active .tab-num {
+    background: var(--accent);
+    color: white;
+  }
+
+  /* ─── MAIN CONTENT ─── */
+  .main {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+  .panel {
+    position: absolute;
+    inset: 0;
+    padding: 28px;
+    display: none;
+    opacity: 0;
+    overflow-y: auto;
+  }
+  .panel.active {
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    animation: panelIn 0.3s ease;
+  }
+  @keyframes panelIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── PANEL LAYOUTS ─── */
+  .panel-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    flex: 1;
+    min-height: 0;
+  }
+  .panel-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .panel-col::-webkit-scrollbar { width: 4px; }
+  .panel-col::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+
+  .panel-header {
+    margin-bottom: 4px;
+    flex-shrink: 0;
+  }
+  .panel-header h2 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .panel-header p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    max-width: 680px;
+  }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+  .card:hover { box-shadow: var(--shadow-md); }
+  .card-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card-label .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .card h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .card p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+
+  /* ─── FLOW DIAGRAM ─── */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    flex: 1;
+    justify-content: center;
+    padding: 10px 0;
+  }
+  .flow-node {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 22px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    min-width: 320px;
+    max-width: 420px;
+    box-shadow: var(--shadow-sm);
+  }
+  .flow-node:hover {
+    border-color: var(--accent-mid);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  .flow-node.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-light), var(--shadow-md);
+  }
+  .flow-node .node-icon {
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .flow-node .node-text h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .flow-node .node-text p {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .flow-node .expand-hint {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .flow-node:hover .expand-hint { opacity: 1; }
+
+  .flow-arrow {
+    width: 2px;
+    height: 22px;
+    background: var(--border-strong);
+    position: relative;
+  }
+  .flow-arrow::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid var(--border-strong);
+  }
+
+  /* ─── DETAIL PANEL (right side) ─── */
+  .detail-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+  }
+  .detail-header {
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 2;
+  }
+  .detail-header h3 {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .detail-header p {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .detail-body {
+    padding: 18px 22px;
+  }
+  .detail-section {
+    margin-bottom: 18px;
+  }
+  .detail-section h4 {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-tertiary);
+    margin-bottom: 10px;
+  }
+  .detail-section p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  /* ─── EXPANDABLE SCHEMA ─── */
+  .schema-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+    width: 100%;
+    font-family: var(--font-body);
+  }
+  .schema-toggle:hover {
+    background: var(--border);
+    color: var(--text);
+  }
+  .schema-toggle .chevron {
+    transition: transform 0.25s;
+    font-size: 10px;
+  }
+  .schema-toggle.open .chevron { transform: rotate(90deg); }
+  .schema-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+  }
+  .schema-content.open {
+    max-height: 600px;
+  }
+  .schema-content pre {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    line-height: 1.6;
+    padding: 14px;
+    background: #2B2D30;
+    color: #D4D4D4;
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-top: none;
+  }
+  .schema-content pre .key { color: #9CDCFE; }
+  .schema-content pre .type { color: #4EC9B0; }
+  .schema-content pre .str { color: #CE9178; }
+  .schema-content pre .comment { color: #6A9955; }
+  .schema-content pre .enum { color: #DCDCAA; }
+
+  /* ─── TAG PILLS ─── */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid;
+  }
+  .tag.green { background: var(--accent-light); color: var(--accent); border-color: #C2D9CA; }
+  .tag.warm { background: var(--warm-light); color: var(--warm); border-color: #E8D9B0; }
+  .tag.coral { background: var(--coral-light); color: var(--coral); border-color: #E8C4B5; }
+  .tag.blue { background: var(--blue-light); color: var(--blue); border-color: #B8CED9; }
+  .tag.purple { background: var(--purple-light); color: var(--purple); border-color: #C8BFD9; }
+
+  /* ─── TOOL CARDS ─── */
+  .tool-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tool-card:hover {
+    border-color: var(--accent-mid);
+    box-shadow: var(--shadow-sm);
+  }
+  .tool-card.selected {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+  .tool-card h5 {
+    font-size: 12.5px;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .tool-card p {
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    line-height: 1.45;
+  }
+
+  /* ─── OVERVIEW GRID ─── */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    flex: 1;
+    align-content: center;
+  }
+  .overview-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+  }
+  .overview-card .oc-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    margin-bottom: 16px;
+  }
+  .overview-card h3 {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .overview-card p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    flex: 1;
+  }
+  .overview-card .oc-footer {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-detail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-tertiary);
+    text-align: center;
+    padding: 40px;
+  }
+  .empty-detail .empty-icon {
+    font-size: 36px;
+    margin-bottom: 14px;
+    opacity: 0.5;
+  }
+  .empty-detail p { font-size: 13px; line-height: 1.5; }
+
+  /* ─── HANDOFF SECTION ─── */
+  .handoff-visual {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    flex: 1;
+    min-height: 0;
+  }
+  .handoff-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 24px;
+  }
+  .handoff-col.left {
+    background: var(--accent-light);
+    border-radius: var(--radius) 0 0 var(--radius);
+    border: 1px solid #C2D9CA;
+  }
+  .handoff-col.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 80px;
+  }
+  .handoff-col.right {
+    background: var(--blue-light);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    border: 1px solid #B8CED9;
+  }
+  .handoff-arrow {
+    font-size: 28px;
+    color: var(--text-tertiary);
+  }
+  .handoff-col h3 {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 12px;
+  }
+  .handoff-col ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .handoff-col li {
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    line-height: 1.45;
+  }
+  .handoff-col li .li-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ─── RESPONSIVE FIX ─── */
+  @media (max-height: 700px) {
+    .flow-node { padding: 10px 18px; min-width: 280px; }
+    .flow-node .node-icon { width: 32px; height: 32px; font-size: 15px; }
+    .flow-arrow { height: 16px; }
+    .overview-card { padding: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="header-mark">D</div>
+      <div class="header-title">Data Scientist Engine <span>— Interactive Spec</span></div>
+    </div>
+    <div class="header-phase">Phase 1: Define</div>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav" id="nav">
+    <button class="nav-tab active" data-tab="overview"><span class="tab-num">1</span>The Big Picture</button>
+    <button class="nav-tab" data-tab="flow"><span class="tab-num">2</span>How It Works</button>
+    <button class="nav-tab" data-tab="scope"><span class="tab-num">3</span>Scope Agent</button>
+    <button class="nav-tab" data-tab="plan"><span class="tab-num">4</span>Plan Agent</button>
+    <button class="nav-tab" data-tab="handoff"><span class="tab-num">5</span>The Handoff</button>
+  </div>
+
+  <!-- PANELS -->
+  <div class="main">
+
+    <!-- 1. OVERVIEW -->
+    <div class="panel active" id="panel-overview">
+      <div class="panel-header">
+        <h2>What are we building and why?</h2>
+        <p>We're building a system that turns a business question — asked in plain English — into a data science project plan that a principal data scientist would approve. No manual scoping. No back-and-forth in docs. Just a conversation that produces a real, executable plan.</p>
+      </div>
+      <div class="overview-grid">
+        <div class="overview-card">
+          <div class="oc-icon" style="background:var(--accent-light);color:var(--accent);">🎯</div>
+          <h3>The Problem</h3>
+          <p>Data science projects start with vague business questions. Turning those into precise, well-planned work takes senior expertise and multiple rounds of clarification — and it's the step most likely to go wrong.</p>
+          <div class="oc-footer">Misscoped projects waste everything downstream</div>
+        </div>
+        <div class="overview-card">
+          <div class="oc-icon" style="background:var(--warm-light);color:var(--warm);">💡</div>
+          <h3>Our Approach</h3>
+          <p>Two specialized agents work in sequence. The first has a conversation with you to understand exactly what you need. The second takes that understanding and designs the project plan — tasks, dependencies, and all.</p>
+          <div class="oc-footer">Scope and planning are deliberately separated</div>
+        </div>
+        <div class="overview-card">
+          <div class="oc-icon" style="background:var(--coral-light);color:var(--coral);">✅</div>
+          <h3>What Success Looks Like</h3>
+          <p>A principal data scientist reviews the plan and says: "Yes, this is how I'd approach it." The plan is detailed enough that an execution system can pick it up and run it without asking clarifying questions.</p>
+          <div class="oc-footer">Principal-quality plans from conversation</div>
+        </div>
+        <div class="overview-card">
+          <div class="oc-icon" style="background:var(--blue-light);color:var(--blue);">🧬</div>
+          <h3>CGF-Native</h3>
+          <p>The system speaks Customer Growth Framework. It knows lifecycle stages, customer segments, and the analytical patterns that matter for our business. It doesn't start from scratch — it starts from domain knowledge.</p>
+          <div class="oc-footer">Domain-aware, not generic</div>
+        </div>
+        <div class="overview-card">
+          <div class="oc-icon" style="background:var(--purple-light);color:var(--purple);">📐</div>
+          <h3>Phase 1 of 3</h3>
+          <p>This phase proves the hardest part: can we reliably go from a fuzzy question to a rigorous plan? Once this works, Phase 2 (execution) and Phase 3 (delivery) build on top of it.</p>
+          <div class="oc-footer">Define → Analyze → Deliver</div>
+        </div>
+        <div class="overview-card">
+          <div class="oc-icon" style="background:var(--accent-light);color:var(--accent);">🔒</div>
+          <h3>Clean Separation</h3>
+          <p>Each component does one thing. The Scope Agent doesn't plan. The Plan Agent doesn't talk to users. They communicate through a structured artifact — never through shared state or side channels.</p>
+          <div class="oc-footer">Isolated responsibilities, clear contracts</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. FLOW -->
+    <div class="panel" id="panel-flow">
+      <div class="panel-header">
+        <h2>The end-to-end flow</h2>
+        <p>A business question enters the system and travels through a structured pipeline. Click any step to see what happens inside it.</p>
+      </div>
+      <div class="panel-split">
+        <div class="panel-col" style="align-items:center;">
+          <div class="flow">
+            <div class="flow-node" data-flow="input" onclick="selectFlow(this)">
+              <div class="node-icon" style="background:var(--warm-light);color:var(--warm);">💬</div>
+              <div class="node-text">
+                <h4>Business Question</h4>
+                <p>Stakeholder asks a question in plain language</p>
+              </div>
+              <span class="expand-hint">click →</span>
+            </div>
+            <div class="flow-arrow"></div>
+            <div class="flow-node" data-flow="classify" onclick="selectFlow(this)">
+              <div class="node-icon" style="background:var(--accent-light);color:var(--accent);">🏷️</div>
+              <div class="node-text">
+                <h4>Intent Classification</h4>
+                <p>Map to CGF lifecycle stage + analytical pattern</p>
+              </div>
+              <span class="expand-hint">click →</span>
+            </div>
+            <div class="flow-arrow"></div>
+            <div class="flow-node" data-flow="disambig" onclick="selectFlow(this)">
+              <div class="node-icon" style="background:var(--coral-light);color:var(--coral);">🔍</div>
+              <div class="node-text">
+                <h4>Disambiguation Loop</h4>
+                <p>Fill gaps through targeted questions</p>
+              </div>
+              <span class="expand-hint">click →</span>
+            </div>
+            <div class="flow-arrow"></div>
+            <div class="flow-node" data-flow="scope" onclick="selectFlow(this)">
+              <div class="node-icon" style="background:var(--blue-light);color:var(--blue);">📋</div>
+              <div class="node-text">
+                <h4>Scope Artifact</h4>
+                <p>Validated, frozen scope document</p>
+              </div>
+              <span class="expand-hint">click →</span>
+            </div>
+            <div class="flow-arrow"></div>
+            <div class="flow-node" data-flow="plangen" onclick="selectFlow(this)">
+              <div class="node-icon" style="background:var(--purple-light);color:var(--purple);">🗺️</div>
+              <div class="node-text">
+                <h4>Plan Generation</h4>
+                <p>Decompose scope into task DAG with budgets</p>
+              </div>
+              <span class="expand-hint">click →</span>
+            </div>
+            <div class="flow-arrow"></div>
+            <div class="flow-node" data-flow="handoff" onclick="selectFlow(this)">
+              <div class="node-icon" style="background:var(--accent-light);color:var(--accent);">🚀</div>
+              <div class="node-text">
+                <h4>Handoff to Phase 2</h4>
+                <p>Plan Artifact becomes the execution contract</p>
+              </div>
+              <span class="expand-hint">click →</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-col">
+          <div class="detail-panel" id="flow-detail">
+            <div class="empty-detail">
+              <div class="empty-icon">👈</div>
+              <p>Click any step in the flow<br>to see what happens inside it</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. SCOPE AGENT -->
+    <div class="panel" id="panel-scope">
+      <div class="panel-header">
+        <h2>Scope Agent — the conversation partner</h2>
+        <p>The Scope Agent's only job is to turn a vague business question into a precise, complete scope. It talks to the user, asks the right questions, and produces a structured document that says exactly what needs to be analyzed.</p>
+      </div>
+      <div class="panel-split">
+        <div class="panel-col">
+          <div class="card">
+            <div class="card-label" style="color:var(--accent);"><span class="dot" style="background:var(--accent);"></span>What It Does</div>
+            <h3>Three things, nothing more</h3>
+            <p style="margin-bottom:10px;">The Scope Agent classifies the intent (what kind of analysis is this?), extracts structured fields from the conversation (who, what, when, vs. what?), and validates that nothing critical is missing before locking the scope.</p>
+            <div class="tags" style="margin-top:8px;">
+              <span class="tag green">Classifies intent</span>
+              <span class="tag warm">Extracts scope fields</span>
+              <span class="tag coral">Validates completeness</span>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-label" style="color:var(--coral);"><span class="dot" style="background:var(--coral);"></span>What It Doesn't Do</div>
+            <h3>Strict boundaries</h3>
+            <p>It never decides how the work will be done. It never checks if data exists. It never selects tools or playbooks. Those are the Plan Agent's concerns. This separation means the scope stays pure — it captures the business need without being shaped by implementation constraints.</p>
+          </div>
+          <div class="card">
+            <div class="card-label" style="color:var(--blue);"><span class="dot" style="background:var(--blue);"></span>Conversation Design</div>
+            <h3>One question at a time</h3>
+            <p>The agent asks targeted questions to fill specific gaps. It doesn't dump a questionnaire. If you say "how are reactivated customers performing?", it knows the lifecycle stage (reactivated) and needs to clarify: performing on what metric? compared to whom? over what timeframe?</p>
+          </div>
+        </div>
+        <div class="panel-col">
+          <div class="card-label" style="color:var(--purple);padding:0 0 8px;"><span class="dot" style="background:var(--purple);"></span>Toolkit — 4 specialized tools</div>
+          <div class="tool-grid">
+            <div class="tool-card" data-tool="intent" onclick="selectTool(this)">
+              <h5>🏷️ Intent Classifier</h5>
+              <p>Maps question to CGF lifecycle stage and analytical pattern</p>
+            </div>
+            <div class="tool-card" data-tool="extractor" onclick="selectTool(this)">
+              <h5>📝 Scope Extractor</h5>
+              <p>Parses population, metric, timeframe, comparison from conversation</p>
+            </div>
+            <div class="tool-card" data-tool="validator" onclick="selectTool(this)">
+              <h5>✅ Completeness Validator</h5>
+              <p>Checks all required fields are present for the analytical pattern</p>
+            </div>
+            <div class="tool-card" data-tool="formatter" onclick="selectTool(this)">
+              <h5>📋 Scope Formatter</h5>
+              <p>Renders the final Scope Artifact for approval</p>
+            </div>
+          </div>
+          <div id="tool-detail-scope" style="margin-top:8px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. PLAN AGENT -->
+    <div class="panel" id="panel-plan">
+      <div class="panel-header">
+        <h2>Plan Agent — the project architect</h2>
+        <p>The Plan Agent takes the locked scope and designs the project. It figures out what tasks are needed, which ones can run in parallel, what each task needs to finish, and how much exploration to budget. It never talks to the user — it works from the scope alone.</p>
+      </div>
+      <div class="panel-split">
+        <div class="panel-col">
+          <div class="card">
+            <div class="card-label" style="color:var(--purple);"><span class="dot" style="background:var(--purple);"></span>What It Produces</div>
+            <h3>A plan with three views</h3>
+            <p style="margin-bottom:12px;">The same plan serves three audiences. Stakeholders see a numbered list they can understand. The execution system sees a dependency graph it can run. And a trace view fills in during execution to create an audit trail.</p>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+              <div style="display:flex;gap:10px;align-items:flex-start;">
+                <span class="tag green" style="flex-shrink:0;">Stakeholder</span>
+                <span style="font-size:12px;color:var(--text-secondary);line-height:1.45;">Numbered steps in plain language — "First we'll profile the cohort, then compare spend patterns…"</span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start;">
+                <span class="tag blue" style="flex-shrink:0;">Agent</span>
+                <span style="font-size:12px;color:var(--text-secondary);line-height:1.45;">DAG of tasks with entry conditions, exit conditions, fan-out rules, and budget allocations</span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start;">
+                <span class="tag purple" style="flex-shrink:0;">Trace</span>
+                <span style="font-size:12px;color:var(--text-secondary);line-height:1.45;">Empty at plan time, fills in during execution — what happened, what was found, why it stopped</span>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-label" style="color:var(--warm);"><span class="dot" style="background:var(--warm);"></span>Key Concepts</div>
+            <h3>Fan-out, while-loops, and budgets</h3>
+            <p><strong>Fan-out:</strong> Some tasks can run in parallel — analyzing four customer segments simultaneously instead of sequentially.<br><br><strong>While-loops:</strong> Exploration tasks repeat until the agent reaches a conclusion or runs out of budget.<br><br><strong>Budgets:</strong> Each task gets an exploration budget based on its type and importance. This prevents the system from exploring forever.</p>
+          </div>
+        </div>
+        <div class="panel-col">
+          <div class="card-label" style="color:var(--accent);padding:0 0 8px;"><span class="dot" style="background:var(--accent);"></span>Toolkit — 4 specialized tools</div>
+          <div class="tool-grid">
+            <div class="tool-card" data-tool="decomposer" onclick="selectTool(this)">
+              <h5>🧩 Task Decomposer</h5>
+              <p>Breaks scope into atomic task nodes using CGF templates</p>
+            </div>
+            <div class="tool-card" data-tool="resolver" onclick="selectTool(this)">
+              <h5>🔗 Dependency Resolver</h5>
+              <p>Organizes tasks into a DAG with fan-out and join points</p>
+            </div>
+            <div class="tool-card" data-tool="allocator" onclick="selectTool(this)">
+              <h5>⚖️ Budget Allocator</h5>
+              <p>Assigns exploration budgets and exit conditions per task</p>
+            </div>
+            <div class="tool-card" data-tool="planfmt" onclick="selectTool(this)">
+              <h5>📐 Plan Formatter</h5>
+              <p>Renders the three-view Plan Artifact</p>
+            </div>
+          </div>
+          <div id="tool-detail-plan" style="margin-top:8px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. HANDOFF -->
+    <div class="panel" id="panel-handoff">
+      <div class="panel-header">
+        <h2>The contract between phases</h2>
+        <p>Two artifacts are the formal output of Phase 1. They carry everything Phase 2 needs to begin execution — no ambiguity, no missing pieces, no verbal agreements. Click either artifact to see its structure.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:18px;flex:1;min-height:0;">
+        <div class="handoff-visual">
+          <div class="handoff-col left">
+            <h3>📋 Scope Artifact</h3>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;">The "what" — a precise definition of the analytical task</p>
+            <ul>
+              <li><span class="li-icon">👥</span>Population — exactly who we're analyzing</li>
+              <li><span class="li-icon">📊</span>Metric — exactly what we're measuring</li>
+              <li><span class="li-icon">📅</span>Timeframe — exactly when</li>
+              <li><span class="li-icon">⚖️</span>Comparison — vs. what baseline</li>
+              <li><span class="li-icon">🎯</span>Business context — what decision this informs</li>
+            </ul>
+            <div style="margin-top:16px;">
+              <button class="schema-toggle" onclick="toggleSchema('scope-schema')">
+                <span class="chevron">▶</span> View Scope Artifact schema
+              </button>
+              <div class="schema-content" id="scope-schema">
+                <pre><span class="comment">// Scope Artifact — immutable once approved</span>
+{
+  <span class="key">scope_id</span>:     <span class="type">string</span>,
+  <span class="key">approved_at</span>:  <span class="type">datetime</span>,
+  <span class="key">intent</span>: {
+    <span class="key">lifecycle_stage</span>:    <span class="enum">"reactivated"</span>,
+    <span class="key">analytical_pattern</span>: <span class="enum">"compare"</span>
+  },
+  <span class="key">definition</span>: {
+    <span class="key">population</span>:  { <span class="key">criteria</span>: [...] },
+    <span class="key">metric</span>:      { <span class="key">name</span>: <span class="str">"90-day retention"</span> },
+    <span class="key">timeframe</span>:   { <span class="key">start</span>, <span class="key">end</span>, <span class="key">granularity</span> },
+    <span class="key">comparison</span>:  { <span class="key">type</span>: <span class="enum">"vs_population"</span> },
+    <span class="key">business_context</span>: { <span class="key">decision</span>: <span class="str">"..."</span> }
+  }
+}</pre>
+              </div>
+            </div>
+          </div>
+          <div class="handoff-col center">
+            <div class="handoff-arrow">→</div>
+          </div>
+          <div class="handoff-col right">
+            <h3>🗺️ Plan Artifact</h3>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;">The "how" — a dependency-aware execution blueprint</p>
+            <ul>
+              <li><span class="li-icon">🧩</span>Task nodes — atomic units of analytical work</li>
+              <li><span class="li-icon">🔗</span>Dependencies — which tasks feed into which</li>
+              <li><span class="li-icon">🔀</span>Fan-out points — where work parallelizes</li>
+              <li><span class="li-icon">🔁</span>While-loops — iterative exploration tasks</li>
+              <li><span class="li-icon">⚖️</span>Budgets — how much exploration per task</li>
+            </ul>
+            <div style="margin-top:16px;">
+              <button class="schema-toggle" onclick="toggleSchema('plan-schema')">
+                <span class="chevron">▶</span> View Plan Artifact schema
+              </button>
+              <div class="schema-content" id="plan-schema">
+                <pre><span class="comment">// Plan Artifact — execution contract</span>
+{
+  <span class="key">plan_id</span>:    <span class="type">string</span>,
+  <span class="key">scope_id</span>:   <span class="type">string</span>,  <span class="comment">// back-ref</span>
+  <span class="key">stakeholder_view</span>: {
+    <span class="key">steps</span>: [{ <span class="key">description</span>, <span class="key">rationale</span> }]
+  },
+  <span class="key">agent_view</span>: {
+    <span class="key">dag</span>: {
+      <span class="key">nodes</span>: [{
+        <span class="key">task_id</span>, <span class="key">depends_on</span>: [],
+        <span class="key">entry_conditions</span>: [...],
+        <span class="key">exit_condition</span>: {
+          <span class="key">type</span>: <span class="enum">"hypothesis_stable"</span>
+        },
+        <span class="key">exploration_budget</span>: <span class="type">int</span>
+      }],
+      <span class="key">fan_out_points</span>: [...]
+    }
+  },
+  <span class="key">trace_view</span>: { <span class="comment">/* fills during Phase 2 */</span> }
+}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="flex-shrink:0;">
+          <div class="card-label" style="color:var(--accent);"><span class="dot" style="background:var(--accent);"></span>The Boundary Rule</div>
+          <h3>Why the separation matters</h3>
+          <p>The Scope Artifact is the <strong>only</strong> interface between the Scope Agent and the Plan Agent. They share no state, no conversation history, no side channels. This means: the scope can't be subtly altered during planning, the plan is always traceable to a specific approved scope, and if the plan is wrong, you know the problem is in planning — not in a scope that drifted.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div>
+
+<script>
+// ─── TAB NAVIGATION ───
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ─── FLOW DETAIL DATA ───
+const flowData = {
+  input: {
+    title: 'Business Question',
+    subtitle: 'Where everything starts',
+    sections: [
+      { heading: 'In plain terms', text: 'Someone asks a question like "How are our reactivated low-engaged customers performing compared to new customers?" This could come from a Slack message, a meeting follow-up, or a typed prompt. The system needs to handle ambiguity — most business questions are imprecise.' },
+      { heading: 'What the system receives', text: 'Raw natural language text. No structure, no metadata, no guarantees about completeness. The entire job of Phase 1 is to transform this into something structured and actionable.' },
+      { heading: 'Examples', tags: [
+        { text: '"Why is retention dropping for reactivated users?"', cls: 'warm' },
+        { text: '"Compare spend patterns: new vs. medium-engaged"', cls: 'blue' },
+        { text: '"What drives high engagement?"', cls: 'green' }
+      ]}
+    ]
+  },
+  classify: {
+    title: 'Intent Classification',
+    subtitle: 'Scope Agent — first tool in the chain',
+    sections: [
+      { heading: 'In plain terms', text: 'The system reads the question and figures out two things: which part of the customer lifecycle is this about (new customers? reactivated? at-risk?) and what kind of analysis is being asked for (describe a group? compare two groups? predict something? explain why?).' },
+      { heading: 'Why this matters', text: 'The lifecycle stage tells the system which data tables and metrics are relevant. The analytical pattern determines what kind of tasks the plan will need — a comparison needs two cohorts and a statistical test, a prediction needs features and a model.' },
+      { heading: 'CGF lifecycle stages', tags: [
+        { text: 'New Customer', cls: 'green' },
+        { text: 'Low-Engaged', cls: 'warm' },
+        { text: 'Reactivated', cls: 'coral' },
+        { text: 'Medium-Engaged', cls: 'blue' },
+        { text: 'At-Risk', cls: 'purple' }
+      ]}
+    ]
+  },
+  disambig: {
+    title: 'Disambiguation Loop',
+    subtitle: 'Scope Agent — interactive conversation',
+    sections: [
+      { heading: 'In plain terms', text: 'The system figures out what\'s missing from the question and asks targeted follow-up questions — one at a time, not a questionnaire. If you said "how are reactivated customers performing?" it needs to know: performing on which metric? compared to whom? over what time period?' },
+      { heading: 'How it converges', text: 'Each answer fills a specific field in the scope. The agent checks completeness after every response. When all required fields are populated, it presents the full scope for your approval. Typically this takes 3–5 exchanges.' },
+      { heading: 'Safety rails', text: 'Maximum 10 disambiguation turns. If the agent can\'t converge, it surfaces what it has and asks the user to fill remaining gaps manually. This prevents frustrating infinite loops.' }
+    ]
+  },
+  scope: {
+    title: 'Scope Artifact',
+    subtitle: 'The contract between Scope and Plan',
+    sections: [
+      { heading: 'In plain terms', text: 'The finished scope is a structured document that precisely defines: who are we analyzing (the population), what are we measuring (the metric), over what time period (the timeframe), compared to what (the baseline), and what business decision does this inform.' },
+      { heading: 'Why it\'s immutable', text: 'Once you approve the scope, it freezes. The Plan Agent can\'t modify it. This prevents scope drift — where the project gradually shifts away from the original question during planning or execution.' },
+      { heading: 'Scope fields', tags: [
+        { text: 'Population', cls: 'green' },
+        { text: 'Metric', cls: 'warm' },
+        { text: 'Timeframe', cls: 'blue' },
+        { text: 'Comparison', cls: 'coral' },
+        { text: 'Business Context', cls: 'purple' }
+      ]}
+    ]
+  },
+  plangen: {
+    title: 'Plan Generation',
+    subtitle: 'Plan Agent — fully automated',
+    sections: [
+      { heading: 'In plain terms', text: 'The Plan Agent reads the scope and designs the project. It breaks the work into discrete tasks, figures out which tasks depend on which, decides where work can run in parallel, and assigns an exploration budget to each task so nothing runs forever.' },
+      { heading: 'No user interaction', text: 'The Plan Agent never talks to the user. It works entirely from the approved scope plus its knowledge of CGF task templates, the tool taxonomy, and available playbooks. If it can\'t fully plan something, it flags the gap in the plan metadata rather than guessing.' },
+      { heading: 'Output', text: 'A Plan Artifact with three views: a stakeholder-readable numbered list, an executable DAG for the agent harness, and an empty trace structure that fills in during Phase 2 execution.' }
+    ]
+  },
+  handoff: {
+    title: 'Handoff to Phase 2',
+    subtitle: 'The execution contract',
+    sections: [
+      { heading: 'In plain terms', text: 'The Plan Artifact is the only thing that crosses the boundary into Phase 2. The Analyze-phase harness reads the DAG, spins up agents for the first ready tasks, and manages the execution lifecycle. No verbal handoffs, no context lost in translation.' },
+      { heading: 'What Phase 2 gets', text: 'Every task node in the plan specifies: what to do, what data it needs, what playbook pattern to follow, what tools (by type) it requires, when to start, and when to stop. Phase 2 is covered in a future spec.' },
+      { heading: 'Gaps are explicit', tags: [
+        { text: 'Tool gaps flagged', cls: 'coral' },
+        { text: 'Playbook gaps flagged', cls: 'warm' },
+        { text: 'Data gaps flagged', cls: 'purple' }
+      ]}
+    ]
+  }
+};
+
+function selectFlow(node) {
+  document.querySelectorAll('.flow-node').forEach(n => n.classList.remove('selected'));
+  node.classList.add('selected');
+  const key = node.dataset.flow;
+  const data = flowData[key];
+  const detail = document.getElementById('flow-detail');
+
+  let html = `<div class="detail-header"><h3>${data.title}</h3><p>${data.subtitle}</p></div><div class="detail-body">`;
+  data.sections.forEach(s => {
+    html += `<div class="detail-section"><h4>${s.heading}</h4>`;
+    if (s.text) html += `<p>${s.text}</p>`;
+    if (s.tags) html += `<div class="tags" style="margin-top:8px;">${s.tags.map(t => `<span class="tag ${t.cls}">${t.text}</span>`).join('')}</div>`;
+    html += `</div>`;
+  });
+  html += `</div>`;
+  detail.innerHTML = html;
+}
+
+// ─── TOOL DETAIL DATA ───
+const toolData = {
+  intent: {
+    title: '🏷️ Intent Classifier',
+    plain: 'Reads the business question and determines which CGF lifecycle stage it belongs to and what kind of analysis is needed (profile, compare, predict, explain, or segment).',
+    schema: `<span class="key">input</span>:  { <span class="key">raw_question</span>: <span class="type">string</span> }
+<span class="key">output</span>: {
+  <span class="key">lifecycle_stage</span>:    <span class="enum">"acquisition"</span> | <span class="enum">"new_customer"</span> | ...
+  <span class="key">analytical_pattern</span>: <span class="enum">"profile"</span> | <span class="enum">"compare"</span> | ...
+  <span class="key">confidence</span>:         <span class="type">float</span> (0-1)
+  <span class="key">ambiguities</span>:        <span class="type">string[]</span>
+}`
+  },
+  extractor: {
+    title: '📝 Scope Extractor',
+    plain: 'Pulls structured fields out of natural language — the population, metric, timeframe, and comparison. Accumulates across multiple conversation turns so each answer builds on the last.',
+    schema: `<span class="key">input</span>:  {
+  <span class="key">raw_question</span>: <span class="type">string</span>,
+  <span class="key">prior_extractions</span>: <span class="type">PartialScope</span> | <span class="type">null</span>
+}
+<span class="key">output</span>: {
+  <span class="key">partial_scope</span>: {
+    <span class="key">population</span>, <span class="key">metric</span>, <span class="key">timeframe</span>,
+    <span class="key">comparison</span>, <span class="key">business_context</span>
+  },
+  <span class="key">missing_fields</span>: <span class="type">string[]</span>
+}`
+  },
+  validator: {
+    title: '✅ Completeness Validator',
+    plain: 'Checks whether the scope has all the fields needed for the identified analytical pattern. Different patterns need different fields — a comparison needs a baseline, a prediction needs a horizon.',
+    schema: `<span class="key">input</span>:  {
+  <span class="key">partial_scope</span>:      <span class="type">PartialScope</span>,
+  <span class="key">analytical_pattern</span>: <span class="type">enum</span>
+}
+<span class="key">output</span>: {
+  <span class="key">is_complete</span>:    <span class="type">boolean</span>,
+  <span class="key">missing_fields</span>: [{
+    <span class="key">field_name</span>, <span class="key">importance</span>,
+    <span class="key">suggested_question</span>: <span class="type">string</span>
+  }]
+}`
+  },
+  formatter: {
+    title: '📋 Scope Formatter',
+    plain: 'Takes the validated scope and produces the final Scope Artifact — both a human-readable summary for user approval and the structured document the Plan Agent will consume.',
+    schema: `<span class="key">input</span>:  { <span class="key">complete_scope</span>: <span class="type">PartialScope</span> }
+<span class="key">output</span>: {
+  <span class="key">scope_artifact</span>: <span class="type">ScopeArtifact</span>,
+  <span class="key">human_readable</span>: <span class="type">string</span>
+  <span class="comment">// presented to user for approval</span>
+}`
+  },
+  decomposer: {
+    title: '🧩 Task Decomposer',
+    plain: 'Breaks the scope into individual tasks by matching against CGF templates. Each task is an atomic unit of work — "profile tenure distribution" or "run statistical comparison." It also identifies which tool types each task needs.',
+    schema: `<span class="key">input</span>:  { <span class="key">scope_artifact</span>: <span class="type">ScopeArtifact</span> }
+<span class="key">output</span>: {
+  <span class="key">task_nodes</span>: [{
+    <span class="key">task_id</span>,
+    <span class="key">task_type</span>: <span class="enum">"profiling"</span> | <span class="enum">"exploration"</span> | ...,
+    <span class="key">playbook_ref</span>: <span class="type">string</span> | <span class="type">null</span>,
+    <span class="key">tool_types_needed</span>: <span class="type">string[]</span>
+  }]
+}`
+  },
+  resolver: {
+    title: '🔗 Dependency Resolver',
+    plain: 'Takes the list of tasks and figures out the order — which tasks feed data to which, where branches can run in parallel (fan-out), and where they need to come back together (join). Catches circular dependencies.',
+    schema: `<span class="key">input</span>:  { <span class="key">task_nodes</span>: <span class="type">TaskNode[]</span> }
+<span class="key">output</span>: {
+  <span class="key">dag</span>: {
+    <span class="key">nodes</span>: [{ <span class="key">task_id</span>, <span class="key">depends_on</span>: [],
+      <span class="key">entry_conditions</span>: [...] }],
+    <span class="key">fan_out_points</span>: [{
+      <span class="key">branches</span>: [], <span class="key">join_task</span>: <span class="type">string</span>
+    }]
+  }
+}`
+  },
+  allocator: {
+    title: '⚖️ Budget Allocator',
+    plain: 'Assigns an exploration budget and stopping condition to every task. Exploration tasks get more room to iterate; ingestion tasks get tight limits. This is what prevents the system from exploring forever.',
+    schema: `<span class="key">input</span>:  { <span class="key">dag</span>: <span class="type">PlanDAG</span>, <span class="key">cost_model</span>: <span class="type">Config</span> }
+<span class="key">output</span>: {
+  <span class="key">allocated_nodes</span>: [{
+    <span class="key">task_id</span>,
+    <span class="key">exploration_budget</span>: <span class="type">int</span>,
+    <span class="key">exit_condition</span>: {
+      <span class="key">type</span>: <span class="enum">"hypothesis_stable"</span> |
+            <span class="enum">"performance_plateau"</span> | ...
+    },
+    <span class="key">priority</span>: <span class="enum">"critical"</span> | <span class="enum">"standard"</span>
+  }]
+}`
+  },
+  planfmt: {
+    title: '📐 Plan Formatter',
+    plain: 'Takes the fully budgeted DAG and renders it three ways: a numbered list for stakeholders, the executable DAG for the agent harness, and the empty trace structure that gets filled during Phase 2.',
+    schema: `<span class="key">input</span>:  { <span class="key">allocated_dag</span>: <span class="type">AllocatedDAG</span> }
+<span class="key">output</span>: {
+  <span class="key">plan_artifact</span>: {
+    <span class="key">stakeholder_view</span>: { <span class="key">steps</span>: [...] },
+    <span class="key">agent_view</span>:       { <span class="key">dag</span>: <span class="type">AllocatedDAG</span> },
+    <span class="key">trace_view</span>:       { <span class="comment">/* empty */</span> }
+  }
+}`
+  }
+};
+
+function selectTool(card) {
+  const parent = card.closest('.panel-col');
+  parent.querySelectorAll('.tool-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+
+  const key = card.dataset.tool;
+  const data = toolData[key];
+  const targetId = parent.querySelector('[id^="tool-detail"]').id;
+  const target = document.getElementById(targetId);
+
+  const uid = 'schema-' + key;
+  target.innerHTML = `
+    <div class="card" style="border-color:var(--accent-mid);">
+      <h3 style="font-size:14px;margin-bottom:6px;">${data.title}</h3>
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.55;">${data.plain}</p>
+      <div style="margin-top:12px;">
+        <button class="schema-toggle" onclick="toggleSchema('${uid}')">
+          <span class="chevron">▶</span> View interface definition
+        </button>
+        <div class="schema-content" id="${uid}">
+          <pre>${data.schema}</pre>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── SCHEMA TOGGLE ───
+function toggleSchema(id) {
+  const el = document.getElementById(id);
+  const btn = el.previousElementSibling;
+  el.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+</script>
+</body>
+</html>
