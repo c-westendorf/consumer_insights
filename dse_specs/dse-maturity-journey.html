@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSE Maturity Journey — Skills → Agent → Harness</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAFAF8; --surface: #FFFFFF; --surface-hover: #F5F4F0;
+    --border: #E8E6E0; --text: #1A1A1A; --text-sec: #6B6B6B; --text-muted: #9B9B9B;
+    --accent: #3B82F6; --accent-light: #EFF6FF;
+    --s1: #059669; --s1-light: #ECFDF5; --s1-12: rgba(5,150,105,0.08);
+    --s2: #D97706; --s2-light: #FFFBEB; --s2-12: rgba(217,119,6,0.08);
+    --s3: #7C3AED; --s3-light: #F5F3FF; --s3-12: rgba(124,58,237,0.08);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', 'Helvetica Neue', sans-serif; color: var(--text); background: var(--bg); overflow: hidden; height: 100vh; width: 100vw; }
+  .layout { display: flex; height: 100vh; width: 100vw; }
+  .mono { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+  .display { font-family: 'Playfair Display', Georgia, serif; }
+
+  /* Sidebar */
+  .sidebar { width: 210px; min-width: 210px; height: 100%; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 24px 0; }
+  .sidebar-header { padding: 0 20px 20px; border-bottom: 1px solid var(--border); }
+  .sidebar-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; line-height: 1.2; }
+  .sidebar-sub { font-size: 10px; color: var(--text-muted); margin-top: 6px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; }
+  .sidebar-nav { padding: 14px 12px; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .sidebar-footer { padding: 14px 20px; border-top: 1px solid var(--border); font-size: 10px; color: var(--text-muted); line-height: 1.5; }
+
+  .nav-btn { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border: none; border-radius: 7px; cursor: pointer; font-size: 12px; font-weight: 500; font-family: 'DM Sans', sans-serif; text-align: left; background: transparent; color: var(--text-sec); transition: all 0.15s ease; width: 100%; }
+  .nav-btn:hover { background: var(--surface-hover); }
+  .nav-btn.active { font-weight: 600; }
+  .nav-divider { height: 1px; background: var(--border); margin: 10px 0; }
+  .nav-label { font-size: 10px; font-weight: 600; color: var(--text-muted); padding: 4px 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .stage-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Main */
+  .main { flex: 1; height: 100%; overflow: hidden; display: flex; flex-direction: column; }
+  .main-header { padding: 14px 28px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--surface); }
+  .main-header h1 { font-size: 18px; font-weight: 700; font-family: 'Playfair Display', serif; }
+  .main-header p { font-size: 11px; color: var(--text-muted); margin-top: 3px; font-weight: 500; }
+  .content { flex: 1; overflow: auto; padding: 20px 28px; }
+
+  /* Human badge */
+  .human-badge { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+
+  /* Stage nav */
+  .stage-nav { display: flex; gap: 0; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .stage-nav-btn { flex: 1; padding: 14px 8px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; transition: all 0.2s ease; background: var(--surface); color: var(--text-sec); }
+  .stage-nav-btn + .stage-nav-btn { border-left: 1px solid var(--border); }
+  .stage-nav-btn .num { font-size: 18px; font-weight: 700; font-family: 'Playfair Display', serif; margin-bottom: 2px; }
+
+  /* Cards */
+  .card { background: var(--surface); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+  .card-header { padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--bg); }
+  .card-header span { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; }
+  .card-body { padding: 14px 16px; }
+  .card-body p { font-size: 13px; line-height: 1.65; }
+
+  /* Grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .span-2 { grid-column: 1 / -1; }
+
+  /* Summary banner */
+  .summary-banner { margin: 16px 0; padding: 16px 20px; border-radius: 10px; }
+  .summary-banner p { font-size: 14px; line-height: 1.7; }
+
+  /* Tech toggle */
+  .tech-toggle-btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 6px; border: 1.5px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; font-size: 11px; font-weight: 600; font-family: 'DM Sans', sans-serif; transition: all 0.15s; margin-top: 10px; }
+  .tech-toggle-btn.open { border-color: currentColor; }
+  .tech-pre { margin-top: 8px; padding: 14px 16px; border-radius: 8px; background: var(--bg); font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.65; white-space: pre-wrap; word-break: break-word; overflow-y: auto; max-height: 260px; }
+
+  /* File list */
+  .file-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; border-radius: 6px; background: var(--bg); border: 1px solid transparent; margin-bottom: 6px; }
+  .file-item.new-file { border-color: currentColor; }
+  .file-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; white-space: nowrap; }
+  .file-desc { font-size: 12px; line-height: 1.4; }
+  .file-role { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+  /* Flow chips */
+  .flow-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .flow-chip { padding: 4px 10px; border-radius: 5px; font-size: 10px; font-weight: 600; background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+  .flow-chip.human { border-radius: 12px; }
+  .flow-arrow { width: 12px; color: var(--text-muted); flex-shrink: 0; }
+
+  /* Sonnet button */
+  .sonnet-btn { margin-top: 10px; padding: 7px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; font-size: 11px; font-weight: 600; font-family: 'DM Sans', sans-serif; width: 100%; transition: opacity 0.15s; }
+  .sonnet-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .sonnet-result { margin-top: 10px; padding: 10px 12px; border-radius: 6px; background: var(--accent-light); font-size: 12px; line-height: 1.6; }
+  .sonnet-label { font-size: 9px; font-weight: 700; color: var(--accent); text-transform: uppercase; }
+
+  /* Next stage prompt */
+  .next-prompt { margin-top: 16px; display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-radius: 8px; cursor: pointer; transition: transform 0.1s; }
+  .next-prompt:hover { transform: translateX(4px); }
+  .next-title { font-size: 12px; font-weight: 700; }
+  .next-sub { font-size: 11px; color: var(--text-sec); }
+
+  /* Compare table */
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .compare-table th { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 700; }
+  .compare-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); line-height: 1.5; }
+  .compare-table td + td, .compare-table th + th { border-left: 1px solid var(--border); }
+  .compare-table tbody tr:nth-child(even) { background: var(--bg); }
+  .compare-table tbody tr:nth-child(odd) { background: var(--surface); }
+
+  /* Role cards */
+  .role-cards { display: flex; gap: 12px; margin-top: 16px; }
+  .role-card { flex: 1; padding: 12px 16px; border-radius: 8px; }
+  .role-card-title { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+  .role-card-text { font-size: 12px; line-height: 1.5; color: var(--text); }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-in { animation: fadeIn 0.2s ease; }
+</style>
+</head>
+<body>
+<div class="layout" id="app">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title display">Skills → Agent<br>→ Harness</div>
+      <div class="sidebar-sub">Maturity Journey</div>
+    </div>
+    <div class="sidebar-nav">
+      <button class="nav-btn active" id="nav-journey" onclick="setView('journey')">
+        <span style="font-size:13px;opacity:0.7">◈</span> Stage Deep-Dive
+      </button>
+      <button class="nav-btn" id="nav-compare" onclick="setView('compare')">
+        <span style="font-size:13px;opacity:0.7">▣</span> Compare All Stages
+      </button>
+      <button class="nav-btn" id="nav-bridge" onclick="setView('bridge')">
+        <span style="font-size:13px;opacity:0.7">◆</span> Build for the Future
+      </button>
+      <div class="nav-divider"></div>
+      <div class="nav-label">Stages</div>
+      <button class="nav-btn" id="nav-s1" onclick="setStage(1)">
+        <span class="stage-dot" style="background:var(--s1)"></span> Skills Pipeline
+      </button>
+      <button class="nav-btn" id="nav-s2" onclick="setStage(2)">
+        <span class="stage-dot" style="background:var(--s2)"></span> Local Agent
+      </button>
+      <button class="nav-btn" id="nav-s3" onclick="setStage(3)">
+        <span class="stage-dot" style="background:var(--s3)"></span> Cloud Harness
+      </button>
+    </div>
+    <div class="sidebar-footer">Click stages to explore how<br>agent infrastructure matures.</div>
+  </nav>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="main-header" id="main-header"></header>
+    <div class="content" id="main-content"></div>
+  </main>
+</div>
+
+<script>
+// ── Data ──
+const STAGES = [
+  {
+    id: 1, label: "Skills Pipeline", color: "var(--s1)", colorHex: "#059669", light: "var(--s1-light)", lightHex: "#ECFDF5", a12: "var(--s1-12)",
+    tagline: "Human follows documented procedures",
+    summary: "Your team writes SKILL.md files — step-by-step playbooks that Claude Code follows with a human supervising every decision. Skills chain together through manifest files. The human is the orchestrator.",
+    humanRole: "Orchestrator — makes every sequencing decision, reviews every checkpoint, decides when to proceed or loop back",
+    humanShort: "Orchestrator",
+    agent: {
+      plain: "There is no agent definition yet. The 'agent' is a human data scientist using Claude Code as an assistant. Claude reads a SKILL.md file and follows the steps, but the human decides which skill to run, in what order, and whether to proceed at each checkpoint.",
+      technical: `# No agent.md exists at this stage
+# The human IS the orchestrator
+
+# Execution model:
+# 1. Human opens Claude Code
+# 2. Human says "run the data-cleaning skill"
+# 3. Claude reads SKILL.md, follows steps
+# 4. Human reviews each checkpoint
+# 5. Human decides next skill to run
+
+# The "pipeline" is documented in README.md:
+# Raw Data
+#   → data-cleaning → cleaned_df + manifest
+#     → data-quality-assurance → qa_report
+#       → missing-data-imputation → imputed_df
+#         → eda-comprehensive → eda_report
+#           → feature-engineering → feature_matrix`
+    },
+    files: {
+      plain: "Each skill is a self-contained folder: a SKILL.md playbook, reference documents, and Python scripts. Skills produce JSON manifests that the next skill consumes. The manifest is the handoff contract — it's how one skill knows what the previous skill did.",
+      items: [
+        { name: "SKILL.md", desc: "Step-by-step playbook with checkpoints and decision forks", role: "Human-readable procedure" },
+        { name: "references/", desc: "Shared patterns (dtype-router, leakage-guard, etc.)", role: "Reusable knowledge" },
+        { name: "scripts/generate_*.py", desc: "Deterministic artifact generators", role: "Reproducible outputs" },
+        { name: "*_manifest.json", desc: "Terminal artifact with schema_version, record_count, decisions", role: "Handoff contract to next skill" },
+      ]
+    },
+    orchestration: {
+      plain: "The human decides everything. Which skill runs next, whether to proceed past a checkpoint, whether to loop back when quality fails. The pipeline order is documented but not enforced — it's a convention, not a constraint.",
+      nodes: ["Human", "Skill A", "Checkpoint", "Human", "Skill B", "Checkpoint", "Human", "Skill C"]
+    },
+  },
+  {
+    id: 2, label: "Local Agent", color: "var(--s2)", colorHex: "#D97706", light: "var(--s2-light)", lightHex: "#FFFBEB", a12: "var(--s2-12)",
+    tagline: "Agent coordinates skills with human approval",
+    summary: "An agent.md file defines a persona that can read skills, decide which to run, and coordinate with other agents. It lives in your repo alongside the skills. The agent proposes actions; the human approves them.",
+    humanRole: "Approver — agent proposes the plan and each step, human reviews and approves before execution",
+    humanShort: "Approver",
+    agent: {
+      plain: "Now there's an agent.md file in your .claude/ directory. It defines what this agent knows, what skills it can use, and what other agents it can talk to. Think of it like a job description — it says 'I'm the data preparation agent, I use these five skills, and I hand off to the analysis agent when I'm done.' The agent can reason about which skill to run next, but it asks you before executing.",
+      technical: `# .claude/agent.md — Local Agent Definition
+---
+name: data-preparation-agent
+role: Coordinate the data preparation pipeline
+skills:
+  - data-cleaning
+  - data-quality-assurance
+  - missing-data-imputation
+  - eda-comprehensive
+  - feature-engineering
+hands_off_to:
+  - analysis-agent
+triggers:
+  - "new dataset loaded"
+  - "prepare data for modeling"
+---
+
+## Behavior
+You are the data preparation agent. When activated:
+1. Assess state of data (raw, partially cleaned, etc.)
+2. Determine which skill to run next based on manifests
+3. Run skills in pipeline order, respecting QA gates
+4. Present findings at each checkpoint for human review
+5. When pipeline completes, notify analysis-agent
+
+## Coordination
+- Read manifests from prior skills to determine state
+- If QA fails, recommend remediation before proceeding
+- Log all decisions to agent_trace.json
+
+## Boundaries
+- Never skip the QA gate
+- Always present checkpoint results before proceeding
+- Escalate to human if any skill HALTs`
+    },
+    files: {
+      plain: "Everything from Stage 1 still exists — SKILL.md files, references, scripts, manifests. What's new is the agent.md file that ties them together, and a trace file that records what the agent decided and why. Skills gain a typed header that declares their inputs and outputs so the agent can reason about sequencing.",
+      items: [
+        { name: "agent.md", desc: "Agent persona, skill list, coordination rules, boundaries", role: "Agent definition (NEW)", isNew: true },
+        { name: "agent_trace.json", desc: "Log of agent decisions, skill invocations, checkpoint outcomes", role: "Audit trail (NEW)", isNew: true },
+        { name: "SKILL.md (enhanced)", desc: "Now includes typed inputs/outputs and composition hints in frontmatter", role: "Skill with agent-compatible metadata", isNew: true },
+        { name: "references/", desc: "Same shared patterns as Stage 1", role: "Reusable knowledge" },
+        { name: "*_manifest.json", desc: "Same terminal artifacts as Stage 1", role: "Handoff contract" },
+      ]
+    },
+    orchestration: {
+      plain: "The agent reads the manifest chain to figure out where you are in the pipeline, proposes the next skill to run, and asks for your approval. It's like having a project manager who suggests the next step and waits for your go-ahead. Multiple agents can coordinate — a preparation agent hands off to an analysis agent — but each handoff goes through you.",
+      nodes: ["Agent reads state", "Agent proposes", "Human approves", "Skill executes", "Agent reads output", "Agent proposes next"]
+    },
+  },
+  {
+    id: 3, label: "Cloud Harness", color: "var(--s3)", colorHex: "#7C3AED", light: "var(--s3-light)", lightHex: "#F5F3FF", a12: "var(--s3-12)",
+    tagline: "Harness orchestrates agents against an execution plan",
+    summary: "The DSE harness manages everything: scoping business questions, generating execution plans as DAGs, spinning up agents for each task, managing parallel work and convergence, enforcing budgets. The human approves the scope and plan upfront, then monitors execution.",
+    humanRole: "Principal reviewer — approves scope and plan upfront, monitors execution, reviews final findings",
+    humanShort: "Principal Reviewer",
+    agent: {
+      plain: "Agents are now formally registered with the harness — each one has a typed interface declaring exactly what it accepts, what it produces, what tools it can use, and its resource limits. The harness starts agents, routes data between them, handles failures, and enforces budgets. You don't run individual skills anymore — you approve a plan and the system executes it.",
+      technical: `# Harness Agent Registration (runtime contract)
+AgentRegistration {
+  agent_id:     "scope_agent_001"
+  agent_type:   "scope_agent"
+  tools: [
+    "intent_classifier",
+    "scope_extractor",
+    "completeness_validator",
+    "scope_formatter"
+  ]
+  input_schema:  { type: "business_question" }
+  output_schema: { type: "scope_artifact", version: "1.0" }
+  max_turns:     10
+  timeout:       "30m"
+  retry_policy: {
+    max_retries: 3,
+    backoff: "exponential"
+  }
+  permissions: {
+    can_read:  ["user_input", "cgf_taxonomy"]
+    can_write: ["scope_artifact"]
+    cannot:    ["data_catalog", "raw_data"]
+  }
+}
+
+# Tools are typed interfaces:
+ToolRegistration {
+  name:    "intent_classifier"
+  input:   { raw_question: string, context: string[] }
+  output:  { lifecycle_stage: enum, pattern: enum,
+             confidence: float, ambiguities: string[] }
+}
+
+# Plan Artifact is an executable DAG:
+PlanArtifact {
+  stakeholder_view: { numbered_steps[] }
+  agent_view:       { dag: DAGNode[], edges[] }
+  trace_view:       { task_traces: map<id, Trace> }
+}`
+    },
+    files: {
+      plain: "The file formats fundamentally change. SKILL.md becomes a typed tool registration. The manifest becomes a structured data type in the registry. The agent.md becomes a harness registration with permissions, resource limits, and retry policies. The pipeline README becomes a Plan Artifact — a dependency graph with three views that the harness executes automatically.",
+      items: [
+        { name: "Scope Artifact", desc: "Immutable contract: population, metric, timeframe, comparison, business context", role: "What we're analyzing (NEW)", isNew: true },
+        { name: "Plan Artifact (DAG)", desc: "Dependency graph with task nodes, fan-out/join points, budgets, exit conditions", role: "How we're analyzing it (NEW)", isNew: true },
+        { name: "Tool Registration", desc: "Typed interface: inputs, outputs, failure modes — evolved from SKILL.md", role: "Agent capability (EVOLVED)", isNew: true },
+        { name: "Playbook Template", desc: "Reusable subgraph pattern — evolved from pipeline README", role: "Composable work pattern (EVOLVED)", isNew: true },
+        { name: "Data Type Registry", desc: "Typed schemas for what flows between tasks (cohort, feature_set, metric_result...)", role: "Edge definitions in the DAG (NEW)", isNew: true },
+        { name: "Task Trace", desc: "Per-task execution record: status, tools used, findings, iterations, termination reason", role: "Observability (EVOLVED from manifest)", isNew: true },
+      ]
+    },
+    orchestration: {
+      plain: "You ask a business question. The system scopes it through conversation, generates a plan, and shows you the plan for approval. Once approved, the harness executes the entire DAG — spinning up agents for each task, running parallel branches, enforcing convergence criteria, and handling failures. You monitor progress and review findings, but you don't direct individual steps.",
+      nodes: ["Business Question", "Scope Agent", "Scope Artifact", "Plan Agent", "Plan Artifact", "Harness DAG", "Parallel agents", "Findings"]
+    },
+  }
+];
+
+const EVOLUTION_ROWS = [
+  { dim: "Who decides what runs next?", s: ["Human picks each skill manually", "Agent proposes, human approves", "Harness executes the approved plan"] },
+  { dim: "How is work sequenced?", s: ["README pipeline diagram (convention)", "Agent reads manifests to infer state", "DAG with typed dependencies and entry conditions"] },
+  { dim: "What happens on failure?", s: ["Human reads error, decides what to do", "Agent recommends fix, asks human", "Harness retries, escalates, or reroutes"] },
+  { dim: "Can work run in parallel?", s: ["No — one skill at a time", "No — agent runs sequentially", "Yes — DAG fan-out enables parallel branches"] },
+  { dim: "How do you know what happened?", s: ["Read the manifest JSON files", "Agent trace + manifests", "Trace view fills in per-task as DAG executes"] },
+  { dim: "Handoff format", s: ["JSON manifest (loosely typed)", "JSON manifest + agent.md hints", "Typed data registry (cohort, feature_set, metric_result…)"] },
+  { dim: "Reusable patterns", s: ["SKILL.md + shared references", "SKILL.md + agent coordination rules", "Playbook templates (composable subgraph patterns)"] },
+];
+
+// ── State ──
+let currentView = "journey";
+let currentStage = 1;
+let techToggles = {};
+let aiCache = {};
+let aiLoading = {};
+
+// ── Render ──
+function render() {
+  updateSidebar();
+  updateHeader();
+  updateContent();
+}
+
+function updateSidebar() {
+  document.getElementById("nav-journey").className = `nav-btn${currentView === "journey" ? " active" : ""}`;
+  document.getElementById("nav-journey").style.background = currentView === "journey" ? "var(--accent-light)" : "";
+  document.getElementById("nav-journey").style.color = currentView === "journey" ? "var(--accent)" : "";
+  document.getElementById("nav-compare").className = `nav-btn${currentView === "compare" ? " active" : ""}`;
+  document.getElementById("nav-compare").style.background = currentView === "compare" ? "var(--accent-light)" : "";
+  document.getElementById("nav-compare").style.color = currentView === "compare" ? "var(--accent)" : "";
+  document.getElementById("nav-bridge").className = `nav-btn${currentView === "bridge" ? " active" : ""}`;
+  document.getElementById("nav-bridge").style.background = currentView === "bridge" ? "var(--accent-light)" : "";
+  document.getElementById("nav-bridge").style.color = currentView === "bridge" ? "var(--accent)" : "";
+  [1,2,3].forEach(i => {
+    const el = document.getElementById(`nav-s${i}`);
+    const s = STAGES[i-1];
+    const isActive = currentView === "journey" && currentStage === i;
+    el.style.background = isActive ? s.lightHex : "";
+    el.style.color = isActive ? s.colorHex : "";
+    el.style.fontWeight = isActive ? "600" : "500";
+  });
+}
+
+function updateHeader() {
+  const s = STAGES[currentStage - 1];
+  const hdr = document.getElementById("main-header");
+  if (currentView === "compare") {
+    hdr.innerHTML = `<div><h1 class="display">Evolution Comparison</h1><p>How each dimension changes across all three stages</p></div>`;
+  } else if (currentView === "bridge") {
+    hdr.innerHTML = `<div><h1 class="display">Build for the Future</h1><p>Three things every skill should declare today to be agent-ready tomorrow</p></div>`;
+  } else {
+    hdr.innerHTML = `<div><h1 class="display">Stage ${s.id}: ${s.label}</h1><p>${s.tagline}</p></div>
+      <div class="human-badge" style="background:${s.colorHex}12;border:1.5px solid ${s.colorHex}40;color:${s.colorHex}">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="${s.colorHex}" stroke-width="1.5" stroke-linecap="round"><circle cx="8" cy="5" r="3"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg>
+        ${s.humanShort}
+      </div>`;
+  }
+}
+
+function updateContent() {
+  const el = document.getElementById("main-content");
+  if (currentView === "compare") {
+    el.innerHTML = renderCompare();
+  } else if (currentView === "bridge") {
+    el.innerHTML = renderBridge();
+  } else {
+    el.innerHTML = renderJourney();
+  }
+}
+
+function renderCompare() {
+  const colors = ["#059669", "#D97706", "#7C3AED"];
+  let tableRows = EVOLUTION_ROWS.map((r, i) =>
+    `<tr><td style="font-weight:600;font-size:11px;width:22%">${r.dim}</td>
+     ${r.s.map((v, j) => `<td style="color:${colors[j]}">${v}</td>`).join("")}</tr>`
+  ).join("");
+
+  let roleCards = STAGES.map((s, i) =>
+    `<div class="role-card" style="background:${s.lightHex};border:1px solid ${s.colorHex}30">
+      <div class="role-card-title" style="color:${s.colorHex}">Human Role — Stage ${s.id}</div>
+      <div class="role-card-text">${s.humanRole}</div>
+    </div>`
+  ).join("");
+
+  return `<div style="max-width:900px" class="fade-in">
+    <div class="card"><table class="compare-table">
+      <thead><tr style="background:var(--bg)">
+        <th style="color:var(--text-muted)"></th>
+        ${STAGES.map(s => `<th><span style="color:${s.colorHex}">Stage ${s.id}: ${s.label}</span></th>`).join("")}
+      </tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table></div>
+    <div class="role-cards">${roleCards}</div>
+  </div>`;
+}
+
+function renderJourney() {
+  const s = STAGES[currentStage - 1];
+
+  // Stage nav
+  let stageNav = `<div class="stage-nav">${STAGES.map(st =>
+    `<button class="stage-nav-btn" onclick="setStage(${st.id})" style="${currentStage === st.id ? `background:${st.colorHex};color:#fff` : ""}">
+      <div class="num display">${st.id}</div>${st.label}</button>`
+  ).join("")}</div>`;
+
+  // Summary
+  let summary = `<div class="summary-banner" style="background:${s.lightHex};border:1.5px solid ${s.colorHex}30">
+    <p>${s.summary}</p></div>`;
+
+  // Agent card
+  let techKey = `tech_agent_${s.id}`;
+  let techOpen = techToggles[techKey];
+  let aiKey = `agent_${s.id}`;
+  let agentAI = aiCache[aiKey]
+    ? `<div class="sonnet-result"><span class="sonnet-label">Sonnet says: </span>${aiCache[aiKey]}</div>`
+    : `<button class="sonnet-btn" onclick="askSonnet('${aiKey}', 'Explain what a \\'${s.label}\\' agent definition means at Stage ${s.id}. Context: ${s.agent.plain.replace(/'/g, "\\'")}. Use a simple analogy. 2-3 sentences.')" ${aiLoading[aiKey] ? "disabled style='opacity:0.5'" : ""}>${aiLoading[aiKey] ? "Asking Sonnet..." : "Explain this simply"}</button>`;
+
+  let agentCard = `<div class="card">
+    <div class="card-header"><span style="color:${s.colorHex}">Agent Definition</span></div>
+    <div class="card-body">
+      <p>${s.agent.plain}</p>
+      <button class="tech-toggle-btn ${techOpen ? "open" : ""}" style="${techOpen ? `color:${s.colorHex};border-color:${s.colorHex}` : ""}" onclick="toggleTech('${techKey}')">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">${techOpen ? '<path d="M3 4.5l3 3 3-3"/>' : '<path d="M4.5 3l3 3-3 3"/>'}</svg>
+        Show agent definition
+      </button>
+      ${techOpen ? `<pre class="tech-pre fade-in" style="border-color:${s.colorHex}30">${escHtml(s.agent.technical)}</pre>` : ""}
+      ${agentAI}
+    </div></div>`;
+
+  // Orchestration card
+  let flowChips = s.orchestration.nodes.map((n, i) => {
+    const isHuman = n.toLowerCase().includes("human") || n.toLowerCase().includes("approves");
+    const chip = `<div class="flow-chip ${isHuman ? "human" : ""}" style="${isHuman ? `background:${s.colorHex}12;border-color:${s.colorHex}50;color:${s.colorHex}` : ""}">${n}</div>`;
+    const arrow = i < s.orchestration.nodes.length - 1
+      ? `<svg class="flow-arrow" width="12" height="8" viewBox="0 0 12 8"><path d="M0 4h10M7 1l3 3-3 3" fill="none" stroke="var(--text-muted)" stroke-width="1"/></svg>` : "";
+    return chip + arrow;
+  }).join("");
+
+  let orchCard = `<div class="card">
+    <div class="card-header"><span style="color:${s.colorHex}">How Work Gets Orchestrated</span></div>
+    <div class="card-body">
+      <p>${s.orchestration.plain}</p>
+      <div style="margin-top:12px;padding:10px;border-radius:8px;background:var(--bg);border:1px solid var(--border)">
+        <div class="flow-row">${flowChips}</div>
+      </div>
+    </div></div>`;
+
+  // Files card
+  let fileItems = s.files.items.map(f =>
+    `<div class="file-item ${f.isNew ? "new-file" : ""}" style="${f.isNew ? `background:${s.colorHex}08;border-color:${s.colorHex}30` : ""}">
+      <code class="file-name" style="${f.isNew ? `color:${s.colorHex}` : ""}">${f.name}</code>
+      <div style="flex:1;min-width:0"><div class="file-desc">${f.desc}</div><div class="file-role">${f.role}</div></div>
+    </div>`
+  ).join("");
+
+  let filesCard = `<div class="card span-2">
+    <div class="card-header"><span style="color:${s.colorHex}">File Formats & Artifacts</span></div>
+    <div class="card-body">
+      <p style="margin-bottom:12px">${s.files.plain}</p>
+      ${fileItems}
+    </div></div>`;
+
+  // Next prompt
+  let nextPrompt = "";
+  if (currentStage < 3) {
+    const ns = STAGES[currentStage];
+    nextPrompt = `<div class="next-prompt" onclick="setStage(${currentStage + 1})" style="background:${ns.lightHex};border:1px solid ${ns.colorHex}30">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="${ns.colorHex}" stroke-width="2" stroke-linecap="round"><path d="M4 10h12M12 6l4 4-4 4"/></svg>
+      <div><div class="next-title" style="color:${ns.colorHex}">Next: Stage ${ns.id} — ${ns.label}</div><div class="next-sub">${ns.tagline}</div></div>
+    </div>`;
+  }
+
+  // Bridge callout — what to add now for the next stage
+  const bridgeHints = {
+    1: {
+      title: "Preparing your skills for Stage 2",
+      items: [
+        { label: "Typed inputs/outputs", desc: "Add <code>inputs:</code> and <code>outputs:</code> to SKILL.md frontmatter using registry types (cohort, feature_set, metric_result)" },
+        { label: "Composition hints", desc: "Add <code>can_follow:</code> and <code>can_precede:</code> so the agent knows sequencing without reading your README" },
+        { label: "Exit conditions", desc: "Add <code>supports_loop:</code> and <code>exit_conditions:</code> so the agent knows when iterative skills are done" },
+      ]
+    },
+    2: {
+      title: "Preparing your agent for Stage 3",
+      items: [
+        { label: "Typed tool interfaces", desc: "Agent.md skill references become formal <code>ToolRegistration</code> objects with input/output schemas and failure modes" },
+        { label: "Permission boundaries", desc: "Agent.md boundaries become enforced <code>permissions: { can_read, can_write, cannot }</code> in the harness" },
+        { label: "Playbook templates", desc: "Your pipeline README becomes a composable subgraph template that the Plan Agent can instantiate and wire into a DAG" },
+      ]
+    },
+    3: {
+      title: "You're at the target architecture",
+      items: [
+        { label: "Typed registries", desc: "Tools, data types, and playbooks are all formally registered with the harness" },
+        { label: "DAG execution", desc: "Plans are executable dependency graphs with fan-out, convergence, and budget enforcement" },
+        { label: "Observability", desc: "Every task node has a trace record showing what happened, why, and what it found" },
+      ]
+    }
+  };
+
+  const bh = bridgeHints[currentStage];
+  let bridgeCallout = `<div class="card" style="margin-top:14px;border-color:var(--accent)30">
+    <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+      <span style="color:var(--accent)">${bh.title}</span>
+      ${currentStage < 3 ? `<button style="font-size:10px;font-weight:600;color:var(--accent);background:var(--accent-light);border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="setView('bridge')">See full guide →</button>` : ""}
+    </div>
+    <div class="card-body" style="display:flex;gap:10px">
+      ${bh.items.map(item => `<div style="flex:1;padding:10px 12px;border-radius:6px;background:var(--bg);border:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:4px">${item.label}</div>
+        <div style="font-size:11px;line-height:1.5;color:var(--text-sec)">${item.desc}</div>
+      </div>`).join("")}
+    </div>
+  </div>`;
+
+  return `<div style="max-width:780px" class="fade-in">
+    ${stageNav}${summary}
+    <div class="grid-2">${agentCard}${orchCard}${filesCard}</div>
+    ${bridgeCallout}
+    ${nextPrompt}
+  </div>`;
+}
+
+// ── Actions ──
+function setView(v) { currentView = v; render(); }
+
+function renderBridge() {
+  const recs = [
+    {
+      num: 1, title: "Typed Inputs & Outputs",
+      color: "#059669",
+      why: "Right now, a SKILL.md says it needs a 'clean DataFrame.' That's fine for a human reading it, but an agent can't verify that. When we move to local agents (Stage 2) and eventually the cloud harness (Stage 3), every skill needs to declare exactly what data types it consumes and produces — using names from the data type registry like <code>cohort</code>, <code>feature_set</code>, <code>metric_result</code>.",
+      what: "Add typed input/output declarations to your SKILL.md frontmatter. Instead of 'requires clean data,' say 'requires: profiled_dataset' and 'produces: feature_set.' These types map directly to the DSE data type registry that the Plan Agent uses to wire tasks together in a DAG.",
+      before: `---
+name: feature-engineering
+description: Transform a clean, analyzed dataset
+  into a model-ready feature matrix...
+---
+
+## Prerequisites
+- Clean, imputed DataFrame with no remaining nulls
+- eda_findings.json with recommended_transforms
+- train_idx and test_idx arrays
+- target_col: name of the target column
+- task_type: classification | regression | ...`,
+      after: `---
+name: feature-engineering
+description: Transform a clean, analyzed dataset
+  into a model-ready feature matrix...
+
+# ── DSE-Compatible Declarations ──
+inputs:
+  - type: cohort
+    description: "Filtered population with entity-level features"
+  - type: profiled_dataset
+    description: "Schema, quality metrics characterized"
+outputs:
+  - type: feature_set
+    description: "Engineered variables ready for analysis"
+---
+
+## Prerequisites
+- Clean, imputed DataFrame with no remaining nulls
+- eda_findings.json with recommended_transforms
+  ...everything else stays the same...`,
+    },
+    {
+      num: 2, title: "Composition Hints",
+      color: "#D97706",
+      why: "When an agent needs to figure out which skill to run next, it currently has to read your README pipeline diagram and infer the order. That works at Stage 2, but at Stage 3 the Plan Agent needs to know — structurally, not by reading prose — what can come before and after each skill. These composition hints map directly to the task registry's <code>can_follow</code> and <code>can_precede</code> fields.",
+      what: "Add a Composition section to your SKILL.md that declares which task types can precede this skill and which can follow it. Also flag if this skill is a fan-out trigger (runs in parallel for multiple populations) or a join point (merges parallel branches).",
+      before: `## Downstream Skills
+
+After this skill completes:
+1. Model training — use X_train_fw, y_train...
+2. Hyperparameter tuning — pass feature_pipeline
+3. Monitoring — use feature_manifest.json...`,
+      after: `## Composition
+
+can_follow:
+  - eda-comprehensive        # needs EDA findings
+  - missing-data-imputation  # needs clean data
+can_precede:
+  - model-fitting            # produces feature matrix
+  - statistical-comparison   # produces metric inputs
+fan_out_trigger: "scope.metrics.length > 1"
+join_point: null
+
+## Downstream Skills
+
+After this skill completes:
+1. Model training — use X_train_fw, y_train...
+  ...everything else stays the same...`,
+    },
+    {
+      num: 3, title: "Exit Condition Type",
+      color: "#7C3AED",
+      why: "Some skills are one-shot (run once, done) and some are iterative (keep refining until convergence). Today that's implicit — a human decides when to stop. But when an agent runs a skill in a while-loop, it needs a declared exit condition and a budget. Without these, the agent either stops too early or runs forever.",
+      what: "Add exit condition metadata to your SKILL.md frontmatter. Declare whether this skill supports iteration, what convergence criteria apply, and what the maximum iteration budget should be. This maps to the <code>supports_loop</code> and <code>exit_conditions</code> fields in the task registry.",
+      before: `## Quality Bar
+
+A feature matrix is "done" when ALL of the following:
+- [ ] X_train_fw.isnull().sum().sum() == 0
+- [ ] zero object dtype columns
+- [ ] featurewiz_score >= raw_score
+- [ ] leakage_guard_passed == True
+- [ ] column count matches between splits`,
+      after: `# ── In frontmatter ──
+supports_loop: true
+exit_conditions:
+  - type: feature_set_stable
+    description: "No new features added in last iteration"
+  - type: performance_plateau
+    description: "featurewiz_score delta < 0.01"
+  - type: budget_exhausted
+    description: "Max 5 iterations"
+max_iterations: 5
+
+## Quality Bar
+
+A feature matrix is "done" when ALL of the following:
+- [ ] X_train_fw.isnull().sum().sum() == 0
+  ...everything else stays the same...
+
+  (exit_conditions above are what the AGENT checks;
+   Quality Bar below is what the HUMAN checks)`,
+    },
+  ];
+
+  let recCards = recs.map(r => {
+    let techKeyWhy = `bridge_why_${r.num}`;
+    let techKeyBefore = `bridge_before_${r.num}`;
+    let techKeyAfter = `bridge_after_${r.num}`;
+    let whyOpen = techToggles[techKeyWhy];
+    let beforeOpen = techToggles[techKeyBefore];
+    let afterOpen = techToggles[techKeyAfter];
+
+    return `<div class="card" style="margin-bottom:16px">
+      <div class="card-header" style="display:flex;align-items:center;gap:10px">
+        <div style="width:26px;height:26px;border-radius:50%;background:${r.color}15;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:${r.color};font-family:'Playfair Display',serif;flex-shrink:0">${r.num}</div>
+        <span style="color:${r.color};font-size:12px">${r.title}</span>
+      </div>
+      <div class="card-body">
+        <p style="margin-bottom:10px"><strong style="color:${r.color}">What to add:</strong> ${r.what}</p>
+
+        <button class="tech-toggle-btn ${whyOpen ? "open" : ""}" style="${whyOpen ? `color:${r.color};border-color:${r.color}` : ""}" onclick="toggleTech('${techKeyWhy}')">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">${whyOpen ? '<path d="M3 4.5l3 3 3-3"/>' : '<path d="M4.5 3l3 3-3 3"/>'}</svg>
+          Why this matters
+        </button>
+        ${whyOpen ? `<div class="fade-in" style="margin-top:8px;padding:12px 14px;border-radius:8px;background:${r.color}08;border:1px solid ${r.color}20;font-size:13px;line-height:1.65">${r.why}</div>` : ""}
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+          <div>
+            <button class="tech-toggle-btn ${beforeOpen ? "open" : ""}" style="width:100%;justify-content:center;${beforeOpen ? `color:#DC2626;border-color:#DC2626` : ""}" onclick="toggleTech('${techKeyBefore}')">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">${beforeOpen ? '<path d="M3 4.5l3 3 3-3"/>' : '<path d="M4.5 3l3 3-3 3"/>'}</svg>
+              Before (Stage 1)
+            </button>
+            ${beforeOpen ? `<pre class="tech-pre fade-in" style="border-color:#DC262630;margin-top:6px;max-height:220px">${escHtml(r.before)}</pre>` : ""}
+          </div>
+          <div>
+            <button class="tech-toggle-btn ${afterOpen ? "open" : ""}" style="width:100%;justify-content:center;${afterOpen ? `color:${r.color};border-color:${r.color}` : ""}" onclick="toggleTech('${techKeyAfter}')">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">${afterOpen ? '<path d="M3 4.5l3 3 3-3"/>' : '<path d="M4.5 3l3 3-3 3"/>'}</svg>
+              After (Stage 2+)
+            </button>
+            ${afterOpen ? `<pre class="tech-pre fade-in" style="border-color:${r.color}30;margin-top:6px;max-height:220px">${escHtml(r.after)}</pre>` : ""}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+
+  let aiKey = "bridge_summary";
+  let bridgeAI = aiCache[aiKey]
+    ? `<div class="sonnet-result" style="margin-top:14px"><span class="sonnet-label">Sonnet says: </span>${aiCache[aiKey]}</div>`
+    : `<button class="sonnet-btn" style="margin-top:14px" onclick="askSonnet('${aiKey}', 'Explain to a junior data scientist why they should add typed inputs/outputs, composition hints, and exit conditions to their SKILL.md files today even though the agent harness doesn\\'t exist yet. Use an analogy about building something. 3 sentences max.')" ${aiLoading[aiKey] ? "disabled style='opacity:0.5'" : ""}>${aiLoading[aiKey] ? "Asking Sonnet..." : "Why should I do this now? Ask Sonnet"}</button>`;
+
+  return `<div style="max-width:780px" class="fade-in">
+    <div class="summary-banner" style="background:var(--accent-light);border:1.5px solid var(--accent)30">
+      <p>You're building skills today. The agent harness is coming. These three additions to your SKILL.md files ensure that when we move from Stage 1 to Stage 2 and Stage 3, your skills plug in without rewriting — it's a packaging exercise, not a rebuild.</p>
+    </div>
+    ${recCards}
+    <div class="card"><div class="card-body" style="text-align:center">
+      <p style="font-size:13px;color:var(--text-sec)">Adding these three declarations makes the progression from "skill a human follows" → "tool an agent invokes" → "node in a composed DAG" a packaging exercise rather than a rewrite.</p>
+      ${bridgeAI}
+    </div></div>
+  </div>`;
+}
+
+function setStage(id) { currentStage = id; currentView = "journey"; render(); }
+function toggleTech(key) { techToggles[key] = !techToggles[key]; render(); }
+
+function escHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+async function askSonnet(key, prompt) {
+  if (aiLoading[key]) return;
+  aiLoading[key] = true;
+  render();
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514", max_tokens: 600,
+        messages: [{ role: "user", content: prompt }],
+        system: "You explain data science agent infrastructure to non-technical colleagues. Plain language. 2-3 sentences. No jargon. No bullet points. Conversational. Use analogies to everyday things when possible.",
+      }),
+    });
+    const data = await resp.json();
+    aiCache[key] = data.content?.map(c => c.text || "").join("") || "Couldn't generate explanation.";
+  } catch { aiCache[key] = "API unavailable — see the text description above."; }
+  aiLoading[key] = false;
+  render();
+}
+
+// ── Init ──
+render();
+</script>
+</body>
+</html>
