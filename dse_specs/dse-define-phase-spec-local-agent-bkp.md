@@ -4,118 +4,56 @@
 
 The Data Scientist Engine (DSE) is a system that automates the customer insights cycle — from scoped business task through analysis to stakeholder delivery. The system is governed by the Customer Growth Framework (CGF), which serves as both a behavioral taxonomy for customer lifecycle analysis and a scope template that constrains the agent's action space to domain-relevant work.
 
-The DSE matures in two infrastructure stages:
+The DSE matures in three infrastructure stages:
 
-| Stage | Infrastructure | Packaging | Human Role |
-|-------|---------------|-----------|------------|
-| **Stage 1: Skills Pipeline** | SKILL.md files, manual sequencing | Loose files in project `.claude/skills/` | **Orchestrator** — makes every sequencing decision, reviews every checkpoint, decides when to proceed or loop back |
-| **Stage 2: Local Agent** | agent.md files coordinating skills + playbooks | **Claude Code plugin** distributed via enterprise marketplace | **Approver** — agent proposes the plan and each step, human reviews and approves before execution |
+| Stage | Infrastructure | Execution Model |
+|-------|---------------|-----------------|
+| **Stage 1: Skills Pipeline** | SKILL.md files, manual sequencing | Human follows documented procedures, decides everything |
+| **Stage 2: Local Agent** | agent.md files coordinating skills | Agent proposes, human approves each step |
+| **Stage 3: Cloud Harness** | Typed tool registry, DAG orchestration | Harness executes approved plan autonomously |
 
-This specification targets **Stage 2: Local Agent** — packaged as a distributable Claude Code plugin that enterprise colleagues install to get the full Define Phase toolkit. The plugin carries two agents, eight skills, seven playbook templates, and the task registry that grounds plan generation.
+This specification targets **Stage 2: Local Agent** — the proof that an agent living in a `.claude/` directory can take a business question and, through structured conversation and skill coordination, produce a project plan that a principal data scientist would approve.
 
-### Why a Plugin
+### Why Stage 2 (Not Stage 3)
 
-Stage 1 skills live as loose files in a project's `.claude/skills/` directory. They work, but they don't distribute — a colleague who wants to use them has to manually copy the right files and understand the pipeline. Stage 2 solves this by packaging agents, skills, playbooks, and references into a Claude Code plugin that installs with a single command and surfaces as slash commands (`/scope`, `/plan`, `/dse-status`).
+Stage 3 (cloud harness) requires typed tool registrations, runtime agent lifecycle management, and DAG orchestration infrastructure that doesn't exist yet. Stage 2 proves the same intellectual capability — scope a question, plan the work — using infrastructure that exists today: Claude Code, agent.md files, and skills.
 
-The plugin is the distribution mechanism for the intellectual capability. The agents coordinate skills through structured conversation. The skills follow the BLUEPRINT.md design principles. The playbooks are subgraph templates from the task registry that the Plan Agent instantiates. Everything that exists at Stage 1 is preserved — the plugin adds the agent coordination layer and the packaging.
+If Stage 2 works, the upgrade to Stage 3 is a packaging exercise. The agent.md becomes a harness registration. The skills become typed tools. The plan manifest becomes a Plan Artifact with DAG semantics. The analytical logic doesn't change — only the execution infrastructure.
 
 Stage 2 proves three things:
 
 1. An agent can disambiguate a business question into a precise analytical scope through structured interaction.
-2. An agent can decompose that scope into an ordered, dependency-aware project plan using the task registry's playbook templates and composition rules.
+2. An agent can decompose that scope into an ordered, dependency-aware project plan.
 3. Two agents can coordinate through artifacts without shared state, with human approval at the handoff.
-
----
-
-## Terminology — The DSE Building Blocks
-
-The DSE uses a precise hierarchy of building blocks. Each term has a specific meaning that maps to a Claude Code packaging concept and a maturity stage.
-
-| DSE Concept | Definition | Claude Code Packaging | Maturity Stage |
-|-------------|------------|----------------------|----------------|
-| **Tool** | Single atomic capability. "Compute retention curve." "Run chi-square test." Typed inputs and outputs. Registered in the task registry. | Script or function within a skill's `scripts/` directory | Stage 1+ |
-| **Task Node** | A typed unit of work in a plan. References a tool type from the registry. Declares inputs, outputs, and dependencies. Stateless. | Represented in `plan_artifact.json` execution view | Stage 2+ |
-| **Skill** | Claude-executable package: SKILL.md playbook + references + scripts. One verb-noun transformation. Self-contained, portable (BLUEPRINT.md Principle 8). | `skills/{name}/SKILL.md` directory in plugin | Stage 1+ |
-| **Playbook** | Reusable subgraph template — an arrangement of task nodes for a type of analytical work (EDA, Outcome ROI, Interval Analysis, etc.). Parameterized by scope at instantiation time. Declares trigger conditions, fan-out/join points, and exit conditions. **A playbook is a structural template, not a markdown procedure.** | `playbooks/{name}/PLAYBOOK.md` in plugin | Stage 2+ |
-| **Reference** | Reusable building block (algorithm, pattern, checklist) called BY skills. No terminal artifact, no independent workflow. Shared references live in `_shared-references/`; each skill carries its own copy for portability. | `skills/_shared-references/{name}.md` | Stage 1+ |
-| **Agent** | Persona definition that coordinates skills and playbooks through structured workflow. Reads artifacts, proposes actions, human approves. Defined by an agent.md file with behavioral rules and boundaries. | `agents/{name}.md` in plugin | Stage 2+ |
-| **Plugin** | Distributable Claude Code package containing agents, skills, playbooks, commands, hooks, and references. Installed via enterprise marketplace. | `.claude-plugin/plugin.json` + conventional directories | Stage 2 |
-
-**Key hierarchy (from task registry):**
-
-```
-Tools (atomic capabilities)
-  → Task Nodes (typed units of work referencing tools)
-    → Playbooks (subgraph templates arranging task nodes)
-      → DAG / Plan Artifact (instantiated playbooks wired together by Plan Agent)
-```
-
-**Maturity shift:**
-
-```
-Stage 1: Human runs skills manually, reads manifests, decides sequence
-         Skills are loose files. Human IS the orchestrator.
-
-Stage 2: Agent proposes next skill/playbook, human approves.
-         Plugin distributes agents + skills + playbooks as a unit.
-         Human shifts from orchestrator to approver.
-```
-
-The analytical logic is identical across stages. Only the coordination infrastructure changes.
 
 ---
 
 ## Architecture Overview
 
-The Define phase operates as two coordinating local agents, packaged as a Claude Code plugin and installed via the enterprise marketplace. The human approves every transition.
+The Define phase operates as two coordinating local agents, each defined by an agent.md file in the project's `.claude/` directory. The human approves every transition.
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│  Claude Code Interface                                      │
-│  Human data scientist or business stakeholder               │
-│  Invokes /scope or /plan, reviews outputs, approves         │
-└──────────────────────┬──────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│  Claude Code Interface                                  │
+│  Human data scientist or business stakeholder           │
+│  initiates work, reviews outputs, approves transitions  │
+└──────────────────────┬──────────────────────────────────┘
                        │
-┌──────────────────────▼──────────────────────────────────────┐
-│  dse-define-phase Plugin                                    │
-│  Installed via: claude plugin install dse-define-phase      │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  commands/            agents/             skills/            │
-│  ┌──────────┐         ┌──────────────┐    ┌──────────────┐  │
-│  │ /scope   │────────▶│ scope-agent  │───▶│ 4 skills     │  │
-│  │ /plan    │────────▶│ plan-agent   │───▶│ 4 skills     │  │
-│  │ /dse-    │         └──────────────┘    └──────────────┘  │
-│  │  status  │                                               │
-│  └──────────┘         playbooks/          _shared-refs/     │
-│                       ┌──────────────┐    ┌──────────────┐  │
-│                       │ 7 subgraph   │    │ cgf-taxonomy │  │
-│                       │ templates    │    │ skill-registry│  │
-│                       │ (EDA, ROI,   │    │ playbook-reg │  │
-│                       │  etc.)       │    │ data-types   │  │
-│                       └──────────────┘    │ comp-rules   │  │
-│                                           └──────────────┘  │
-│  hooks/               schemas/                              │
-│  ┌──────────────┐     ┌──────────────┐                      │
-│  │ artifact     │     │ scope_artifact│                      │
-│  │ immutability │     │ plan_artifact │                      │
-│  └──────────────┘     └──────────────┘                      │
-└─────────────────────────────────────────────────────────────┘
+┌──────────────────────▼──────────────────────────────────┐
+│  .claude/ Directory                                     │
+│  Agent definitions, skill references, shared context    │
+├─────────────────┬───────────────────────────────────────┤
+│  scope-agent.md │  plan-agent.md                        │
+│  (interactive)  │  (generative)                         │
+│  Uses 4 skills  │  Uses 4 skills                        │
+└─────────────────┴───────────────────────────────────────┘
                        │
-               ┌───────▼───────┐
-               │ Project Dir   │
-               │ (user's repo) │
-               │               │
-               │ scope_artifact│
-               │   .json       │
-               │ plan_artifact │
-               │   .json       │
-               │ scope_session │
-               │   .json       │
-               └───────────────┘
+┌──────────────────────▼──────────────────────────────────┐
+│  Skills Directory                                       │
+│  ~/.claude/skills/ or project-local skills/             │
+│  Each skill: SKILL.md + references/ + scripts/          │
+└─────────────────────────────────────────────────────────┘
 ```
-
-**Key distinction:** The plugin installs into Claude Code's plugin cache. Artifacts (scope_artifact.json, plan_artifact.json) are written to the user's **project directory**, not the plugin directory. The plugin provides the intelligence; the project owns the outputs.
 
 ### Control Flow
 
@@ -152,390 +90,7 @@ Business Question (natural language)
 
 **Critical boundary:** The Scope Agent and Plan Agent are separate agent.md files with no shared state. The scope_artifact.json is the sole interface between them. The human explicitly approves the handoff. This prevents scope creep from leaking into planning and ensures the plan is always traceable to an approved scope.
 
-**Human-in-the-loop at every transition:** At Stage 2 the human reviews and approves at three checkpoints: (1) scope completion, (2) handoff from scope to plan agent, and (3) plan approval.
-
----
-
-## Plugin Packaging
-
-The Define Phase is distributed as a Claude Code plugin — a directory with a `.claude-plugin/plugin.json` manifest and conventional subdirectories that Claude Code auto-discovers.
-
-### Plugin Manifest
-
-Claude Code plugin manifests are minimal. The manifest declares identity only — component discovery is convention-based.
-
-```json
-{
-  "name": "dse-define-phase",
-  "description": "Data Scientist Engine Define Phase — agents and skills that transform business questions into CGF-governed, principal-approved project plans",
-  "author": {
-    "name": "CVS Health Consumer Insights",
-    "email": "consumer-insights@cvshealth.com"
-  }
-}
-```
-
-### Directory Layout
-
-```
-dse-define-phase/
-├── .claude-plugin/
-│   └── plugin.json                    Identity manifest
-│
-├── agents/                            Auto-discovered agent definitions
-│   ├── scope-agent.md                 Interactive scoping agent
-│   └── plan-agent.md                  Generative planning agent
-│
-├── skills/                            Auto-discovered skill directories
-│   ├── _shared-references/            NOT a skill — shared knowledge
-│   │   ├── cgf-taxonomy.md            CGF lifecycle stages & patterns
-│   │   ├── skill-registry.md          Available skills & typed interfaces
-│   │   ├── playbook-registry.md       Playbook templates & triggers
-│   │   ├── data-type-registry.md      Typed data schemas (Layer 1)
-│   │   └── composition-rules.md       DAG composition rules (Layer 3)
-│   ├── intent-classification/SKILL.md
-│   ├── scope-extraction/SKILL.md
-│   ├── completeness-validation/SKILL.md
-│   ├── scope-formatting/SKILL.md
-│   ├── task-decomposition/SKILL.md    + references/
-│   ├── dependency-resolution/SKILL.md
-│   ├── budget-allocation/SKILL.md
-│   └── plan-formatting/SKILL.md
-│
-├── playbooks/                         Subgraph templates for Plan Agent
-│   ├── eda/PLAYBOOK.md
-│   ├── outcome-roi/PLAYBOOK.md
-│   ├── stickiness-roi/PLAYBOOK.md
-│   ├── interval-analysis/PLAYBOOK.md
-│   ├── signal-processing/PLAYBOOK.md
-│   ├── hypothesis-validation/PLAYBOOK.md
-│   └── sampling/PLAYBOOK.md
-│
-├── commands/                          User-invokable slash commands
-│   ├── scope.md                       /scope — start scoping
-│   ├── plan.md                        /plan — generate plan
-│   └── dse-status.md                  /dse-status — session state
-│
-├── hooks/
-│   └── hooks.json                     Lifecycle hooks (auto-loaded)
-│
-└── schemas/
-    ├── scope_artifact.schema.json     Scope artifact validation
-    └── plan_artifact.schema.json      Plan artifact validation
-```
-
-### Auto-Discovery Model
-
-Claude Code discovers plugin components by directory convention:
-
-- **`agents/`** — Each `.md` file becomes a launchable subagent. Agent frontmatter (`name`, `description` with `<example>` trigger blocks) tells Claude when to activate the agent.
-- **`skills/`** — Each subdirectory containing `SKILL.md` becomes an available skill. The `_shared-references/` directory has no `SKILL.md` and is correctly ignored by skill discovery — it exists for agent and skill reference only.
-- **`commands/`** — Each `.md` file becomes a slash command (`/scope`, `/plan`, `/dse-status`).
-- **`hooks/`** — `hooks.json` is auto-loaded by convention. Hooks are NOT declared in `plugin.json`.
-
-**What is NOT auto-discovered:** The `playbooks/`, `schemas/`, and `_shared-references/` directories. These are consumed by agents and skills that explicitly read them, not by Claude Code's discovery mechanism.
-
-### Agent Frontmatter Adaptation
-
-The spec defines agent behavior using DSE-custom frontmatter fields (`reads`, `writes`, `hands_off_to`, `triggers`). Claude Code does not natively process these. In the plugin:
-
-| Spec Field | Plugin Treatment |
-|------------|-----------------|
-| `name` | Stays in YAML frontmatter (Claude Code native) |
-| `role` | Becomes the `description` field |
-| `skills` | Moves to body text — agent describes its workflow, Claude matches skills |
-| `reads` / `writes` | Moves to body text as behavioral rules |
-| `hands_off_to` | Moves to body text as coordination instructions |
-| `triggers` | Becomes `<example>` blocks in the `description` field |
-
-The `description` field must include `<example>` blocks showing conversational context that triggers the agent. Example:
-
-```
-description: |
-  Transform a business question into a precise, validated scope.
-  <example>
-  Context: User has a business question to scope
-  user: "Are reactivated customers sticking around or churning again?"
-  assistant: "I'll activate the scope agent to classify and scope this question."
-  </example>
-```
-
-### Skill Invocation Model
-
-In the spec, agents explicitly call skills in sequence (Step 1: run intent-classification, Step 2: run scope-extraction, etc.). In the Claude Code plugin model, skills activate via context matching — the agent describes what it needs to accomplish, and Claude matches to the appropriate skill.
-
-The agent body text must guide Claude through the skill sequence by describing the workflow steps narratively. The `can_follow` and `can_precede` fields in each SKILL.md frontmatter provide composition hints that help Claude reason about ordering.
-
-### Playbook Packaging
-
-Playbooks are subgraph templates from `dse-task-registry.md` Layer 4. They live in `playbooks/{name}/PLAYBOOK.md` and are consumed by the plan-agent when generating plans. Each PLAYBOOK.md declares:
-
-- **Trigger conditions** — when this playbook should be selected (which analytical patterns, which scope characteristics)
-- **Parameters** — what scope fields parameterize the template
-- **Subgraph** — the task node arrangement with dependencies, fan-out/join points, and exit conditions
-- **Terminal outputs** — what data types the playbook produces
-- **Prerequisites** — which other playbooks must run first (e.g., EDA is prerequisite for most)
-
-Playbooks are NOT auto-discovered by Claude Code. The plan-agent reads the playbook-registry reference to know what's available, then reads specific PLAYBOOK.md files when instantiating the plan.
-
-### Artifact Output Location
-
-All artifacts are written to the **project directory** (where the user runs Claude Code), not to the plugin directory:
-
-- `scope_session.json` — transient session state, created in project root
-- `scope_artifact.json` — immutable after approval, created in project root
-- `plan_artifact.json` — execution guide for Phase 2, created in project root
-
-The plugin provides the intelligence; the project owns the outputs.
-
----
-
-## Component Registry
-
-This is the complete inventory of named components in the dse-define-phase plugin. It serves as both the specification and the build checklist.
-
-### Agents
-
-| Agent | Role | Skills | Reads | Writes |
-|-------|------|--------|-------|--------|
-| **scope-agent** | Transform business question → validated scope through CGF-governed conversation | intent-classification, scope-extraction, completeness-validation, scope-formatting | User input, cgf-taxonomy.md | scope_session.json, scope_artifact.json |
-| **plan-agent** | Consume validated scope → dependency-aware project plan | task-decomposition, dependency-resolution, budget-allocation, plan-formatting | scope_artifact.json, cgf-taxonomy.md, skill-registry.md, playbook-registry.md | plan_artifact.json |
-
-### Define Phase Skills (8)
-
-#### Scope Agent Skills
-
-| Skill | Job | Inputs | Outputs |
-|-------|-----|--------|---------|
-| **intent-classification** | Classify business question against CGF taxonomy | raw_question | intent_classification (lifecycle_stage, analytical_pattern, confidence) |
-| **scope-extraction** | Extract structured scope fields from question + conversation | raw_question, intent_classification, conversation_context | partial_scope (population, metric, timeframe, comparison, business_context, constraints) |
-| **completeness-validation** | Evaluate partial scope against pattern-specific requirements | partial_scope, intent_classification | completeness_assessment (is_complete, missing_fields, warnings, disambiguation_questions) |
-| **scope-formatting** | Render validated scope into scope_artifact.json for approval | partial_scope (complete), intent_classification, session_metadata | scope_artifact |
-
-#### Plan Agent Skills
-
-| Skill | Job | Inputs | Outputs |
-|-------|-----|--------|---------|
-| **task-decomposition** | Break scope into atomic task nodes using CGF templates + task registry | scope_artifact, cgf_task_templates, skill_registry | task_node_list |
-| **dependency-resolution** | Organize task nodes into dependency-aware plan with fan-out/join | task_node_list | ordered_task_plan |
-| **budget-allocation** | Assign exploration budgets and exit conditions to iterative tasks | ordered_task_plan | budgeted_task_plan |
-| **plan-formatting** | Render budgeted plan into plan_artifact.json (stakeholder + execution views) | budgeted_task_plan, scope_artifact | plan_artifact |
-
-### Analyze Phase MVP Skills (18, referenced by playbooks)
-
-These are the skills the Plan Agent references when building plans. They map to task types in `dse-task-registry.md` Layer 2. They will be implemented in a separate **dse-analyze-phase** plugin.
-
-| Skill | Task Registry Type | Category | Produces |
-|-------|-------------------|----------|----------|
-| **data-extraction** | data_extraction | ingestion | raw_dataset |
-| **schema-profiling** | schema_profiling | ingestion | profiled_dataset |
-| **quality-assessment** | quality_assessment | ingestion | profiled_dataset |
-| **cohort-extraction** | cohort_extraction | population | cohort |
-| **sampling** | sampling | population | sample_set |
-| **feature-engineering** | feature_engineering | transformation | feature_set |
-| **metric-computation** | metric_computation | transformation | metric_result |
-| **distribution-analysis** | distribution_analysis | exploration | metric_result |
-| **correlation-analysis** | correlation_analysis | exploration | metric_result |
-| **trend-detection** | trend_detection | exploration | signal_result |
-| **anomaly-detection** | anomaly_detection | exploration | signal_result |
-| **hypothesis-generation** | hypothesis_generation | exploration | hypothesis_result |
-| **interval-analysis** | interval_analysis | analysis | interval_result |
-| **signal-detection** | signal_detection | analysis | signal_result |
-| **statistical-comparison** | statistical_comparison | analysis | comparison_result |
-| **hypothesis-testing** | hypothesis_test | analysis | hypothesis_result |
-| **roi-computation** | roi_computation | valuation | roi_result |
-| **finding-assembly** | finding_assembly | synthesis | finding_set |
-| **narrative-generation** | narrative_generation | synthesis | narrative |
-
-### Playbooks (7)
-
-Each playbook is a subgraph template from `dse-task-registry.md` Layer 4. The Plan Agent selects and instantiates these based on the scope's analytical pattern and characteristics.
-
-| Playbook | Analytical Frame | Trigger | Terminal Outputs |
-|----------|-----------------|---------|-----------------|
-| **eda** | what_happened | profile, segment patterns; always included as prerequisite | feature_set, metric_result, hypothesis_result |
-| **outcome-roi** | what_it_was_worth | compare, explain + value/roi/impact language | comparison_result, roi_result, finding_set |
-| **stickiness-roi** | what_it_was_worth | profile, compare, predict + retention/repeat/lifetime language | interval_result, signal_result, roi_result, finding_set |
-| **interval-analysis** | what_happened | profile, explain + over time/trajectory/lifecycle language | interval_result, signal_result, hypothesis_result, finding_set |
-| **signal-processing** | what_happened | explain, predict + signal/indicator/early warning language | signal_result, hypothesis_result, finding_set |
-| **hypothesis-validation** | why_it_happened | explain, compare + why/driver/cause language | hypothesis_result, finding_set |
-| **sampling** | methodology | population > threshold or matched comparison needed | sample_set |
-
-### Shared References
-
-| Reference | Purpose | Consumed By |
-|-----------|---------|------------|
-| **cgf-taxonomy.md** | CGF lifecycle stages, analytical patterns, scope template | scope-agent, plan-agent, intent-classification |
-| **skill-registry.md** | Available skills and their typed interfaces | plan-agent, task-decomposition |
-| **playbook-registry.md** | Playbook templates with triggers and subgraph definitions | plan-agent, task-decomposition |
-| **data-type-registry.md** | Typed data schemas from task registry Layer 1 | dependency-resolution, all skills |
-| **composition-rules.md** | Data flow, ordering, fan-out, loop, completeness rules from task registry Layer 3 | dependency-resolution |
-
-### Commands
-
-| Command | Purpose | Activates |
-|---------|---------|-----------|
-| **/scope** | Start scoping a business question | scope-agent |
-| **/plan** | Generate plan from approved scope | plan-agent (precondition: scope_artifact.json exists) |
-| **/dse-status** | Show current session state | Reads session/artifact files |
-
----
-
-## Enterprise Plugin Standard
-
-This section defines the governance standard that other CVS Health teams follow when building Claude Code plugins. The DSE Define Phase plugin is the reference implementation.
-
-### Required Structure
-
-Every CVS Health Claude Code plugin must contain:
-
-```
-{plugin-name}/
-├── .claude-plugin/
-│   └── plugin.json          Required: name, description, author
-├── README.md                Required: installation, usage, architecture
-├── CHANGELOG.md             Required: version history (semver)
-├── agents/                  If the plugin provides agents
-├── skills/                  If the plugin provides skills
-├── commands/                If the plugin provides slash commands
-└── hooks/                   If the plugin provides lifecycle hooks
-```
-
-### Naming Conventions
-
-- **Plugin names**: kebab-case, domain-prefixed (e.g., `dse-define-phase`, `dse-analyze-phase`)
-- **Skill names**: verb-noun format (e.g., `intent-classification`, `feature-engineering`)
-- **Agent names**: role-based (e.g., `scope-agent`, `plan-agent`)
-- **Command names**: action-based (e.g., `scope`, `plan`, `dse-status`)
-- **Playbook names**: noun or noun-phrase (e.g., `eda`, `outcome-roi`, `stickiness-roi`)
-
-### Skill Design Requirements
-
-Skills must conform to the Skill Blueprint (`skill-blueprint/BLUEPRINT.md`), which is the canonical authority for skill design. Key requirements summarized:
-
-**Eight Design Principles (BLUEPRINT.md Section 2):**
-
-1. **Single Job-to-be-Done** — One skill = one verb-noun transformation. No multi-job skills.
-2. **Precondition/Postcondition Contracts** — Testable assertions, not goals. "upstream manifest exists; schema_version == '1.0'" not "clean data."
-3. **Explicit Variance Surface** — Declare all dimensions the skill branches on and how behavior differs.
-4. **Artifact at Every State Change** — Named, verifiable terminal artifact. No stdout-only skills.
-5. **Stateful Operations Are Scoped** — Fitting/training bounded to declared subset with verification.
-6. **Quality Bar Over Completeness** — Halt loudly on blocking conditions. Partial output is worse than no output.
-7. **Canonical Reference Library** — Shared patterns in `_shared-references/` as single source of truth.
-8. **Self-Contained Portability** — Skill directory must function when copied in isolation.
-
-**Required SKILL.md Sections (BLUEPRINT.md Section 3):** Overview, When to Activate, Preconditions, Prerequisites, Variance Surface, Workflow (Steps 0-N), Terminal Artifact, Edge Cases, Postconditions, Quality Bar, Scope Boundary, Downstream.
-
-**Pre-Merge Checklist (BLUEPRINT.md Section 7):** 17 items covering definition/structure, contracts/correctness, variance/testing, documentation/integration.
-
-### Playbook Design Requirements
-
-Playbooks are subgraph templates, not markdown procedures. Each PLAYBOOK.md must declare:
-
-- **Trigger conditions** — analytical patterns and scope characteristics that activate this playbook
-- **Parameters** — scope fields that parameterize the template
-- **Subgraph** — task node arrangement with dependencies, fan-out/join points
-- **Exit conditions** — when the playbook is complete
-- **Prerequisites** — other playbooks that must run first
-- **Terminal outputs** — data types produced
-
-### Agent Design Requirements
-
-Agent `.md` files must use Claude Code native frontmatter:
-
-- **`name`** — kebab-case identifier
-- **`description`** — includes `<example>` blocks showing conversational triggers
-- Agent behavioral rules, boundaries, and skill references go in the body text
-
-### Hook Conventions
-
-- Hooks are defined in `hooks/hooks.json` and auto-loaded by Claude Code
-- Hooks are NOT declared in `plugin.json`
-- Use hooks for enforcement (e.g., artifact immutability), not for workflow orchestration
-
-### Artifact Conventions
-
-- All inter-agent artifacts must have a JSON Schema in `schemas/`
-- Artifacts are written to the project directory, not the plugin directory
-- Immutable artifacts (e.g., approved scope) must be enforced via hooks
-
-### Cross-Plugin Dependencies
-
-Claude Code has no native plugin-to-plugin dependency system. Dependencies are enforced via:
-
-- **Documentation** — prerequisites stated in README.md
-- **Precondition checks** — skills check for required input artifacts at runtime (BLUEPRINT.md Principle 2)
-- **Example:** dse-analyze-phase depends on dse-define-phase by checking for scope_artifact.json and plan_artifact.json
-
-### Review Process
-
-Before listing a plugin in the enterprise marketplace:
-
-1. Run `claude plugin validate` — must pass
-2. All skills pass the BLUEPRINT.md 17-item checklist
-3. All agents have `<example>` trigger blocks in their description
-4. Security review: no secrets, no unreviewed external network calls
-5. Version follows semver; CHANGELOG.md updated
-
----
-
-## Marketplace Distribution
-
-Plugins reach enterprise colleagues through a Claude Code marketplace — a git repository with a `marketplace.json` that catalogs available plugins.
-
-### Marketplace Repository Structure
-
-```
-cvs-enterprise-plugins/
-├── .claude-plugin/
-│   ├── plugin.json            Required for the marketplace itself
-│   └── marketplace.json       Catalog of all CVS plugins
-├── README.md                  How to add your plugin to the marketplace
-└── plugins/                   Plugin source directories or references
-```
-
-### marketplace.json Format
-
-```json
-{
-  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "cvs-enterprise-plugins",
-  "description": "CVS Health enterprise Claude Code plugins",
-  "owner": {
-    "name": "CVS Health AI Engineering",
-    "email": "ai-engineering@cvshealth.com"
-  },
-  "plugins": [
-    {
-      "name": "dse-define-phase",
-      "source": "./plugins/dse-define-phase",
-      "description": "DSE Define Phase — scope and plan generation",
-      "version": "1.0.0",
-      "category": "data-science"
-    }
-  ]
-}
-```
-
-### Installation Flow
-
-1. **One-time setup:** User adds the marketplace to `~/.claude/settings.json`:
-   ```json
-   {
-     "trustedMarketplaces": ["cvs-enterprise-plugins"]
-   }
-   ```
-
-2. **Install:** `claude plugin install dse-define-phase`
-
-3. **Use:** The plugin's commands (`/scope`, `/plan`, `/dse-status`), agents, and skills are immediately available in any Claude Code session.
-
-### Source Options
-
-Plugins can be referenced in the marketplace by:
-- **Local path:** `"source": "./plugins/dse-define-phase"` (subdirectory of marketplace repo)
-- **Git URL:** `"source": { "source": "url", "url": "https://github.com/cvs-health/dse-define-phase.git", "sha": "..." }`
-- **Git subdir:** `"source": { "source": "git-subdir", "url": "org/repo", "path": "plugins/name", "ref": "main", "sha": "..." }`
+**Human-in-the-loop at every transition:** Unlike the cloud harness (Stage 3) where the system executes an approved plan autonomously, at Stage 2 the human reviews and approves at three checkpoints: (1) scope completion, (2) handoff from scope to plan agent, and (3) plan approval.
 
 ---
 
@@ -543,27 +98,25 @@ Plugins can be referenced in the marketplace by:
 
 ### Agent Definition
 
-> **Plugin frontmatter note:** In the Claude Code plugin, `role` becomes `description` (with `<example>` trigger blocks). The `skills`, `reads`, `writes`, `hands_off_to`, and `triggers` fields are DSE-custom — they move into the body text. Only `name` and `description` are Claude Code native frontmatter. See "Plugin Packaging → Agent Frontmatter Adaptation" for the mapping.
-
 ```markdown
 # .claude/scope-agent.md
 ---
 name: scope-agent
 role: Transform a business question into a precise, validated scope
-skills:                                    # DSE-custom: moves to body text in plugin
+skills:
   - intent-classification
   - scope-extraction
   - completeness-validation
   - scope-formatting
-reads:                                     # DSE-custom: moves to body text in plugin
-  - cgf-taxonomy.md
-  - scope_session.json
-writes:                                    # DSE-custom: moves to body text in plugin
-  - scope_session.json
-  - scope_artifact.json
-hands_off_to:                              # DSE-custom: moves to body text in plugin
-  - plan-agent
-triggers:                                  # DSE-custom: becomes <example> blocks in description
+reads:
+  - cgf-taxonomy.md           # CGF lifecycle stages and analytical patterns
+  - scope_session.json        # conversation state (created during session)
+writes:
+  - scope_session.json        # updated after each turn
+  - scope_artifact.json       # final output, once approved
+hands_off_to:
+  - plan-agent                # after human approves the scope
+triggers:
   - "new business question"
   - "scope a project"
   - "what should we analyze"
@@ -951,26 +504,24 @@ user's feedback.
 
 ### Agent Definition
 
-> **Plugin frontmatter note:** Same adaptation as scope-agent. `role` → `description`, custom fields move to body text, `triggers` become `<example>` blocks. See "Plugin Packaging → Agent Frontmatter Adaptation."
-
 ```markdown
 # .claude/plan-agent.md
 ---
 name: plan-agent
 role: Consume a validated scope and produce a project plan
-skills:                                    # DSE-custom: moves to body text in plugin
+skills:
   - task-decomposition
   - dependency-resolution
   - budget-allocation
   - plan-formatting
-reads:                                     # DSE-custom: moves to body text in plugin
-  - scope_artifact.json
-  - cgf-taxonomy.md
-  - skill-registry.md
-  - playbook-registry.md
-writes:                                    # DSE-custom: moves to body text in plugin
-  - plan_artifact.json
-triggers:                                  # DSE-custom: becomes <example> blocks in description
+reads:
+  - scope_artifact.json        # input from Scope Agent
+  - cgf-taxonomy.md            # CGF lifecycle stages and patterns
+  - skill-registry.md          # known skills and their capabilities
+  - playbook-registry.md       # known analytical playbook patterns
+writes:
+  - plan_artifact.json         # final output
+triggers:
   - "scope approved, ready to plan"
   - "create a plan from this scope"
 ---
@@ -1646,40 +1197,32 @@ Phase 1 (Stage 2) is successful when:
 
 ---
 
-## Phase 2: Analyze — Separate Plugin
+## Upgrade Path to Stage 3
 
-The plan_artifact.json produced by Phase 1 (Define) becomes the execution guide for Phase 2 (Analyze). Phase 2 will be a separate Claude Code plugin — **dse-analyze-phase** — listed alongside dse-define-phase in the enterprise marketplace.
+Everything built at Stage 2 maps directly to Stage 3 infrastructure:
 
-### What dse-analyze-phase Contains
+| Stage 2 (Local Agent) | Stage 3 (Cloud Harness) | Change Required |
+|------------------------|------------------------|-----------------|
+| scope-agent.md | AgentRegistration for scope_agent | Add typed input/output schemas, retry policy, timeout |
+| plan-agent.md | AgentRegistration for plan_agent | Add typed input/output schemas, retry policy, timeout |
+| SKILL.md with DSE frontmatter | ToolRegistration with typed interface | Formalize input/output types, add failure mode declarations |
+| scope_artifact.json | ScopeArtifact (same schema) | No change — schema is already Stage 3 compatible |
+| plan_artifact.json | PlanArtifact with DAG semantics | Add edge types, entry conditions, trace view |
+| skill-registry.md | ToolTaxonomy (typed registry) | Formalize into typed data structure |
+| Human approves each transition | Human approves scope + plan, harness executes | Remove human from per-step execution, retain at scope/plan gates |
+| Sequential execution | DAG execution with fan-out | Harness manages parallelism that was documented but not executed |
 
-**19 MVP Skills** (mapped to dse-task-registry.md Layer 2):
+The analytical logic doesn't change. The artifacts are upward-compatible. The upgrade is a packaging exercise.
 
-| Category | Skills |
-|----------|--------|
-| **Ingestion** | data-extraction, schema-profiling, quality-assessment |
-| **Population** | cohort-extraction, sampling |
-| **Transformation** | feature-engineering, metric-computation |
-| **Exploration** | distribution-analysis, correlation-analysis, trend-detection, anomaly-detection, hypothesis-generation |
-| **Analysis** | interval-analysis, signal-detection, statistical-comparison, hypothesis-testing |
-| **Valuation** | roi-computation |
-| **Synthesis** | finding-assembly, narrative-generation |
+---
 
-**7 Playbook Implementations** — the subgraph templates defined in dse-task-registry.md Layer 4, now executable:
-- eda, outcome-roi, stickiness-roi, interval-analysis, signal-processing, hypothesis-validation, sampling
+## Phase 2 Preview: What This Enables
 
-**Execution Agents** — local agents that follow the plan_artifact.json, running skills in the specified order with human approval at checkpoints.
+The plan_artifact.json produced by Phase 1 becomes the execution guide for Phase 2. Phase 2 will introduce:
 
-**Reasoning Scaffolding** — decision log capture at every explore-exploit iteration (DSE Feature F5).
+- **Skill execution agents:** Local agents that follow the plan, running skills in the specified order with human approval at checkpoints.
+- **Starter toolkit:** The 16 MVP skills covering data retrieval through delivery.
+- **Manifest chain:** Each skill produces a manifest that the next skill consumes, creating a traceable execution record.
+- **Skill evolution:** As agents encounter gaps, new skills get built and added to the registry.
 
-### Dependency on Define Phase
-
-dse-analyze-phase depends on dse-define-phase through **artifact preconditions**, not plugin-level dependencies:
-
-- **scope_artifact.json** must exist and be approved (produced by Define's scope-agent)
-- **plan_artifact.json** must exist and be approved (produced by Define's plan-agent)
-
-The Analyze plugin checks for these files at startup via precondition validation (BLUEPRINT.md Principle 2). If they don't exist, it reports what's missing and directs the user to run `/scope` and `/plan` first.
-
-### Manifest Chain
-
-Each Analyze skill produces a manifest that the next skill consumes, creating a traceable execution record. The manifest chain connects back through plan_artifact.json → scope_artifact.json → the original business question. This is the lineage chain described in DSE Feature F7 (Conclusion + Artifact Assembly).
+At Stage 2, Phase 2 execution is still human-approved at each step. At Stage 3, it becomes harness-orchestrated with human oversight at gates. The plan_artifact.json works for both.
