@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Consumer Intelligence Plugin — Interaction Playground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAFAF8;
+  --surface:#FFFFFF;
+  --panel:#F3F1EC;
+  --text:#1A1A18;
+  --muted:#6B6862;
+  --faint:#A8A59E;
+  --line:#E4E0D8;
+  --line-strong:#CFC9BD;
+  --accent:#2D5A3D;
+  --accent-soft:#E7EFE7;
+  --warm:#B8860B;
+  --warm-soft:#F5ECD4;
+  --coral:#C75C3A;
+  --blue:#3A6B8C;
+  --purple:#6B5B8A;
+  --serif:"Fraunces",Georgia,serif;
+  --sans:"DM Sans",-apple-system,BlinkMacSystemFont,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+button{font-family:inherit;color:inherit;cursor:pointer}
+
+/* ───── Top bar ───── */
+.topbar{
+  padding:28px 40px 20px;
+  border-bottom:1px solid var(--line);
+  background:var(--bg);
+}
+.kicker{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--accent);
+  margin:0 0 8px;
+}
+.title{
+  font-family:var(--serif);
+  font-weight:600;
+  font-size:34px;
+  line-height:1.1;
+  margin:0 0 6px;
+  letter-spacing:-.01em;
+}
+.title em{font-style:italic;color:var(--warm);font-weight:400}
+.subtitle{
+  color:var(--muted);
+  font-size:14px;
+  max-width:780px;
+  margin:0;
+}
+
+/* ───── Layout ───── */
+.app{
+  display:grid;
+  grid-template-columns:300px 1fr 320px;
+  gap:0;
+  min-height:calc(100vh - 220px);
+}
+.col{padding:24px 28px;border-right:1px solid var(--line)}
+.col:last-child{border-right:none}
+.col h3{
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin:0 0 10px;
+  font-weight:500;
+}
+.col h3:not(:first-child){margin-top:22px}
+
+/* ───── Sidebar controls ───── */
+.chipset{display:flex;flex-wrap:wrap;gap:6px}
+.chip{
+  border:1px solid var(--line-strong);
+  background:var(--surface);
+  padding:7px 11px;
+  border-radius:3px;
+  font-size:12px;
+  color:var(--text);
+  transition:all .12s;
+}
+.chip:hover{border-color:var(--text)}
+.chip.on{
+  background:var(--text);
+  color:var(--bg);
+  border-color:var(--text);
+}
+.chip[disabled]{
+  opacity:.42;
+  cursor:not-allowed;
+  border-style:dashed;
+}
+.chip[disabled]:hover{border-color:var(--line-strong)}
+
+.radio-list{display:flex;flex-direction:column;gap:6px}
+.radio-row{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding:9px 11px;
+  border:1px solid var(--line);
+  border-radius:3px;
+  background:var(--surface);
+  transition:all .12s;
+  cursor:pointer;
+}
+.radio-row:hover{border-color:var(--line-strong)}
+.radio-row.on{border-color:var(--text);background:var(--panel)}
+.radio-row[data-disabled="true"]{opacity:.45;cursor:not-allowed;border-style:dashed}
+.radio-row[data-disabled="true"]:hover{border-color:var(--line)}
+.radio-dot{
+  width:10px;height:10px;border-radius:50%;
+  border:1px solid var(--line-strong);
+  margin-top:4px;flex-shrink:0;
+}
+.radio-row.on .radio-dot{background:var(--accent);border-color:var(--accent)}
+.radio-body{flex:1;min-width:0}
+.radio-label{font-size:12.5px;font-weight:500}
+.radio-hint{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.35}
+.phase-tag{
+  display:inline-block;
+  font-family:var(--mono);
+  font-size:9.5px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--warm);
+  border:1px solid var(--warm);
+  padding:1px 5px;
+  border-radius:2px;
+  margin-left:6px;
+  vertical-align:1px;
+}
+
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 0;
+  border-bottom:1px dashed var(--line);
+}
+.toggle-row:last-child{border-bottom:none}
+.toggle-row .label{font-size:12px}
+.toggle-row .hint{font-size:10.5px;color:var(--muted);margin-top:1px}
+.switch{
+  width:32px;height:18px;border-radius:10px;
+  background:var(--line-strong);position:relative;border:none;padding:0;flex-shrink:0;
+  transition:background .15s;
+}
+.switch::after{
+  content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;
+  border-radius:50%;background:var(--surface);transition:left .15s;
+}
+.switch.on{background:var(--accent)}
+.switch.on::after{left:16px}
+
+.preset-list{display:flex;flex-direction:column;gap:6px}
+.preset-btn{
+  text-align:left;
+  border:1px solid var(--line);
+  background:var(--surface);
+  padding:10px 12px;
+  border-radius:3px;
+  transition:all .12s;
+}
+.preset-btn:hover{border-color:var(--text);background:var(--panel)}
+.preset-title{font-size:12.5px;font-weight:600;font-family:var(--serif)}
+.preset-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ───── Center column ───── */
+.center{background:var(--surface)}
+.clocks{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:0;
+  border-bottom:1px solid var(--line);
+}
+.clock{padding:18px 22px;border-right:1px solid var(--line)}
+.clock:last-child{border-right:none}
+.clock-kicker{
+  font-family:var(--mono);
+  font-size:9.5px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+.clock-value{
+  font-family:var(--serif);
+  font-size:30px;
+  font-weight:600;
+  line-height:1;
+  letter-spacing:-.02em;
+}
+.clock-unit{font-size:14px;color:var(--muted);font-weight:400;margin-left:3px}
+.clock-note{font-size:10.5px;color:var(--muted);margin-top:5px}
+.clock.friction .clock-value{color:var(--accent)}
+.clock.friction.med .clock-value{color:var(--warm)}
+.clock.friction.high .clock-value{color:var(--coral)}
+
+.flow{padding:22px 32px 40px}
+.flow-header{
+  display:flex;align-items:baseline;justify-content:space-between;
+  border-bottom:1px dashed var(--line);
+  padding-bottom:10px;margin-bottom:16px;
+}
+.flow-title{
+  font-family:var(--serif);
+  font-size:18px;
+  font-weight:600;
+  margin:0;
+}
+.flow-meta{
+  font-family:var(--mono);
+  font-size:10.5px;
+  color:var(--muted);
+  letter-spacing:.04em;
+}
+
+.turn{
+  display:grid;
+  grid-template-columns:64px 1fr;
+  gap:14px;
+  padding:14px 0;
+  border-bottom:1px dashed var(--line);
+}
+.turn:last-child{border-bottom:none}
+.turn-who{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+  padding-top:3px;
+}
+.turn.user .turn-who{color:var(--blue)}
+.turn.claude .turn-who{color:var(--accent)}
+.turn.engine .turn-who{color:var(--warm)}
+.turn-body{min-width:0}
+.turn-msg{font-size:13.5px;line-height:1.55}
+.turn-msg code{font-family:var(--mono);font-size:12px;background:var(--panel);padding:1px 5px;border-radius:2px}
+.turn-foot{
+  display:flex;gap:14px;flex-wrap:wrap;
+  font-family:var(--mono);
+  font-size:10.5px;
+  color:var(--faint);
+  margin-top:7px;
+}
+.turn-foot b{color:var(--muted);font-weight:500}
+
+.stages{
+  margin-top:10px;
+  background:var(--panel);
+  border-left:2px solid var(--warm);
+  padding:10px 14px;
+}
+.followup{
+  margin:28px 0 0;
+  border:1px solid var(--line);
+  border-left:3px solid var(--coral);
+  background:var(--surface);
+  padding:16px 20px;
+  border-radius:3px;
+}
+.followup h4{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--coral);
+  margin:0 0 6px;
+  font-weight:500;
+}
+.followup .lede{
+  font-family:var(--serif);
+  font-size:15px;
+  font-weight:600;
+  margin:0 0 10px;
+  line-height:1.35;
+}
+.followup p{font-size:12.5px;color:var(--muted);margin:0 0 10px;line-height:1.55}
+.followup .gap{
+  display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;
+  padding-top:12px;border-top:1px dashed var(--line);
+}
+.followup .gap h5{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 4px;font-weight:500;
+}
+.followup .gap p{font-size:11.5px;color:var(--text);margin:0;line-height:1.5}
+.followup code{font-family:var(--mono);font-size:11.5px;background:var(--panel);padding:1px 5px;border-radius:2px}
+.stage-row{
+  display:grid;grid-template-columns:1fr auto;
+  gap:10px;
+  padding:3px 0;
+  font-family:var(--mono);
+  font-size:11px;
+}
+.stage-row .label{color:var(--text)}
+.stage-row .time{color:var(--muted)}
+.stage-row.scales .time::after{
+  content:" ·×";
+  color:var(--warm);
+}
+
+/* ───── Right column ───── */
+.harness-card{
+  border:1px solid var(--line);
+  border-radius:3px;
+  background:var(--surface);
+  margin-bottom:12px;
+  overflow:hidden;
+}
+.harness-head{
+  padding:9px 12px;
+  background:var(--panel);
+  border-bottom:1px solid var(--line);
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.harness-head .count{color:var(--accent);font-weight:500}
+.harness-list{padding:8px 12px;display:flex;flex-wrap:wrap;gap:4px}
+.hitem{
+  font-family:var(--mono);
+  font-size:10.5px;
+  padding:3px 7px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:2px;
+  color:var(--text);
+}
+.hitem.pending{
+  color:var(--faint);
+  border-style:dashed;
+}
+.hitem.pending::after{
+  content:" ⌛";
+}
+.manifest-note{
+  font-size:11px;
+  color:var(--muted);
+  padding:10px 12px;
+  line-height:1.5;
+  border-top:1px dashed var(--line);
+  background:var(--bg);
+}
+
+/* ───── Phase rail footer ───── */
+.rail{
+  border-top:1px solid var(--line);
+  background:var(--panel);
+  padding:18px 40px;
+}
+.rail-head{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:10px;
+}
+.rail-track{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:12px;
+}
+.rail-stop{
+  border:1px solid var(--line);
+  background:var(--surface);
+  padding:11px 13px;
+  border-radius:3px;
+}
+.rail-stop.active{
+  border-color:var(--accent);
+  background:var(--accent-soft);
+}
+.rail-stop .idx{
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--muted);
+  letter-spacing:.1em;
+}
+.rail-stop.active .idx{color:var(--accent)}
+.rail-stop .name{
+  font-family:var(--serif);
+  font-size:14px;
+  font-weight:600;
+  margin-top:2px;
+}
+.rail-stop .desc{
+  font-size:10.5px;
+  color:var(--muted);
+  margin-top:3px;
+  line-height:1.4;
+}
+
+@media (max-width:1180px){
+  .app{grid-template-columns:260px 1fr 280px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <p class="kicker">Phase 0 · Governed Analysis Cycle</p>
+  <h1 class="title">Consumer Intelligence Plugin <em>— Interaction Playground</em></h1>
+  <p class="subtitle">How a business user asks a question and gets to insight. Move the controls to see turn count, user-active time, and engine time shift. Harness composition on the right shows which plugin components wake up for each task.</p>
+</header>
+
+<main class="app">
+
+  <!-- ───── Sidebar ───── -->
+  <aside class="col">
+    <h3>Question Type</h3>
+    <div class="chipset" id="questionCtl"></div>
+
+    <h3>Query Complexity</h3>
+    <div class="chipset" id="complexityCtl"></div>
+
+    <h3>Delivery Mode</h3>
+    <div class="radio-list" id="deliveryCtl"></div>
+
+    <h3>User Type</h3>
+    <div class="chipset" id="userCtl"></div>
+
+    <h3>Framing</h3>
+    <div class="toggle-row">
+      <div>
+        <div class="label">Vague question</div>
+        <div class="hint">scope-agent asks clarifiers first</div>
+      </div>
+      <button class="switch" id="vagueTog" aria-label="Vague question"></button>
+    </div>
+    <div class="toggle-row">
+      <div>
+        <div class="label">Show audit trail</div>
+        <div class="hint">scope + plan + decision-log references</div>
+      </div>
+      <button class="switch on" id="auditTog" aria-label="Audit trail"></button>
+    </div>
+
+    <h3>Future Phases</h3>
+    <div class="radio-list">
+      <div class="radio-row" data-disabled="true">
+        <div class="radio-dot"></div>
+        <div class="radio-body">
+          <div class="radio-label">Pre-scoped user <span class="phase-tag">Phase 1</span></div>
+          <div class="radio-hint">Segment + cadence already known.</div>
+        </div>
+      </div>
+      <div class="radio-row" data-disabled="true">
+        <div class="radio-dot"></div>
+        <div class="radio-body">
+          <div class="radio-label">Proactive briefing <span class="phase-tag">Phase 3</span></div>
+          <div class="radio-hint">Insight already waiting at t=0.</div>
+        </div>
+      </div>
+      <div class="radio-row" data-disabled="true">
+        <div class="radio-dot"></div>
+        <div class="radio-body">
+          <div class="radio-label">Governed maturation <span class="phase-tag">Phase 4</span></div>
+          <div class="radio-hint">Playbook promotion loop.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Presets</h3>
+    <div class="preset-list" id="presetCtl"></div>
+  </aside>
+
+  <!-- ───── Center ───── -->
+  <section class="col center" style="padding:0">
+    <div class="clocks">
+      <div class="clock">
+        <div class="clock-kicker">User Active</div>
+        <div class="clock-value" id="clkUser">—<span class="clock-unit">s</span></div>
+        <div class="clock-note">The friction metric. What the user feels.</div>
+      </div>
+      <div class="clock">
+        <div class="clock-kicker">Engine Running</div>
+        <div class="clock-value" id="clkEngine">—<span class="clock-unit">s</span></div>
+        <div class="clock-note">Wall-clock SQL + LLM compute.</div>
+      </div>
+      <div class="clock friction" id="clkFricWrap">
+        <div class="clock-kicker">Friction</div>
+        <div class="clock-value" id="clkFric">—</div>
+        <div class="clock-note" id="clkFricNote">Based on user-active time only.</div>
+      </div>
+    </div>
+
+    <div class="flow">
+      <div class="flow-header">
+        <h2 class="flow-title" id="flowTitle"></h2>
+        <div class="flow-meta" id="flowMeta"></div>
+      </div>
+      <div id="flowBody"></div>
+
+      <aside class="followup">
+        <h4>Follow-up handling — the thread already exists</h4>
+        <p class="lede">Claude Code and Cowork own the conversation. The plugin shouldn't reinvent session memory — it should let the skills branch inside the thread that's already there.</p>
+        <p>The mistake would be treating <code>/scope</code> as the only door in. In-thread, a follow-up like <em>"now decompose that by tenure bucket"</em> is not a new scope — it's a <b>refinement</b> of the scope that's already sitting in context two turns up. The scope-agent and plan-agent should recognize that and branch, not cold-restart.</p>
+
+        <div class="gap">
+          <div>
+            <h5>What the host gives us free</h5>
+            <p>Full conversation history. The prior <code>scope_artifact.json</code> is on disk and the narrative is in the thread. No session store needed — Claude can read both.</p>
+          </div>
+          <div>
+            <h5>What the plugin must do</h5>
+            <p>Design skills that <b>branch naturally</b>: detect existing scope in context, offer <i>refine / extend / fork</i> paths, and skip the cold clarifier tax when the answer is already one artifact away.</p>
+          </div>
+        </div>
+
+        <div class="gap">
+          <div>
+            <h5>Skill affordances to add</h5>
+            <p><b>scope-refinement</b> (narrow an existing scope without re-asking intent), <b>plan-extension</b> (append a branch to a live plan), <b>result-decomposition</b> (split a delivered metric along a new dimension). All read the most recent artifact from disk; none require a session index.</p>
+          </div>
+          <div>
+            <h5>What that changes in the flows above</h5>
+            <p>Follow-ups cost <b>1–2 turns</b>, not 5. The user says "decompose by tenure," <code>scope-refinement</code> reuses the locked scope, <code>plan-extension</code> appends one SQL pass, and results flow back. No new <code>/scope</code>, no re-clarification, no new decision log entry — just an amended one.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ───── Right column ───── -->
+  <aside class="col">
+    <h3>Harness — Phase 0 Live</h3>
+
+    <div class="harness-card">
+      <div class="harness-head"><span>Subagents</span><span class="count">2</span></div>
+      <div class="harness-list">
+        <span class="hitem">scope-agent</span>
+        <span class="hitem">plan-agent</span>
+      </div>
+    </div>
+
+    <div class="harness-card">
+      <div class="harness-head"><span>Hooks active</span><span class="count">6</span></div>
+      <div class="harness-list">
+        <span class="hitem">artifact-guard</span>
+        <span class="hitem">sql-interceptor</span>
+        <span class="hitem">decision-log-gate</span>
+        <span class="hitem">strategic-compact</span>
+        <span class="hitem">artifact-schema-validator</span>
+        <span class="hitem">decision-reminder</span>
+      </div>
+    </div>
+
+    <div class="harness-card">
+      <div class="harness-head"><span>Define skills</span><span class="count">3</span></div>
+      <div class="harness-list">
+        <span class="hitem">scope-authoring</span>
+        <span class="hitem">plan-authoring</span>
+        <span class="hitem">decision-logging</span>
+      </div>
+    </div>
+
+    <div class="harness-card">
+      <div class="harness-head"><span>Analyze skills</span><span class="count">invoked</span></div>
+      <div class="harness-list" id="analyzeSkills"></div>
+      <div class="manifest-note">Invoked through plans but <b>not yet orchestrated</b> by the runtime DAG executor. Phase 0 ships the scoping and planning spine; Analyze orchestration lands in Phase 2.</div>
+    </div>
+
+    <div class="harness-card">
+      <div class="harness-head"><span>Artifacts written</span></div>
+      <div class="harness-list">
+        <span class="hitem">scope_artifact.json</span>
+        <span class="hitem">plan_artifact.json</span>
+        <span class="hitem">decision_log.json</span>
+        <span class="hitem">audit/query_log.jsonl</span>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<!-- ───── Phase rail ───── -->
+<footer class="rail">
+  <div class="rail-head">Roadmap — you are here</div>
+  <div class="rail-track">
+    <div class="rail-stop active">
+      <div class="idx">PHASE 0</div>
+      <div class="name">Governed Cycle</div>
+      <div class="desc">Define plugin live. Scope → plan → logged SQL → audit.</div>
+    </div>
+    <div class="rail-stop">
+      <div class="idx">PHASE 1</div>
+      <div class="name">User Awareness</div>
+      <div class="desc">Segment + cadence memory. Warm starts.</div>
+    </div>
+    <div class="rail-stop">
+      <div class="idx">PHASE 2</div>
+      <div class="name">Cowork + Async</div>
+      <div class="desc">Push delivery. DAG-orchestrated analyze.</div>
+    </div>
+    <div class="rail-stop">
+      <div class="idx">PHASE 3</div>
+      <div class="name">Proactive Briefings</div>
+      <div class="desc">Scheduled intelligence. Insight-waiting.</div>
+    </div>
+    <div class="rail-stop">
+      <div class="idx">PHASE 4</div>
+      <div class="name">Governed Maturation</div>
+      <div class="desc">Playbook promotion loop.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ───── Data ───── */
+
+const QUESTIONS = [
+  {key:'metric',    label:'Metric ask'},
+  {key:'research',  label:'Data research'},
+  {key:'meeting',   label:'Meeting prep'},
+  {key:'invest',    label:'Investigation'},
+];
+
+const COMPLEXITY = {
+  simple:   {label:'Simple',   mult:{author:1, exec:1,  qa:1}, hint:'single table, direct aggregate'},
+  moderate: {label:'Moderate', mult:{author:2, exec:6,  qa:2}, hint:'CTEs, a join, windowed metric'},
+  complex:  {label:'Complex',  mult:{author:3, exec:18, qa:4}, hint:'percentiles, multi-table joins, billions of rows'},
+};
+
+const DELIVERY = [
+  {key:'wait',        label:'Wait on screen',         hint:'User stays in chat until results land.', phase:0, disabled:false},
+  {key:'async-ping',  label:'Async ping back',        hint:'Engine runs detached; pings chat when ready.', phase:0, disabled:false},
+  {key:'email',       label:'Email drop',             hint:'Full narrative + charts delivered to inbox.', phase:0, disabled:false},
+  {key:'doc-drop',    label:'Doc drop',               hint:'Written to shared doc; link returned.', phase:0, disabled:false},
+  {key:'cowork-push', label:'Cowork proactive push',  hint:'Briefing surfaced in Cowork timeline.', phase:2, disabled:true},
+];
+
+const USERS = [
+  {key:'manager', label:'Marketing manager'},
+  {key:'ds',      label:'DS leader'},
+  {key:'vp',      label:'VP'},
+];
+
+const ANALYZE_SKILLS = [
+  'cohort-extraction','sampling','metric-compute','windowed-aggregate',
+  'percentile-estimate','interval-analysis','hypothesis-test','outcome-roi',
+  'stickiness','signal-smooth','narrative-synthesis','evidence-linker','chart-author',
+];
+
+/* stage helper */
+const stage = (label, sec, scaleKey=null) => ({label, sec, scaleKey});
+
+/* turn helpers */
+const t = {
+  user:   (msg, userSec, refs=[])            => ({who:'user',   msg, userSec, engineSec:0, refs}),
+  claude: (msg, userSec, engineSec=4, refs=[]) => ({who:'claude', msg, userSec, engineSec, refs}),
+  engine: (msg, stages, refs=[])             => ({who:'engine', msg, userSec:0, engineSec:0, stages, refs}),
+};
+
+/* ───── Flows ───── */
+
+const FLOWS = {
+  metric: {
+    title:'Metric ask — “what’s happening” frame',
+    turns:[
+      t.user('<code>/scope</code> what was churn in segment 4 last week vs the prior 4-week average?', 14),
+      t.claude('Scoping this against the <code>customer_activity</code> mart. Confirming segment 4 = high-LTV reactivated — is that right?', 6, 3, ['scope_artifact']),
+      t.user('Yes, that one.', 3),
+      t.claude('Plan: pull weekly churn rate by segment, overlay 4-week trailing mean, flag deltas > 1σ. Running now.', 4, 4, ['plan_artifact','decision_log']),
+      t.engine('Resolving plan → SQL → execution → QA → narrative.', [
+        stage('scope lock',        2),
+        stage('plan → DAG',        3),
+        stage('sql-author',        5, 'author'),
+        stage('sql-execute',       8, 'exec'),
+        stage('qa-gate',           3, 'qa'),
+        stage('narrative',         6),
+      ], ['audit/query_log']),
+      t.claude('Churn rose to 2.4% (vs 1.6% trailing mean — +50%). Spike is concentrated in days 3–4, not gradual. Want me to decompose by tenure bucket?', 12),
+    ],
+    vagueExtra:[
+      t.user('<code>/scope</code> why is engagement weird in segment 4?', 10),
+      t.claude('"Weird" is load-bearing — do you mean volume, frequency, or session length? And what window are we comparing?', 5, 3),
+      t.user('Session length, last week vs the month before.', 8),
+    ],
+  },
+
+  research: {
+    title:'Data research — “why it happened” frame',
+    turns:[
+      t.user('<code>/scope</code> I need to understand why engagement dropped in segment 4. Not just confirm it dropped — why.', 18),
+      t.claude('This is a causal ask, so I’m scoping a multi-step investigation plan. Three candidate frames: cohort drift, feature exposure change, seasonality. Do you want me to run all three or start with one?', 12, 5, ['scope_artifact']),
+      t.user('All three.', 2),
+      t.claude('Plan logged. This is ~6 SQL passes plus a hypothesis test. Kicking off.', 4, 4, ['plan_artifact','decision_log']),
+      t.engine('Parallel cohort + exposure + seasonality decomposition.', [
+        stage('scope lock',          3),
+        stage('plan → DAG',          5),
+        stage('sql-author · 6 queries', 14, 'author'),
+        stage('sql-execute · parallel', 22, 'exec'),
+        stage('qa-gate',             6, 'qa'),
+        stage('hypothesis test',     4),
+        stage('narrative synthesis', 9),
+      ], ['audit/query_log']),
+      t.claude('Cohort drift explains ~60% of the drop: a new-user wave from a campaign in week 2 has lower baseline engagement. Exposure change contributes ~25% (a UI variant). Seasonality is negligible. Want the evidence charts?', 20),
+    ],
+  },
+
+  meeting: {
+    title:'Meeting prep — roll-up frame',
+    turns:[
+      t.user('<code>/scope</code> I have a VP review in 20 minutes — give me the segment-4 story, top 3 moves, and the chart I’ll get asked for.', 16),
+      t.claude('Pulling the weekly roll-up + the three most-pressed-on metrics from last quarter’s review. Deliverable: a one-pager with headline, supporting chart, and risks.', 7, 4, ['scope_artifact']),
+      t.engine('Building roll-up + narrative + chart.', [
+        stage('scope lock',    2),
+        stage('plan → DAG',    2),
+        stage('sql-author',    4, 'author'),
+        stage('sql-execute',   6, 'exec'),
+        stage('qa-gate',       2, 'qa'),
+        stage('chart author',  4),
+        stage('narrative',     6),
+      ], ['plan_artifact','audit/query_log']),
+      t.claude('One-pager ready. Headline: segment 4 down 50% WoW, driven by cohort drift not product. Top 3 asks to expect: “is this the campaign?”, “are we refunding?”, “what’s the recovery curve?” — I have answers pre-loaded for each.', 22),
+    ],
+  },
+
+  invest: {
+    title:'Investigation — “what it was worth” frame',
+    turns:[
+      t.user('<code>/scope</code> we rolled out feature F to segment 4 six weeks ago. Did it move retention and was it worth it?', 16),
+      t.claude('Scoping an ROI investigation: treatment/control split, retention lift test, cost attribution. Checking whether a clean control exists.', 9, 5, ['scope_artifact']),
+      t.claude('Good news — the rollout was staged, so weeks 1–2 give us a natural control. Plan logged. This is 8 queries plus a hypothesis test plus a cost join.', 6, 4, ['plan_artifact','decision_log']),
+      t.engine('Running the full outcome-ROI playbook.', [
+        stage('scope lock',           4),
+        stage('plan → DAG',           6),
+        stage('sql-author · 8 queries', 18, 'author'),
+        stage('sql-execute · parallel', 30, 'exec'),
+        stage('qa-gate',              8, 'qa'),
+        stage('hypothesis test',      5),
+        stage('cost attribution',     4),
+        stage('narrative + charts',  12),
+      ], ['audit/query_log']),
+      t.claude('Feature F lifted 30-day retention by 3.1 points (p=0.02). Net-of-cost, that’s ~$142k over the 6-week window. Worth it — but the lift is concentrated in the top LTV tercile; bottom tercile is flat. Want me to draft a targeting recommendation?', 28),
+    ],
+  },
+};
+
+/* ───── Presets ───── */
+
+const PRESETS = [
+  {key:'cold-metric-wait', title:'Cold metric ask, wait-on-screen', sub:'Simplest case. ~90s friction.',
+    apply:{question:'metric', complexity:'simple', delivery:'wait', userType:'manager', vague:false, audit:true}},
+  {key:'vague-moderate',   title:'Vague question, moderate query', sub:'Clarifier turns + scope lock.',
+    apply:{question:'metric', complexity:'moderate', delivery:'wait', userType:'manager', vague:true, audit:true}},
+  {key:'research-email',   title:'Deep research, email delivery', sub:'Engine runs long. User-active collapses.',
+    apply:{question:'research', complexity:'complex', delivery:'email', userType:'ds', vague:false, audit:true}},
+  {key:'meeting-doc',      title:'Meeting prep, doc drop', sub:'VP 15-min warning. Roll-up playbook.',
+    apply:{question:'meeting', complexity:'moderate', delivery:'doc-drop', userType:'vp', vague:false, audit:true}},
+  {key:'invest-async',     title:'Investigation, async ping', sub:'Best friction for heavy compute.',
+    apply:{question:'invest', complexity:'complex', delivery:'async-ping', userType:'ds', vague:false, audit:true}},
+];
+
+/* ───── State ───── */
+
+const DEFAULTS = {
+  question:'metric',
+  complexity:'simple',
+  delivery:'wait',
+  userType:'manager',
+  vague:false,
+  audit:true,
+};
+const state = {...DEFAULTS};
+
+/* ───── Rendering ───── */
+
+function el(tag, attrs={}, ...children){
+  const n = document.createElement(tag);
+  for(const [k,v] of Object.entries(attrs)){
+    if(k==='class') n.className=v;
+    else if(k==='html') n.innerHTML=v;
+    else if(k.startsWith('on')) n.addEventListener(k.slice(2),v);
+    else n.setAttribute(k,v);
+  }
+  for(const c of children) if(c!=null) n.append(c.nodeType?c:document.createTextNode(c));
+  return n;
+}
+
+function renderControls(){
+  // Question chips
+  const qCtl = document.getElementById('questionCtl');
+  qCtl.innerHTML='';
+  QUESTIONS.forEach(q=>{
+    const b = el('button',{class:'chip'+(state.question===q.key?' on':''),
+      onclick:()=>{state.question=q.key;updateAll();}}, q.label);
+    qCtl.append(b);
+  });
+
+  // Complexity chips
+  const cCtl = document.getElementById('complexityCtl');
+  cCtl.innerHTML='';
+  Object.entries(COMPLEXITY).forEach(([k,v])=>{
+    const b = el('button',{class:'chip'+(state.complexity===k?' on':''),
+      title:v.hint,
+      onclick:()=>{state.complexity=k;updateAll();}}, v.label);
+    cCtl.append(b);
+  });
+
+  // Delivery radios
+  const dCtl = document.getElementById('deliveryCtl');
+  dCtl.innerHTML='';
+  DELIVERY.forEach(d=>{
+    const row = el('div',{
+      class:'radio-row'+(state.delivery===d.key?' on':''),
+      'data-disabled':d.disabled?'true':'false',
+      onclick:()=>{if(!d.disabled){state.delivery=d.key;updateAll();}}
+    });
+    row.append(el('div',{class:'radio-dot'}));
+    const body = el('div',{class:'radio-body'});
+    const lbl = el('div',{class:'radio-label'}, d.label);
+    if(d.phase>0){
+      lbl.append(el('span',{class:'phase-tag'}, 'Phase '+d.phase));
+    }
+    body.append(lbl, el('div',{class:'radio-hint'}, d.hint));
+    row.append(body);
+    dCtl.append(row);
+  });
+
+  // User chips
+  const uCtl = document.getElementById('userCtl');
+  uCtl.innerHTML='';
+  USERS.forEach(u=>{
+    const b = el('button',{class:'chip'+(state.userType===u.key?' on':''),
+      onclick:()=>{state.userType=u.key;updateAll();}}, u.label);
+    uCtl.append(b);
+  });
+
+  // Toggles
+  const vt = document.getElementById('vagueTog');
+  vt.className = 'switch'+(state.vague?' on':'');
+  vt.onclick = ()=>{state.vague=!state.vague;updateAll();};
+  const at = document.getElementById('auditTog');
+  at.className = 'switch'+(state.audit?' on':'');
+  at.onclick = ()=>{state.audit=!state.audit;updateAll();};
+
+  // Presets
+  const pCtl = document.getElementById('presetCtl');
+  pCtl.innerHTML='';
+  PRESETS.forEach(p=>{
+    const b = el('button',{class:'preset-btn',
+      onclick:()=>{Object.assign(state,p.apply);updateAll();}});
+    b.append(
+      el('div',{class:'preset-title'}, p.title),
+      el('div',{class:'preset-sub'}, p.sub),
+    );
+    pCtl.append(b);
+  });
+
+  // Analyze skills (static, rendered once)
+  const aSk = document.getElementById('analyzeSkills');
+  if(!aSk.children.length){
+    ANALYZE_SKILLS.forEach(s => aSk.append(el('span',{class:'hitem pending'}, s)));
+  }
+}
+
+function computeStages(stages){
+  const mult = COMPLEXITY[state.complexity].mult;
+  return stages.map(s=>({
+    ...s,
+    sec: s.scaleKey ? Math.round(s.sec * mult[s.scaleKey]) : s.sec,
+    scales: !!s.scaleKey,
+  }));
+}
+
+function renderFlow(){
+  const flow = FLOWS[state.question];
+  document.getElementById('flowTitle').textContent = flow.title;
+
+  const baseTurns = [...(state.vague && flow.vagueExtra ? flow.vagueExtra : []), ...flow.turns];
+
+  let userTotal = 0;
+  let engineTotal = 0;
+
+  const body = document.getElementById('flowBody');
+  body.innerHTML='';
+
+  baseTurns.forEach(turn=>{
+    const row = el('div',{class:'turn '+turn.who});
+    row.append(el('div',{class:'turn-who'}, turn.who==='user'?'User':turn.who==='claude'?'Claude':'Engine'));
+    const bodyCol = el('div',{class:'turn-body'});
+    bodyCol.append(el('div',{class:'turn-msg',html:turn.msg}));
+
+    let turnUserSec = turn.userSec || 0;
+    let turnEngineSec = turn.engineSec || 0;
+
+    // Engine turn with stages
+    if(turn.who==='engine' && turn.stages){
+      const scaled = computeStages(turn.stages);
+      turnEngineSec = scaled.reduce((a,b)=>a+b.sec,0);
+      const st = el('div',{class:'stages'});
+      scaled.forEach(s=>{
+        st.append(el('div',{class:'stage-row'+(s.scales?' scales':'')},
+          el('span',{class:'label'}, s.label),
+          el('span',{class:'time'}, s.sec+'s'),
+        ));
+      });
+      bodyCol.append(st);
+
+      // If user is waiting on screen, engine time counts toward user-active.
+      if(state.delivery==='wait'){
+        turnUserSec = turnEngineSec;
+      }
+    }
+
+    // Audit refs
+    if(state.audit && turn.refs && turn.refs.length){
+      const foot = el('div',{class:'turn-foot'});
+      foot.append(el('span',{},el('b',{},'refs: '), turn.refs.join(' · ')));
+      if(turnUserSec) foot.append(el('span',{},el('b',{},'user: '), turnUserSec+'s'));
+      if(turnEngineSec) foot.append(el('span',{},el('b',{},'engine: '), turnEngineSec+'s'));
+      bodyCol.append(foot);
+    } else {
+      const foot = el('div',{class:'turn-foot'});
+      if(turnUserSec) foot.append(el('span',{},el('b',{},'user: '), turnUserSec+'s'));
+      if(turnEngineSec) foot.append(el('span',{},el('b',{},'engine: '), turnEngineSec+'s'));
+      if(foot.children.length) bodyCol.append(foot);
+    }
+
+    row.append(bodyCol);
+    body.append(row);
+
+    userTotal += turnUserSec;
+    engineTotal += turnEngineSec;
+  });
+
+  // Meta line
+  const turnCount = baseTurns.length;
+  document.getElementById('flowMeta').textContent =
+    `${turnCount} turns · ${QUESTIONS.find(q=>q.key===state.question).label} · ${COMPLEXITY[state.complexity].label} query · ${DELIVERY.find(d=>d.key===state.delivery).label}`;
+
+  // Clocks
+  document.getElementById('clkUser').innerHTML = fmtTime(userTotal);
+  document.getElementById('clkEngine').innerHTML = fmtTime(engineTotal);
+
+  const fricEl = document.getElementById('clkFric');
+  const fricWrap = document.getElementById('clkFricWrap');
+  const note = document.getElementById('clkFricNote');
+  fricWrap.classList.remove('med','high');
+  if(userTotal < 90){
+    fricEl.textContent = 'Low';
+    note.textContent = `Under 90s of attention · engine time ${fmtPlain(engineTotal)}`;
+  } else if(userTotal < 180){
+    fricWrap.classList.add('med');
+    fricEl.textContent = 'Medium';
+    note.textContent = `~${Math.round(userTotal)}s of attention · borderline`;
+  } else {
+    fricWrap.classList.add('high');
+    fricEl.textContent = 'High';
+    note.textContent = `${fmtPlain(userTotal)} of attention · consider async`;
+  }
+}
+
+function fmtTime(sec){
+  if(sec<=0) return '—<span class="clock-unit">s</span>';
+  if(sec<90) return sec+'<span class="clock-unit">s</span>';
+  const m = Math.floor(sec/60), s=sec%60;
+  return m+'<span class="clock-unit">m '+s+'s</span>';
+}
+function fmtPlain(sec){
+  if(sec<90) return sec+'s';
+  const m = Math.floor(sec/60), s=sec%60;
+  return m+'m '+s+'s';
+}
+
+function updateAll(){
+  renderControls();
+  renderFlow();
+}
+
+updateAll();
+</script>
+</body>
+</html>
